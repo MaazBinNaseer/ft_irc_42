@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <sys/socket.h>
+#include <sstream>
 #include <cstring>
 #include <vector>
 #include <cstdlib>
@@ -25,8 +26,9 @@ class Server
     public:
         char    buffer[256];
         void     SocketCreation();
-        void     BindSocket();
+        void     BindSocket(char *argv);
         void     ListenSocket();
+        void     CheckForPort(int port);
         void     AcceptConnection();
                  Server();
                 ~Server();

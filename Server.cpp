@@ -16,10 +16,25 @@ void Server::SocketCreation()
     std::cout << "Server fd: " << this->server_fd << std::endl;
 }
 
-void Server::BindSocket()
+void Server::CheckForPort(int port)
 {
+      if (port < 1024 || port > 65535) 
+      {
+        std::cout << "Error: Invalid port number. Choose a port between 1025 and 65535 " << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void Server::BindSocket(char *argv)
+{
+    std::stringstream stream(argv);
+
+    int int_port;
+    stream >> int_port;
+
+    this->CheckForPort(int_port);
     this->address.sin_family = AF_INET;
-    this->address.sin_port = htons(8080);
+    this->address.sin_port = htons(int_port);
     this->address.sin_addr.s_addr = INADDR_ANY;
     if(bind(this->server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
     {

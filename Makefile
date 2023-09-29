@@ -1,28 +1,30 @@
 NAME = ircserv
-
+OBJDIR = obj
 SRCS = main.cpp Server.cpp
 
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 CC = c++
-
 CXXFLAGS = -g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 
 RM = rm -fr
 
 all: $(NAME)
 
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
 $(NAME): $(OBJS)
 	$(CC) $(CXXFLAGS) -o $(NAME) $(OBJS)
 
-%.o: %.cpp
+$(OBJDIR)/%.o: %.cpp | $(OBJDIR)
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS)
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(OBJDIR)
 
 re: fclean all
 

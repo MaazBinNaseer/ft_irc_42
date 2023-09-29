@@ -22,7 +22,6 @@ class Server
         struct addrinfo     *res;
         int                 new_socket;
 
-
     public:
         char    buffer[256];
         void     SocketCreation();
@@ -32,6 +31,10 @@ class Server
         void     AcceptConnection();
                  Server();
                 ~Server();
+        void printDetails() const 
+        {
+        std::cout << "Server FD: " << server_fd << ", Port: " << ntohs(address.sin_port) << std::endl;
+        }
 
 };
 

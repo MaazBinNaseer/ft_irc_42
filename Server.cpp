@@ -66,12 +66,4 @@ void Server::AcceptConnection()
     std::cout << "Accpetance Function " << (socklen_t*)&address <<  "New Socket fd" << this->new_socket << std::endl; 
 }
 Server::~Server() 
-{
-    if(server_fd != -1) {
-        close(server_fd);
-    }
-
-    if(new_socket != -1) {
-        close(new_socket);
-    }
-}
+{}

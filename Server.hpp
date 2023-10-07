@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <map>
+#include <poll.h>
 #include <unistd.h>
 #include <exception>
 #include <netinet/in.h>
@@ -23,7 +24,7 @@ class Server
         struct sockaddr_in  address;
         struct addrinfo     *res;
         int                 new_socket;
-        std::vector<int>    client_fds;
+        std::vector<pollfd>    client_fds;
 
     public:
         char    buffer[256];
@@ -31,7 +32,8 @@ class Server
         void     BindSocket(char *argv);
         void     ListenSocket();
         void     CheckForPort(int port);
-        int     AcceptConnection();
+        int      AcceptConnection();
+        void     HandleClients();
                  Server();
                 ~Server();
       

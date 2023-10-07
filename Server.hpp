@@ -1,6 +1,8 @@
 #ifndef Server_HPP
 #define Server_HPP
 
+#define BOLD_RED "\033[1;31m"
+#define RESET "\033[0m"
 
 #include <iostream>
 #include <sys/socket.h>
@@ -17,10 +19,11 @@
 class Server
 {
     private:
-        int                 server_fd;
+        int   server_fd;
         struct sockaddr_in  address;
         struct addrinfo     *res;
         int                 new_socket;
+        std::vector<int>    client_fds;
 
     public:
         char    buffer[256];
@@ -28,13 +31,10 @@ class Server
         void     BindSocket(char *argv);
         void     ListenSocket();
         void     CheckForPort(int port);
-        void     AcceptConnection();
+        int     AcceptConnection();
                  Server();
                 ~Server();
-        void printDetails() const 
-        {
-        std::cout << "Server FD: " << server_fd << ", Port: " << ntohs(address.sin_port) << std::endl;
-        }
+      
 
 };
 

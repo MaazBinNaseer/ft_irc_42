@@ -2,32 +2,21 @@
 
 int main(int argc, char **argv)
 {
-    // (void)argc;
-    // Server a1;
-    // a1.SocketCreation();
-    // a1.BindSocket(argv[1]);
-    // a1.ListenSocket();
-    // a1.AcceptConnection();
-
-    std::vector<Server> servers;
-
-    for (int i = 1; i < argc; i++) 
+    if(argc > 1 && argc < 4)
     {
-        Server serverInstance;
-
-        serverInstance.SocketCreation();
-        serverInstance.BindSocket(argv[i]);
-        serverInstance.ListenSocket();
-
-        servers.push_back(serverInstance);
-
-        serverInstance.printDetails();
+        Server a1;
+        a1.SocketCreation();
+        a1.BindSocket(argv[1]);
+        a1.ListenSocket();
+        int x = a1.AcceptConnection();
+        close(x);
+    }
+    else
+    {
+        std::cout << BOLD_RED << "Error: Input should be ./ircserv <port_number> <password>" << RESET << std::endl;
+        return (1);
     }
 
-    while(true) //* Right now accepting one 
-    {
-        servers[0].AcceptConnection();
-    }
 
     return (0);
 }

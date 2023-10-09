@@ -109,7 +109,7 @@ void Server::HandleClients()
                 client_fds.erase(client_fds.begin() + i);
                 i--; // Adjust index after removing
 			}
-            // } {
+            // } else {
             //     // send(client_fds[i].fd, buffer, valread, 0); Needed in case of debugging (it will send back the string to the client)
             // }
         }

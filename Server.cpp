@@ -103,6 +103,7 @@ void Server::HandleClients()
     for (size_t i = 1; i < client_fds.size(); i++) {
         if (client_fds[i].revents & POLLIN) {
             int valread = recv(client_fds[i].fd, buffer, sizeof(buffer), 0);
+            std::memset(buffer + valread, 0, 1024 - valread);
             if (valread <= 0) {
                 close(client_fds[i].fd);
                 client_fds.erase(client_fds.begin() + i);

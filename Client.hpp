@@ -12,10 +12,13 @@
 
 class Client
 {
-    private: 
-        int     client_fd;
-        int     new_socket;
-        sockaddr_in server_address; 
+    private:
+	
+		int			socket_fd;
+		int			client_id;
+		std::string	username;
+		std::string	nickname;
+
 
     public:
         Client();

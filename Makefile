@@ -26,4 +26,9 @@ clean:
 fclean: clean
 	rm -rf $(NAME)
 
+gpush:
+	git add .
+	git commit -m sub
+	git push
+
 re: fclean all

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/15 19:35:37 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/15 21:30:24 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ int Server::HandleClients()
 	
     for (size_t i = 1; i < clientfds.size(); i++)
 	{
-        if (this->clientfds[i].revents & POLLIN)
+        if (this->clientfds[i].revents & POLLIN) // ! CHECK IF & OR &&
 		{
             valread = recv(this->clientfds[i].fd, buffer, sizeof(buffer), 0);
             memset(buffer + valread, 0, 1024 - valread);
@@ -167,7 +167,7 @@ int	Server::bootup(char	*portstr, char *pass)
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
 
 	while (true)
-		if (accept_connect() == -1)
+		if (accept_connect() == -1 || HandleClients() == -1)
 			return (1);
 
 	return (0);

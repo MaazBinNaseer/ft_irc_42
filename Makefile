@@ -1,31 +1,29 @@
 NAME = ircserv
-OBJDIR = obj
-SRCS = main.cpp Server.cpp
 
+SRCDIR = src
+SRCS = main.cpp Server.cpp Client.cpp Commands.cpp Parse.cpp Channel.cpp
+
+OBJDIR = obj
 OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
-CC = c++
-CXXFLAGS = -g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
-
-RM = rm -fr
+.SILENT:
 
 all: $(NAME)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(NAME): $(OBJS)
-	$(CC) $(CXXFLAGS) -o $(NAME) $(OBJS)
-
 $(OBJDIR)/%.o: %.cpp | $(OBJDIR)
-	$(CC) $(CXXFLAGS) -c $< -o $@
+	c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+
+$(NAME): $(OBJS)
+	c++ -Wall -Wextra -Werror -std=c++98 $(OBJS) -o $(NAME)
+	printf "\x1B[32m$(NAME) ready\x1B[0m\n";
 
 clean:
-	$(RM) $(OBJS)
+	rm -rf $(OBJDIR)
 
 fclean: clean
-	$(RM) $(NAME) $(OBJDIR)
+	rm -rf $(NAME)
 
 re: fclean all
-
-.PHONY: all clean fclean re

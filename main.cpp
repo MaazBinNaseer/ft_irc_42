@@ -1,26 +1,25 @@
-#include "Server.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
+/*   Updated: 2023/10/15 18:19:04 by mgoltay          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int main(int argc, char **argv)
+#include "inc/ft_irc.hpp"
+
+int main(int argc, char *argv[])
 {
-    if(argc != 3)  // Modified to specifically check for 3 arguments: program name, port, and password
-    {
-        std::cout << BOLD_RED << "Error: Input should be ./ircserv <port_number> <password>" << RESET << std::endl;
-        return 1;
-    }
+	if (argc != 3 || !argv)
+		return (std::cerr << RED "Enter in the format: ./ircserv <port> <pass>" RESET "\n", 1);
+	
+	Server	irc;
+	if (irc.bootup(argv[1], argv[2]))
+		return (1);
 
-    Server a1;
-    a1.SocketCreation();
-    a1.BindSocket(argv[1]);
-    a1.ListenSocket();
-
-    // Main event loop
-    while (true) {
-        a1.AcceptConnection(); // Accept new clients
-        a1.HandleClients();   // Handle data from existing clients
-        usleep(10000); // Sleep for 10ms
-    }
-
-
-
-    return (0);
+	return (0);
 }

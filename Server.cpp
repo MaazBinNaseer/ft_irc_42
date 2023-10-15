@@ -1,121 +1,174 @@
-#include "Server.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
+/*   Updated: 2023/10/15 19:35:37 by mgoltay          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-Server::Server() {}
+#include "inc/ft_irc.hpp"
 
-void Server::SocketCreation()
+Server::Server( void )
 {
-    /* --------------------------------------------------------------
-    * AF_INET is for the creation of the socket in the internet domain
-    * SOCK_STREAM is for the TCP protocols
-    ----------------------------------------------------------------*/
-    this->server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if(server_fd  == -1)
-    {
-        perror("Scoket Creation failed");
-        exit(EXIT_FAILURE);
-    }
-    /* -------------------------------------------------
-    * Creation of the poll fds for the multiple clients
-    --------------------------------------------------*/
-    pollfd pollServerSide_fd;
-    pollServerSide_fd.fd = server_fd;
-    pollServerSide_fd.events = POLLIN;
-    pollServerSide_fd.revents = 0;
-    this->client_fds.push_back(pollServerSide_fd);
-
-    std::cout << "Server fd: " << server_fd <<  std::endl;
+	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
 }
 
-void Server::CheckForPort(int port)
+Server::Server( const Server &f )
 {
-      if (port < 1024 || port > 65535) 
-      {
-        std::cout << "Error: Invalid port number. Choose a port between 1025 and 65535 " << std::endl;
-        exit(EXIT_FAILURE);
-    }
+	// std::cout << YELLOW "Copy Server constructor called" RESET "\n";
+	(void) f;
 }
 
-void Server::BindSocket(char *argv)
+Server &Server::operator=( const Server &f )
 {
-    std::stringstream stream(argv);
-
-    int int_port;
-    stream >> int_port;
-
-    this->CheckForPort(int_port);
-
-    // Clear the structure
-    memset(&this->address, 0, sizeof(this->address));
-
-    this->address.sin_family = AF_INET;
-    this->address.sin_port = htons(int_port);
-    this->address.sin_addr.s_addr = INADDR_ANY;
-    
-    if(bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) 
-    {
-        perror("BIND failed");
-        exit(EXIT_FAILURE);
-    }
-
-    std::cout << "Bind: " << ntohs(this->address.sin_port) << " " << this->address.sin_family << std::endl;
+	// std::cout << YELLOW "Copy Server assignment operator called" RESET "\n";
+	(void) f;
+	return (*this);
 }
 
-void Server::ListenSocket()
+Server::~Server( void )
 {
-    if(listen(server_fd, 3) < 0) 
-    {
-        perror("Listen failed");
-        exit(EXIT_FAILURE);
-    }   
-    std::cout << "Server started, waiting for connections..." << std::endl;
+	// std::cout << YELLOW "Server Destructor called" RESET "\n";
 }
 
-int Server::AcceptConnection()
+int	Server::getFd(pollfd poll)
 {
-    poll(client_fds.data(), client_fds.size(), -1);
-
-    if(client_fds[0].revents && POLLIN)
-    {
-        struct sockaddr_in client_address;
-        int address_len = sizeof(client_address);
-
-        int new_sock = accept(server_fd, (struct sockaddr *)&client_address, (socklen_t*)&address_len);
-        if(new_sock < 0) {
-            perror("Acceptance connection has failed");
-            exit(EXIT_FAILURE);
-        }
-      
-        std::cout << "Accepted connection on socket: " << server_fd << ", New socket fd: " << new_sock << std::endl;
-        pollfd new_clientfd;
-        new_clientfd.fd = new_sock;
-        new_clientfd.events = POLLIN;
-        new_clientfd.revents = 0;
-        client_fds.push_back(new_clientfd);
-        return new_sock;
-    }
-    return (-1);
+	return(poll.fd);
 }
 
-void Server::HandleClients()
+int	Server::appendpollfd(int new_socket)
 {
-    // Handling the client data would be similar to the HandleClients function from the previous version
+	struct pollfd mypoll;
+
+	memset(&mypoll, 0, sizeof(mypoll));
+	mypoll.fd = new_socket;
+	mypoll.events = POLLIN;
+	mypoll.revents = 0;
+	this->clientfds.push_back(mypoll);
+
+	std::cout << GREEN "NEW SOCKET: " << new_socket << RESET "\n";
+	return (new_socket);
+}
+
+int	Server::assign(char *portstr, char *pass)
+{
+	std::stringstream stream(portstr);
+	unsigned int	port;
+	stream >> port;
+	if (port < MINPORT || port > MAXPORT)
+		return (std::cerr << RED "Invalid port number! Choose a port between "
+			<< MINPORT << " and " << MAXPORT << "!\n" RESET, 1);
+
+	this->sfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->sfd == -1)
+		return (std::cerr << RED "Socket Failed!" RESET "\n", 1);
+
+	memset(&this->addr, 0, sizeof(this->addr));
+	this->addr.sin_family = AF_INET;
+	this->addr.sin_port = htons(port);
+	this->addr.sin_addr.s_addr = INADDR_ANY;
+	
+	appendpollfd(this->sfd);
+
+	this->password = pass;
+
+	return (0);
+}
+
+int	Server::accept_connect( void )
+{
+	if (poll(this->clientfds.data(), this->clientfds.size(), 10) == -1)
+		return (std::cerr << RED "Poll Failed!" RESET "\n", -1);
+
+	if (!(this->clientfds[0].revents & POLLIN))
+		return (0);
+	
+	struct sockaddr_in	caddr;
+	size_t addlen = sizeof(caddr);
+
+	int cfd = accept(this->sfd, (struct sockaddr *) &caddr, (socklen_t *) &addlen);
+	if (cfd == -1)
+		return (std::cerr << RED "Accept Failed!" RESET "\n", -1);
+	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
+	this->clients.insert(std::pair<int, Client>(cfd, login));
+	std::cout << GREEN "New Connection! Socket " << cfd << RESET "\n";
+	return (appendpollfd(cfd));
+}
+
+//TODO Figure out and handle receiving authentications from the client: "Irssi"
+//TODO: Complete Parse.cpp/Parse.hpp to parse client outputs (COMPLETE)
+void	Server::HandleParse(int i)
+{
+	std::string buffed;
+
+	buffed = this->clients[clientfds[i].fd].getReceiveBuffer();
+	if (buffed.find('\n') != std::string::npos)
+	{
+		Parse  extract(this->clientfds[i].fd, this->clients[this->clientfds[i].fd]);
+		// ! Don't forget to clear the vector of arguments
+		// std::cout << extract.getClientFd() << std::endl;
+		// extract.printClientData(extract.getReqClient());
+		extract.trim(buffed);
+		extract.assignCommand(buffed);
+		std::cout << buffed << std::endl;
+		if (!buffed.empty())
+			extract.assignArguments(buffed);
+		// std::cout << "COMMAND: " << extract.getCmd() << std::endl;
+		// extract.printCmdArgs();
+		extract.executeCommand();
+		this->clients[this->clientfds[i].fd].getReceiveBuffer().clear();
+	}
+}
+
+// Handling the client data would be similar to the HandleClients function from the previous version
+int Server::HandleClients()
+{
     char buffer[1024];
-    for (size_t i = 1; i < client_fds.size(); i++) {
-        if (client_fds[i].revents & POLLIN) {
-            int valread = recv(client_fds[i].fd, buffer, sizeof(buffer), 0);
-            std::memset(buffer + valread, 0, 1024 - valread);
-            if (valread <= 0) {
-                close(client_fds[i].fd);
-                client_fds.erase(client_fds.begin() + i);
-                i--; // Adjust index after removing
+	int	valread;
+	
+    for (size_t i = 1; i < clientfds.size(); i++)
+	{
+        if (this->clientfds[i].revents & POLLIN)
+		{
+            valread = recv(this->clientfds[i].fd, buffer, sizeof(buffer), 0);
+            memset(buffer + valread, 0, 1024 - valread);
+            if (valread < 0)
+				return (-1);
+			else if (valread == 0)
+			{
+                close(this->clientfds[i].fd);
+                this->clientfds.erase(this->clientfds.begin() + i--);
 			}
-            // } {
-            //     // send(client_fds[i].fd, buffer, valread, 0); Needed in case of debugging (it will send back the string to the client)
-            // }
+			else if (buffer[0] != '\n')
+			{
+				this->clients[clientfds[i].fd].getReceiveBuffer() += buffer;
+				HandleParse(i);
+			}		
         }
     }
-
+	return (0);
 }
 
-Server::~Server() 
-{}
+int	Server::bootup(char	*portstr, char *pass)
+{
+	if (assign(portstr, pass))
+		return (1);
+
+	if (bind(this->sfd, (struct sockaddr *) &this->addr, sizeof(this->addr)))
+		return (std::cerr << RED "Bind Failed!" RESET "\n", 1);
+	
+	if (listen(this->sfd, 3))
+		return (std::cerr << RED "Listen Failed!" RESET "\n", 1);
+
+	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
+
+	while (true)
+		if (accept_connect() == -1)
+			return (1);
+
+	return (0);
+}

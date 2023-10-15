@@ -1,0 +1,136 @@
+#include "inc/ft_irc.hpp"
+
+Parse::Parse()
+{
+
+}
+
+Parse::Parse(int client_fd, Client &req_client): _client_fd(client_fd), _req_client(&req_client)
+{
+	_selection["CAP"] = &Parse::CAP;
+	_selection["PASS"] = &Parse::PASS;
+	_selection["PING"] = &Parse::PING;
+	_selection["NICK"] = &Parse::NICK;
+	_selection["USER"] = &Parse::USER;
+	_selection["OPER"] = &Parse::OPER;
+	_selection["QUIT"] = &Parse::QUIT;
+	_selection["JOIN"] = &Parse::JOIN;
+	_selection["PART"] = &Parse::PART;
+	_selection["KICK"] = &Parse::KICK;
+	_selection["INVITE"] = &Parse::INVITE;
+	_selection["TOPIC"] = &Parse::TOPIC;
+	_selection["MODE"] = &Parse::MODE;
+	_selection["PRIVMSG"] = &Parse::PRIVMSG;
+	_selection["NOTICE"] = &Parse::NOTICE;
+	_selection["WHOIS"] = &Parse::WHOIS;
+	_selection["KILL"] = &Parse::KILL;
+}
+
+Parse::~Parse()
+{
+
+}
+
+std::string	Parse::getCmd()
+{
+	return (this->_cmd);
+}
+
+void	Parse::printCmdArgs()
+{
+	std::vector<std::string>::iterator it = this->_cmd_args.begin();
+	std::vector<std::string>::iterator end = this->_cmd_args.end();
+
+	std::cout << "ARGUMENTS: ";
+	while (it < end)
+	{
+		std::cout << *it << " AND ";
+		it++;
+	}
+	std::cout << std::endl;
+	this->_cmd_args.clear();
+}
+
+int	Parse::getClientFd()
+{
+	return (this->_client_fd);
+}
+
+Client	*Parse::getReqClient()
+{
+	return (this->_req_client);
+}
+
+void	Parse::printClientData(Client *reqclient)
+{
+	reqclient->postInfo();
+}
+
+void	Parse::trim(std::string &buffer)
+{
+	std::string::size_type	new_line;
+	std::string::size_type	white_space;
+
+	white_space = buffer.find_first_not_of(" ");
+	if (white_space != 0)
+		buffer.erase(0, white_space); // ! Beginning spaces erased
+	new_line = buffer.find_first_of("\n");
+	white_space = new_line;
+	white_space--;
+	while (white_space != 0 && buffer[white_space] == ' ')
+		white_space--;
+	white_space++;
+	if (white_space != 0 && white_space != new_line)
+		buffer.erase(white_space, new_line - white_space); // ! Ending spaces erased
+}
+
+void	Parse::assignCommand(std::string &buffer)
+{
+	std::stringstream	read(buffer);
+	std::string			command;
+	unsigned long		new_line;
+	unsigned long		next_word;
+
+	getline(read, command, ' ');
+	new_line = command.find('\n');
+	if (new_line != std::string::npos)
+		command.erase(new_line, 1); // ! newline removed from FIRST command
+	this->_cmd = command;
+	next_word = buffer.find_first_not_of(' ', buffer.find_first_of(' ')); // ! finds the next word after spaces
+	buffer.erase(0, next_word); // ! first word and spaces after are erased
+}
+
+void	Parse::assignArguments(std::string &buffer)
+{
+	unsigned long		new_line;
+	unsigned long		next_word;
+
+	new_line = buffer.find('\n');
+	if (new_line != std::string::npos)
+		buffer.erase(new_line, 1); // ! newline erased
+	std::stringstream	read(buffer);
+	std::string			argument;
+	while(!buffer.empty())
+	{
+		getline(read, argument, ' ');
+		this->_cmd_args.push_back(argument);
+		next_word = buffer.find_first_not_of(' ', buffer.find_first_of(' ')); // ! finds the next word after spaces
+		buffer.erase(0, next_word); // ! first word and spaces after are erased
+	}
+}
+
+void	Parse::executeCommand()
+{
+	std::map<std::string, actions>::iterator select;
+
+	// ! Consider upper casing the first command
+	select = this->_selection.find(this->_cmd);
+	if (select != this->_selection.end())
+	{
+		(this->*select->second)();
+	}
+	else
+	{
+		std::cout << "Command not found" << std::endl; 
+	}
+}

@@ -6,11 +6,11 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/15 18:54:36 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/16 22:48:50 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "inc/ft_irc.hpp"
+#include "../inc/ft_irc.hpp"
 
 Client::Client()
 {
@@ -19,7 +19,7 @@ Client::Client()
 
 Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _client_id(fd), _hostname(hostname)
 {
-
+	this->_nickname = "AMMAazRuhan";
 }
 
 Client & Client::operator=(Client const & rhs)
@@ -130,4 +130,10 @@ void	Client::postInfo(void)
 	std::cout << "and my Nick name is: " << YELLOW << this->_nickname << RESET << std::endl;
 	std::cout << "with a socket fd of: " << YELLOW << this->_socket_fd << RESET << std::endl;
 	std::cout << "and a client id of: " << YELLOW << this->_client_id << RESET << std::endl;
+}
+
+void	Client::sendmsg(std::string msg)
+{
+	// * you can send time if client has server_time activated.
+	send(getSocketFd(), msg.data(), msg.size(), 0);
 }

@@ -8,16 +8,16 @@ OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 
 .SILENT:
 
-all: $(NAME)
+all: $(OBJDIR) $(NAME)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(OBJDIR)/%.o: %.cpp | $(OBJDIR)
-	c++ -Wall -Wextra -Werror -std=c++98 -c $< -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	c++ -Wall -Wextra -Werror -g3 -std=c++98 -c $< -o $@
 
 $(NAME): $(OBJS)
-	c++ -Wall -Wextra -Werror -std=c++98 $(OBJS) -o $(NAME)
+	c++ -Wall -Wextra -Werror -fsanitize=address -std=c++98 $(OBJS) -o $(NAME)
 	printf "\x1B[32m$(NAME) ready\x1B[0m\n";
 
 clean:

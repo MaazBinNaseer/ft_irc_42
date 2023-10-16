@@ -6,11 +6,11 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/15 21:30:24 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/16 22:48:50 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "inc/ft_irc.hpp"
+#include "../inc/ft_irc.hpp"
 
 Server::Server( void )
 {
@@ -38,6 +38,20 @@ Server::~Server( void )
 int	Server::getFd(pollfd poll)
 {
 	return(poll.fd);
+}
+
+Channel	*Server::getChannel(std::string name)
+{
+	std::map<std::string, Channel &>::iterator it = this->channels.find(name);
+	if (it != this->channels.end())
+		return (&this->channels[name]);
+	return (NULL);
+}
+
+void	Server::addChannel(std::string name, Client &c)
+{
+	Channel ch = Channel(name, c);
+	this->channels.insert(std::pair<std::string, Channel &>(name, ch));
 }
 
 int	Server::appendpollfd(int new_socket)
@@ -108,7 +122,7 @@ void	Server::HandleParse(int i)
 	buffed = this->clients[clientfds[i].fd].getReceiveBuffer();
 	if (buffed.find('\n') != std::string::npos)
 	{
-		Parse  extract(this->clientfds[i].fd, this->clients[this->clientfds[i].fd]);
+		Commands  extract(&this->clients[this->clientfds[i].fd], this);
 		// ! Don't forget to clear the vector of arguments
 		// std::cout << extract.getClientFd() << std::endl;
 		// extract.printClientData(extract.getReqClient());
@@ -117,8 +131,6 @@ void	Server::HandleParse(int i)
 		std::cout << buffed << std::endl;
 		if (!buffed.empty())
 			extract.assignArguments(buffed);
-		// std::cout << "COMMAND: " << extract.getCmd() << std::endl;
-		// extract.printCmdArgs();
 		extract.executeCommand();
 		this->clients[this->clientfds[i].fd].getReceiveBuffer().clear();
 	}
@@ -171,4 +183,20 @@ int	Server::bootup(char	*portstr, char *pass)
 			return (1);
 
 	return (0);
+}
+
+void	Server::join(Client	&potential, std::string name, std::string pass)
+{
+	if (this->channels.find(name) != this->channels.end())
+	{
+		if (this->channels[name].isInviteOnly())
+			potential.sendmsg(RED "Channel is Invite Only!" RESET "\n");
+		else if (this->channels[name].getPassword() != pass)
+			potential.sendmsg(RED "Wrong Channel Password!" RESET "\n");
+		else
+			this->channels[name].invite(potential);
+	}
+	else
+		this->channels[name] = Channel(name, potential);
+	
 }

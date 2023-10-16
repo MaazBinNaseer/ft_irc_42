@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/15 21:14:34 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/16 22:45:20 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,20 +42,21 @@ class Channel {
 		void	setMaster(Client &c);
 		bool	exists(std::map<int, Client &> map, Client c);
 
+		void	broadcast(Client &c, std::string msg);
+
 		void	kick(Client &kickee); // if last client removed delete this channel
 		void	invite(Client &invitee);
 		void	setTopic(std::string t); // *	NULL if simply display
 		
 		void	mode(bool sign, char mode, std::string *parameters);
 		
+
 		void	botfuncs(); 
 		/*	eg:
 		 *	detects curse word, kicks client
 		 *	could spit facts to keep server interesting
 		 */
 };
-
-void	join(Client	&potential, std::string name, std::string pass, std::map<std::string, Channel> & channels);
 
 // channel names dont have:
 // spaces		' '	(32)

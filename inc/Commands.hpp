@@ -2,10 +2,13 @@
 
 #include "ft_irc.hpp"
 
-class Commands
+class Commands : public Parse
 {
-	protected:
+	private:
 
+	typedef void (Commands::*actions)(void);
+	std::map<std::string, actions> 	_selection;
+	
 	//* Authentication Commands
 	void	CAP(void);
 	void	PASS(void);
@@ -26,6 +29,8 @@ class Commands
 	void	MODE(void);
 
 	//* Sending Messages
+	std::string	concArgs(void);
+	void	MSG(void);
 	void	PRIVMSG(void);
 	void	NOTICE(void); // ! send notices between users and channels
 
@@ -35,4 +40,11 @@ class Commands
 	//* Operator Messages
 	void	KILL(void); // ! disconnect users from the server
 
+	public:
+
+	Commands();
+	Commands(Client *req_client, Server *srvptr);
+	~Commands();
+
+	void	executeCommand(void);
 };

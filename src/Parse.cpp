@@ -1,29 +1,14 @@
-#include "inc/ft_irc.hpp"
+#include "../inc/ft_irc.hpp"
 
 Parse::Parse()
 {
-
+	this->_req_client = NULL;
+	this->_serv = NULL;
 }
 
-Parse::Parse(int client_fd, Client &req_client): _client_fd(client_fd), _req_client(&req_client)
+Parse::Parse(Client *req_client, Server *srvptr): _req_client(req_client), _serv(srvptr)
 {
-	_selection["CAP"] = &Parse::CAP;
-	_selection["PASS"] = &Parse::PASS;
-	_selection["PING"] = &Parse::PING;
-	_selection["NICK"] = &Parse::NICK;
-	_selection["USER"] = &Parse::USER;
-	_selection["OPER"] = &Parse::OPER;
-	_selection["QUIT"] = &Parse::QUIT;
-	_selection["JOIN"] = &Parse::JOIN;
-	_selection["PART"] = &Parse::PART;
-	_selection["KICK"] = &Parse::KICK;
-	_selection["INVITE"] = &Parse::INVITE;
-	_selection["TOPIC"] = &Parse::TOPIC;
-	_selection["MODE"] = &Parse::MODE;
-	_selection["PRIVMSG"] = &Parse::PRIVMSG;
-	_selection["NOTICE"] = &Parse::NOTICE;
-	_selection["WHOIS"] = &Parse::WHOIS;
-	_selection["KILL"] = &Parse::KILL;
+
 }
 
 Parse::~Parse()
@@ -34,6 +19,13 @@ Parse::~Parse()
 std::string	Parse::getCmd()
 {
 	return (this->_cmd);
+}
+
+std::string	Parse::getCmdArg(unsigned long i)
+{
+	if (i < this->_cmd_args.size())
+		return (this->_cmd_args[i]);
+	return ("");
 }
 
 void	Parse::printCmdArgs()
@@ -53,7 +45,7 @@ void	Parse::printCmdArgs()
 
 int	Parse::getClientFd()
 {
-	return (this->_client_fd);
+	return (this->_req_client->getSocketFd());
 }
 
 Client	*Parse::getReqClient()
@@ -116,21 +108,5 @@ void	Parse::assignArguments(std::string &buffer)
 		this->_cmd_args.push_back(argument);
 		next_word = buffer.find_first_not_of(' ', buffer.find_first_of(' ')); // ! finds the next word after spaces
 		buffer.erase(0, next_word); // ! first word and spaces after are erased
-	}
-}
-
-void	Parse::executeCommand()
-{
-	std::map<std::string, actions>::iterator select;
-
-	// ! Consider upper casing the first command
-	select = this->_selection.find(this->_cmd);
-	if (select != this->_selection.end())
-	{
-		(this->*select->second)();
-	}
-	else
-	{
-		std::cout << "Command not found" << std::endl; 
 	}
 }

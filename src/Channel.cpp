@@ -6,22 +6,24 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/15 21:14:25 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/16 22:48:50 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "inc/ft_irc.hpp"
+#include "../inc/ft_irc.hpp"
 
 Channel::Channel(std::string n, Client &c) : name(n)
 {
 	this->topic = "[Set a topic]";
 	this->password = "";
-	this->users[c.getSocketFd()] = c;
-	this->ops[c.getSocketFd()] = c;
+	this->users.insert(std::pair<int, Client &>(c.getSocketFd(), c));
+	this->ops.insert(std::pair<int, Client &>(c.getSocketFd(), c));
 	this->master = &c;
 	this->inviteonly = false;
 	this->trestrict = false;
 	this->userlimit = -1;
+
+	std::cout << YELLOW "Channel " << n << " created!" RESET "\n";
 }
 
 Channel::Channel( void ) : name("Default") // ! NEVER CALL DEFAULT
@@ -80,14 +82,6 @@ Client		*Channel::getMaster( void ) const
 	return (this->master);
 }
 
-void	sendmsg(Client c, std::string msg)
-{
-	(void) c; // TODO IMPLEMENT
-	(void) msg;
-
-	// * you can send time if client has server_time activated.
-}
-
 int	Channel::getSize( void )
 {
 	return (users.size());
@@ -104,6 +98,15 @@ bool Channel::exists(std::map<int, Client &> map, Client c)
 	return (it != map.end());
 }
 
+void	Channel::broadcast(Client &c, std::string msg)
+{
+	std::string newmsg = GREEN + c.getNickname() + ": " + msg + RESET + "\n";
+
+	std::map<int, Client &>::iterator it;
+	for (it = users.begin(); it != users.end(); it++)
+		(users[c.getSocketFd()]).sendmsg(newmsg);
+}
+
 void	Channel::kick(Client &kickee)
 {
 	if (!exists(this->users, kickee))
@@ -116,7 +119,7 @@ void	Channel::kick(Client &kickee)
 void	Channel::invite(Client &invitee)
 {
 	if (!exists(this->users, invitee))
-		this->users[invitee.getSocketFd()] = invitee;
+		this->users.insert(std::pair<int, Client &>(invitee.getSocketFd(), invitee));
 	// * broadcast to all ops
 }
 
@@ -138,19 +141,3 @@ void	Channel::mode(bool sign, char mode, std::string *parameters)
 }
 
 // void	Channel::botfuncs();
-
-void	join(Client	&potential, std::string name, std::string pass, std::map<std::string, Channel> & channels)
-{
-	if (channels.find(name) != channels.end())
-	{
-		if (channels[name].isInviteOnly())
-			sendmsg(potential, RED "Channel is Invite Only!" RESET "\n");
-		else if (channels[name].getPassword() != pass)
-			sendmsg(potential, RED "Wrong Channel Password!" RESET "\n");
-		else
-			channels[name].invite(potential);
-	}
-	else
-		channels[name] = Channel(name, potential);
-	
-}

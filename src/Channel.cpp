@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 22:48:50 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 17:43:45 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ Channel::Channel(std::string n, Client &c) : name(n)
 {
 	this->topic = "[Set a topic]";
 	this->password = "";
-	this->users.insert(std::pair<int, Client &>(c.getSocketFd(), c));
-	this->ops.insert(std::pair<int, Client &>(c.getSocketFd(), c));
+	this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
+	this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
 	this->master = &c;
 	this->inviteonly = false;
 	this->trestrict = false;
@@ -92,9 +92,9 @@ void	Channel::setMaster(Client &c)
 	this->master = &c;
 }
 
-bool Channel::exists(std::map<int, Client &> map, Client c)
+bool Channel::exists(std::map<int, Client *> map, Client c)
 {
-	std::map<int, Client &>::iterator it = map.find(c.getSocketFd());
+	std::map<int, Client *>::iterator it = map.find(c.getSocketFd());
 	return (it != map.end());
 }
 
@@ -102,24 +102,24 @@ void	Channel::broadcast(Client &c, std::string msg)
 {
 	std::string newmsg = GREEN + c.getNickname() + ": " + msg + RESET + "\n";
 
-	std::map<int, Client &>::iterator it;
+	std::map<int, Client *>::iterator it;
 	for (it = users.begin(); it != users.end(); it++)
-		(users[c.getSocketFd()]).sendmsg(newmsg);
+		(users[c.getSocketFd()])->sendmsg(newmsg);
 }
 
 void	Channel::kick(Client &kickee)
 {
-	if (!exists(this->users, kickee))
+	if (!exists(this->users, kickee) || kickee.getSocketFd() == this->master->getSocketFd())
 		return ;
 	this->users.erase(kickee.getSocketFd());
-	if (exists(this->ops, kickee) && kickee.getSocketFd() != this->master->getSocketFd())
+	if (exists(this->ops, kickee))
 		this->ops.erase(kickee.getSocketFd());
 }
 
 void	Channel::invite(Client &invitee)
 {
 	if (!exists(this->users, invitee))
-		this->users.insert(std::pair<int, Client &>(invitee.getSocketFd(), invitee));
+		this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
 	// * broadcast to all ops
 }
 

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 19:05:35 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 17:48:05 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <map>

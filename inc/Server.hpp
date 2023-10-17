@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 22:44:21 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 17:44:48 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class Server
 		std::string			password;
 		std::vector<pollfd>	clientfds;
 		std::map<int, Client> clients;
-		std::map<std::string, Channel&> channels;
+		std::map<std::string, Channel> channels;
 
 	public:
 		Server( void );

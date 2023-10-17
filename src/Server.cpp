@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 22:48:50 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 17:47:21 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	Server::getFd(pollfd poll)
 
 Channel	*Server::getChannel(std::string name)
 {
-	std::map<std::string, Channel &>::iterator it = this->channels.find(name);
+	std::map<std::string, Channel>::iterator it = this->channels.find(name);
 	if (it != this->channels.end())
 		return (&this->channels[name]);
 	return (NULL);
@@ -51,14 +51,14 @@ Channel	*Server::getChannel(std::string name)
 void	Server::addChannel(std::string name, Client &c)
 {
 	Channel ch = Channel(name, c);
-	this->channels.insert(std::pair<std::string, Channel &>(name, ch));
+	this->channels.insert(std::pair<std::string, Channel>(name, ch));
 }
 
 int	Server::appendpollfd(int new_socket)
 {
 	struct pollfd mypoll;
 
-	memset(&mypoll, 0, sizeof(mypoll));
+	std::memset(&mypoll, 0, sizeof(mypoll));
 	mypoll.fd = new_socket;
 	mypoll.events = POLLIN;
 	mypoll.revents = 0;
@@ -81,7 +81,7 @@ int	Server::assign(char *portstr, char *pass)
 	if (this->sfd == -1)
 		return (std::cerr << RED "Socket Failed!" RESET "\n", 1);
 
-	memset(&this->addr, 0, sizeof(this->addr));
+	std::memset(&this->addr, 0, sizeof(this->addr));
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_port = htons(port);
 	this->addr.sin_addr.s_addr = INADDR_ANY;
@@ -139,29 +139,29 @@ void	Server::HandleParse(int i)
 // Handling the client data would be similar to the HandleClients function from the previous version
 int Server::HandleClients()
 {
-    char buffer[1024];
+	char buffer[1024];
 	int	valread;
 	
-    for (size_t i = 1; i < clientfds.size(); i++)
+	for (size_t i = 1; i < clientfds.size(); i++)
 	{
-        if (this->clientfds[i].revents & POLLIN) // ! CHECK IF & OR &&
+		if (this->clientfds[i].revents & POLLIN) // ! CHECK IF & OR &&
 		{
-            valread = recv(this->clientfds[i].fd, buffer, sizeof(buffer), 0);
-            memset(buffer + valread, 0, 1024 - valread);
-            if (valread < 0)
+			valread = recv(this->clientfds[i].fd, buffer, sizeof(buffer), 0);
+			std::memset(buffer + valread, 0, 1024 - valread);
+			if (valread < 0)
 				return (-1);
 			else if (valread == 0)
 			{
-                close(this->clientfds[i].fd);
-                this->clientfds.erase(this->clientfds.begin() + i--);
+				close(this->clientfds[i].fd);
+				this->clientfds.erase(this->clientfds.begin() + i--);
 			}
 			else if (buffer[0] != '\n')
 			{
 				this->clients[clientfds[i].fd].getReceiveBuffer() += buffer;
 				HandleParse(i);
 			}		
-        }
-    }
+		}
+	}
 	return (0);
 }
 

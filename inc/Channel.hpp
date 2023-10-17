@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 22:45:20 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 17:44:32 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ class Channel {
 		const std::string		name;
 		std::string				topic;
 		std::string				password;
-		std::map<int, Client &>	users;
-		std::map<int, Client &>	ops;
+		std::map<int, Client *>	users;
+		std::map<int, Client *>	ops;
 		Client					*master;
 		bool					inviteonly;
 		bool					trestrict;
@@ -40,7 +40,7 @@ class Channel {
 		bool		isInviteOnly( void ) const ;
 		int		getSize( void );
 		void	setMaster(Client &c);
-		bool	exists(std::map<int, Client &> map, Client c);
+		bool	exists(std::map<int, Client *> map, Client c);
 
 		void	broadcast(Client &c, std::string msg);
 

@@ -1,7 +1,8 @@
 NAME = ircserv
 
 SRCDIR = src
-SRCS = main.cpp Server.cpp Client.cpp Commands.cpp Parse.cpp Channel.cpp
+SRCS = main.cpp Server.cpp Client.cpp Commands.cpp Parse.cpp Channel.cpp \
+		ChannelFuncs.cpp
 
 OBJDIR = obj
 OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))

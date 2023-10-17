@@ -41,10 +41,9 @@ class Commands : public Parse
 	void	KILL(void); // ! disconnect users from the server
 
 	public:
+		Commands();
+		Commands(Client *req_client, Server *srvptr);
+		~Commands();
 
-	Commands();
-	Commands(Client *req_client, Server *srvptr);
-	~Commands();
-
-	void	executeCommand(void);
+		void	executeCommand(void);
 };

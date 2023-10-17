@@ -35,10 +35,7 @@ void	Parse::printCmdArgs()
 
 	std::cout << "ARGUMENTS: ";
 	while (it < end)
-	{
-		std::cout << *it << " AND ";
-		it++;
-	}
+		std::cout << *(it++) << " AND ";
 	std::cout << std::endl;
 	this->_cmd_args.clear();
 }

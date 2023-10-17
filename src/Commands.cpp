@@ -8,7 +8,7 @@ void Commands::CAP(void)
 
 void Commands::PASS(void)
 {
-
+	this->_serv->print();
 }
 
 void Commands::PING(void)
@@ -18,7 +18,7 @@ void Commands::PING(void)
 
 void Commands::NICK(void)
 {
-
+	this->_req_client->setNickname(getCmdArg(0));
 }
 
 void Commands::USER(void)
@@ -89,8 +89,10 @@ std::string Commands::concArgs(void)
 void Commands::MSG(void)
 {
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (targetch)
+	if (targetch && targetch->exists(*this->_req_client))
 		targetch->broadcast(*_req_client, concArgs());
+	else if (targetch)
+		_req_client->sendmsg(RED "Join channel'" + targetch->getName() + "'to send message!\n" RESET);
 	else
 		_req_client->sendmsg(RED "No channel of that name exists!\n" RESET);
 }

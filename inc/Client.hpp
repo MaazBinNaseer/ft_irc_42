@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 17:30:25 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 20:46:13 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,5 @@ class Client
 		void						fillInfo(int fd, std::string username, std::string nickname);
 		void						postInfo(void);
 		void						sendmsg(std::string msg);
+		void						print(std::string color);
 };

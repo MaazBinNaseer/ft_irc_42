@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/16 22:48:50 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 20:45:56 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,4 +136,9 @@ void	Client::sendmsg(std::string msg)
 {
 	// * you can send time if client has server_time activated.
 	send(getSocketFd(), msg.data(), msg.size(), 0);
+}
+
+void	Client::print(std::string color)
+{
+	std::cout << color << "SOCKET: \"" << getSocketFd() << "\" (" << getNickname() <<")\n" RESET;
 }

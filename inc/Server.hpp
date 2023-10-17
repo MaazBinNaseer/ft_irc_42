@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 17:44:48 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 20:20:10 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Server
 		int HandleClients( void );
 
 		int	bootup(char *portstr, char *pass);
+		void	print(void);
 
 		void	join(Client &potential, std::string name, std::string pass);
 };

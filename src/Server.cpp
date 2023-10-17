@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 17:47:21 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/17 20:49:25 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,20 +40,6 @@ int	Server::getFd(pollfd poll)
 	return(poll.fd);
 }
 
-Channel	*Server::getChannel(std::string name)
-{
-	std::map<std::string, Channel>::iterator it = this->channels.find(name);
-	if (it != this->channels.end())
-		return (&this->channels[name]);
-	return (NULL);
-}
-
-void	Server::addChannel(std::string name, Client &c)
-{
-	Channel ch = Channel(name, c);
-	this->channels.insert(std::pair<std::string, Channel>(name, ch));
-}
-
 int	Server::appendpollfd(int new_socket)
 {
 	struct pollfd mypoll;
@@ -64,7 +50,6 @@ int	Server::appendpollfd(int new_socket)
 	mypoll.revents = 0;
 	this->clientfds.push_back(mypoll);
 
-	std::cout << GREEN "NEW SOCKET: " << new_socket << RESET "\n";
 	return (new_socket);
 }
 
@@ -114,7 +99,6 @@ int	Server::accept_connect( void )
 }
 
 //TODO Figure out and handle receiving authentications from the client: "Irssi"
-//TODO: Complete Parse.cpp/Parse.hpp to parse client outputs (COMPLETE)
 void	Server::HandleParse(int i)
 {
 	std::string buffed;
@@ -123,12 +107,8 @@ void	Server::HandleParse(int i)
 	if (buffed.find('\n') != std::string::npos)
 	{
 		Commands  extract(&this->clients[this->clientfds[i].fd], this);
-		// ! Don't forget to clear the vector of arguments
-		// std::cout << extract.getClientFd() << std::endl;
-		// extract.printClientData(extract.getReqClient());
 		extract.trim(buffed);
 		extract.assignCommand(buffed);
-		std::cout << buffed << std::endl;
 		if (!buffed.empty())
 			extract.assignArguments(buffed);
 		extract.executeCommand();
@@ -183,6 +163,27 @@ int	Server::bootup(char	*portstr, char *pass)
 			return (1);
 
 	return (0);
+}
+
+void	Server::print(void)
+{
+	std::map<std::string, Channel>::iterator it;
+	for (it = this->channels.begin(); it != this->channels.end(); it++)
+		it->second.print();
+}
+
+Channel	*Server::getChannel(std::string name)
+{
+	std::map<std::string, Channel>::iterator it = this->channels.find(name);
+	if (it != this->channels.end())
+		return (&this->channels[name]);
+	return (NULL);
+}
+
+void	Server::addChannel(std::string name, Client &c)
+{
+	Channel ch = Channel(name, c);
+	this->channels.insert(std::pair<std::string, Channel>(name, ch));
 }
 
 void	Server::join(Client	&potential, std::string name, std::string pass)

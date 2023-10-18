@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 20:46:13 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/18 21:34:17 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Client
 		std::string					_hostname;
 		std::string					_username;
 		std::string					_nickname;
+		std::string					_realname;
 		bool						_pass;
 		bool						_registered;
 		std::string					_receiveBuffer;
@@ -41,7 +42,9 @@ class Client
 		int							getSocketFd(void);
 		int							getClientId(void);
 		std::string					getUsername(void);
+		std::string					getHostname(void);
 		std::string					getNickname(void);
+		std::string					getRealname(void);
 		bool						getPass(void);
 		bool						getRegistered(void);
 		std::string					&getReceiveBuffer(void);
@@ -51,7 +54,9 @@ class Client
 		void						setSocketFd(int fd);
 		void						setClientId(int id);
 		void						setUsername(std::string username);
+		void						setHostname(std::string nickname);
 		void						setNickname(std::string nickname);
+		void						setRealname(std::string nickname);
 		void						setPass(bool set);
 		void						setRegistered(bool set);
 

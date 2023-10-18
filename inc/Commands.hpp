@@ -29,7 +29,7 @@ class Commands : public Parse
 	void	MODE(void);
 
 	//* Sending Messages
-	std::string	concArgs(void);
+	std::string	concArgs(int start);
 	void	MSG(void);
 	void	PRIVMSG(void);
 	void	NOTICE(void); // ! send notices between users and channels
@@ -46,4 +46,6 @@ class Commands : public Parse
 		~Commands();
 
 		void	executeCommand(void);
+
+		void	print();
 };

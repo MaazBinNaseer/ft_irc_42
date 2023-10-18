@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 20:20:10 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/18 21:43:15 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,18 +30,26 @@ class Server
 		Server &operator=( const Server &f );
 		~Server( void );
 
-		int	getFd(pollfd poll);
-		Channel	*getChannel(std::string name);
-		void	addChannel(std::string name, Client &c);
+		int								getFd(void);
+		std::string						getPassword(void);
+		Client							*getClient(int cfd);
+		Client							*getClientNick(std::string nick);
+		Client							*getClientUser(std::string user);
+		std::map<int, Client>			&getClients(void);
+		Channel							*getChannel(std::string name);
+		std::map<std::string, Channel>	&getChannels(void);
 
-		int	appendpollfd(int new_socket);
-		int	assign(char *portstr, char *pass);
-		int	accept_connect( void );
-		void HandleParse( int i );
-		int HandleClients( void );
+		void		setPassword(std::string pass);
+		void		addChannel(std::string name, Client &c);
+		void		print(void);
 
-		int	bootup(char *portstr, char *pass);
-		void	print(void);
 
-		void	join(Client &potential, std::string name, std::string pass);
+	// *	ServerFuncs.cpp
+		int		appendpollfd(int new_socket);
+		int		assign(char *portstr, char *pass);
+		int		accept_connect( void );
+		void	HandleParse( int i );
+		int		HandleClients( void );
+
+		int		bootup(char *portstr, char *pass);
 };

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 21:06:33 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/18 22:24:26 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,32 +17,45 @@ bool Channel::exists(Client c)
 	return (this->users.find(c.getSocketFd()) != this->users.end());
 }
 
+bool Channel::isOp(Client c)
+{
+	return (this->ops.find(c.getSocketFd()) != this->ops.end());
+}
+
 void	Channel::broadcast(Client &c, std::string msg)
 {
-	std::string newmsg = PURPLE + getName() + ": " + GREEN + c.getNickname() + ": " + YELLOW + msg + RESET + "\n";
+	std::string newmsg = PURPLE "[" + getName() + "] " GREEN + c.getNickname() + ": " YELLOW + msg + RESET "\n";
 
 	std::map<int, Client *>::iterator it;
 	for (it = users.begin(); it != users.end(); it++)
 		it->second->sendmsg(newmsg);
 }
 
-void	Channel::kick(Client &kickee)
+void	Channel::kick(Client *c, Client &kickee)
 {
 	if (!exists(kickee) || kickee.getSocketFd() == this->master->getSocketFd())
 		return ;
 	this->users.erase(kickee.getSocketFd());
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
+	if (c)
+		broadcast(*c, "*kicked " + kickee.getNickname() + " out of the channel*");
+	else
+		broadcast(kickee, "*left the channel*");
 }
 
-void	Channel::invite(Client &invitee)
+void	Channel::invite(Client *c, Client &invitee)
 {
-	if (!exists(invitee))
-		this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
-	// * broadcast to all ops
+	if (exists(invitee))
+		return ;
+	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
+	if (c)
+		broadcast(*c, "*invited " + invitee.getNickname() + " to the channel*");
+	else
+		broadcast(invitee, "*joined the channel*");
 }
 
-void	Channel::mode(bool sign, char mode, std::string *parameters)
+void	Channel::mode(Client *c, bool sign, char mode, std::string parameter)
 {
 	if (mode == 'i')
 		this->inviteonly = sign;
@@ -51,8 +64,16 @@ void	Channel::mode(bool sign, char mode, std::string *parameters)
 	else if (mode == 'k' && !sign)
 		this->password = "";
 	else if (mode == 'k' && sign)
-		this->password = *parameters; // ! needs fixing and broadcast to ops
+		this->password = parameter; // ! needs fixing and broadcast to ops
+	c->sendmsg(RED "Include Channel Name!" RESET "\n");
+	// TODO IMPLEMENT THE MODES
 }
+
+// · i: Set/remove Invite-only channel
+// · t: Set/remove the restrictions of the TOPIC command to channel operators
+// · k: Set/remove the channel key (password)
+// · o: Give/take channel operator privilege
+// · l: Set/remove the user limit to channel
 
 void	Channel::print(void)
 {

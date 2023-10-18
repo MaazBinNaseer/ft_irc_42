@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 20:44:35 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/18 20:44:27 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Channel::Channel( void ) : name("Default") // ! NEVER CALL DEFAULT
 
 Channel::Channel( const Channel &f ) : name(f.getName())
 {
-	this->topic = f.topic;
+	this->topic = f.getTopic();
 	this->password = f.getPassword();
 	this->users = f.getUsers();
 	this->ops = f.getOps();
@@ -99,6 +99,11 @@ bool	Channel::isInviteOnly( void ) const
 	return (this->inviteonly);
 }
 
+bool	Channel::hasTopicRestrictions( void ) const
+{
+	return (this->trestrict);
+}
+
 int	Channel::getSize( void )
 {
 	return (users.size());
@@ -109,7 +114,9 @@ void	Channel::setMaster(Client &c)
 	this->master = &c;
 }
 
-void	Channel::setTopic(std::string t)
+void	Channel::setTopic(Client *c, std::string t)
 {
 	this->topic = t;
+	if (c)
+		broadcast(*c, " *changed the topic*");
 }

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 20:45:56 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/18 21:34:56 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,19 @@ std::string Client::getUsername()
 	return (this->_username);
 }
 
+std::string Client::getHostname()
+{
+	return (this->_hostname);
+}
+
 std::string Client::getNickname()
 {
 	return (this->_nickname);
+}
+
+std::string Client::getRealname()
+{
+	return (this->_realname);
 }
 
 bool Client::getPass()
@@ -98,9 +108,19 @@ void Client::setUsername(std::string username)
 	this->_username = username;
 }
 
+void Client::setHostname(std::string hostname)
+{
+	this->_hostname = hostname;
+}
+
 void Client::setNickname(std::string nickname)
 {
 	this->_nickname = nickname;
+}
+
+void Client::setRealname(std::string realname)
+{
+	this->_realname = realname;
 }
 
 void Client::setPass(bool set)

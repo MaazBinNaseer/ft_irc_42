@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/17 20:17:56 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/19 20:58:39 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <ostream>
 #include <sstream>
 #include <cstring>
+#include <stdbool.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -25,6 +26,7 @@
 #include <arpa/inet.h>
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <poll.h>
 
 #define RED "\x1B[31m"

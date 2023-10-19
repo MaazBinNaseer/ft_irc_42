@@ -33,6 +33,7 @@ class Client
     public:
 
         // *----- Orthodox Canonical Form -----
+		bool						_cap_order;
 		Client();
 		Client(unsigned int fd, std::string hostname);
 		Client & operator=(Client const & rhs);

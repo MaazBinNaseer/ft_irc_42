@@ -14,7 +14,7 @@
 
 Client::Client()
 {
-
+	_cap_order = false;
 }
 
 Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _client_id(fd), _hostname(hostname)

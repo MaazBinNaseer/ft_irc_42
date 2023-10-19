@@ -8,6 +8,7 @@ class Commands : public Parse
 
 	typedef void (Commands::*actions)(void);
 	std::map<std::string, actions> 	_selection;
+	bool _order;
 	
 	//* Authentication Commands
 	void	CAP(void);
@@ -26,6 +27,7 @@ class Commands : public Parse
 	void	KICK(void);
 	void	INVITE(void);
 	void	TOPIC(void);
+	void	parseMode(void);
 	void	MODE(void);
 
 	//* Sending Messages

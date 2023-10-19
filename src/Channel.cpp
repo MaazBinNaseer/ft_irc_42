@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/18 20:44:27 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/19 20:50:47 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,4 +119,13 @@ void	Channel::setTopic(Client *c, std::string t)
 	this->topic = t;
 	if (c)
 		broadcast(*c, " *changed the topic*");
+}
+
+Client	*Channel::getClientNick(std::string nick)
+{
+	std::map<int, Client *>::iterator it;
+	for (it = this->users.begin(); it != this->users.end(); it++)
+		if (it->second->getNickname() == nick)
+			return (it->second);
+	return (NULL);
 }

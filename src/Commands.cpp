@@ -1,11 +1,20 @@
 #include "../inc/ft_irc.hpp"
 
+
 void Commands::CAP(void)
 {
 	std::string command1 = getCmdArg(0);
 	std::cout << "Commands from CAP is called " << command1 << std::endl;
 	if (command1 == "LS")
-		this->_req_client->sendmsg(GREEN "CAP * LIST: chghost, server_time, account_tag, extended_join, invite_notify\r" RESET "\n");
+    {
+        this->_req_client->_cap_order = true;
+        this->_req_client->sendmsg(GREEN "CAP * LIST: chghost, server_time, account_tag, extended_join, invite_notify\r" RESET "\n");
+    }
+    if(this->_req_client->_cap_order && command1 == "REQ")
+    {	
+        this->_req_client->sendmsg(GREEN "Request has been granted\r" RESET "\n");
+    }
+	
 	this->_req_client->postInfo();
 }
 
@@ -170,14 +179,9 @@ void	fill(std::string options, char flags[5], bool present[5])
 				present[j] = true;
 }
 
-void Commands::MODE(void)
+void	Commands::parseMode(void)
 {
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		this->_req_client->sendmsg(RED "Include Channel Name!" RESET "\n");
-	else if (!targetch)
-		this->_req_client->sendmsg(RED "Channel '" + getCmdArg(0) + "' does not exist!" RESET "\n");
-	
 	std::string options = getCmdArg(1);
 	char	flags[6] = "itkol";
 	bool	present[5] = {false, false, false, false, false};
@@ -195,13 +199,26 @@ void Commands::MODE(void)
 				targetch->mode(this->_req_client, options[0] == '+', flags[i], getCmdArg(2));
 }
 
+void Commands::MODE(void)
+{
+	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
+	if (getCmdArg(0) == "")
+		this->_req_client->sendmsg(RED "Include Channel Name!" RESET "\n");
+	else if (!targetch)
+		this->_req_client->sendmsg(RED "Channel '" + getCmdArg(0) + "' does not exist!" RESET "\n");
+	else if (!targetch->isOp(*_req_client))
+		this->_req_client->sendmsg(RED "You are not an Operator of this Channel!" RESET "\n");
+	else
+		parseMode();
+}
+
 std::string Commands::concArgs(int start)
 {
 	std::string str = "";
 	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
 		str += *(it) + " ";
-	if (str.back() == ' ')
-		str.back() = '\0';
+	if (!str.empty() && str[str.size() - 1] == ' ') //* Added the fix here from C++11 to C++98
+        str[str.size() - 1] = '\0';
 	return (str);
 }
 
@@ -261,11 +278,12 @@ void Commands::KILL(void)
 
 Commands::Commands()
 {
-
+	_order = false;
 }
 
 Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
 {
+	_order = false;
 	_selection["CAP"] = &Commands::CAP;				// TODO
 	_selection["PASS"] = &Commands::PASS;			// !
 	_selection["PING"] = &Commands::PING;			// TODO

@@ -91,7 +91,7 @@ void	Server::HandleParse(int i)
 // Handling the client data would be similar to the HandleClients function from the previous version
 int Server::HandleClients()
 {
-	char buffer[1024];
+	char buffer[2056];
 	int	valread;
 	
 	for (size_t i = 1; i < clientfds.size(); i++)

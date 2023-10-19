@@ -20,7 +20,7 @@ Server::Server( void )
 Server::Server( const Server &f )
 {
 	// std::cout << YELLOW "Copy Server constructor called" RESET "\n";
-	(void) f;
+	(void)f;
 }
 
 Server &Server::operator=( const Server &f )

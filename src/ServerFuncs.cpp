@@ -98,6 +98,7 @@ int Server::HandleClients()
 	{
 		if (this->clientfds[i].revents & POLLIN) // ! CHECK IF & OR &&
 		{
+		
 			valread = recv(this->clientfds[i].fd, buffer, sizeof(buffer), 0);
 			std::memset(buffer + valread, 0, 1024 - valread);
 			if (valread < 0)
@@ -128,12 +129,11 @@ int	Server::bootup(char	*portstr, char *pass)
 	
 	if (listen(this->sfd, 3))
 		return (std::cerr << RED "Listen Failed!" RESET "\n", 1);
-
+ 
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
-
+	
 	while (true)
 		if (accept_connect() == -1 || HandleClients() == -1)
 			return (1);
-
 	return (0);
 }

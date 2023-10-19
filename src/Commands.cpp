@@ -14,7 +14,6 @@ void Commands::CAP(void)
     {	
         this->_req_client->sendmsg(GREEN "Request has been granted\r" RESET "\n");
     }
-	
 	this->_req_client->postInfo();
 }
 

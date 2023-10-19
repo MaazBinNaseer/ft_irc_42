@@ -16,6 +16,7 @@
 #include <ostream>
 #include <sstream>
 #include <cstring>
+#include <stdbool.h>
 #include <string>
 #include <vector>
 #include <map>

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/18 21:43:15 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/20 17:46:38 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,11 @@ class Server
 	private:
 		int	sfd;
 		struct sockaddr_in	addr;
-		std::string			password;
+		std::string			joinpass;
+		std::string			operpass;
 		std::vector<pollfd>	clientfds;
 		std::map<int, Client> clients;
+		std::map<int, Client *> operators;
 		std::map<std::string, Channel> channels;
 
 	public:
@@ -31,17 +33,23 @@ class Server
 		~Server( void );
 
 		int								getFd(void);
-		std::string						getPassword(void);
+		std::string						getPassword(void) const;
+		std::string						getOperPass(void) const;
 		Client							*getClient(int cfd);
 		Client							*getClientNick(std::string nick);
 		Client							*getClientUser(std::string user);
 		std::map<int, Client>			&getClients(void);
 		Channel							*getChannel(std::string name);
 		std::map<std::string, Channel>	&getChannels(void);
-
-		void		setPassword(std::string pass);
-		void		addChannel(std::string name, Client &c);
-		void		print(void);
+		
+		bool	isUser(Client &c);
+		bool	isOp(Client &c);
+		void	setPassword(std::string pass);
+		void	removeUser(int cfd);
+		void	setOperPass(std::string pass);
+		void	addOperator(Client *potop);
+		void	addChannel(std::string name, Client &c);
+		void	print(void);
 
 
 	// *	ServerFuncs.cpp

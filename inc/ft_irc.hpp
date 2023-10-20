@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/19 20:58:39 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/20 17:19:07 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@
 
 #define MINPORT 1024
 #define MAXPORT 65535
+
+#define OPERPASS "heeheeMJ"
 
 class Server; // * need to include so other classes can use Server as attribute
 

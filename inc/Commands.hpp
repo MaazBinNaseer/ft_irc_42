@@ -8,8 +8,15 @@ class Commands : public Parse
 
 	typedef void (Commands::*actions)(void);
 	std::map<std::string, actions> 	_selection;
-	bool _order;
 	
+	bool _order;
+	bool _multiple;
+
+	//* Complementary Functions
+	void 	handleMultiple(std::string comm);
+	void	parseMode(void);
+	std::string	concArgs(int start);
+
 	//* Authentication Commands
 	void	CAP(void);
 	void	PASS(void);
@@ -27,11 +34,9 @@ class Commands : public Parse
 	void	KICK(void);
 	void	INVITE(void);
 	void	TOPIC(void);
-	void	parseMode(void);
 	void	MODE(void);
 
 	//* Sending Messages
-	std::string	concArgs(int start);
 	void	MSG(void);
 	void	PRIVMSG(void);
 	void	NOTICE(void); // ! send notices between users and channels

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/18 21:24:50 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/20 17:14:36 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int	Server::assign(char *portstr, char *pass)
 	
 	appendpollfd(this->sfd);
 
-	this->password = pass;
+	this->joinpass = pass;
 
 	return (0);
 }

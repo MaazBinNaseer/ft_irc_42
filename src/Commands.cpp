@@ -1,5 +1,20 @@
 #include "../inc/ft_irc.hpp"
 
+void Commands::handleMultiple(std::string comm)
+{
+	this->_multiple = true;
+	std::string str = getCmdArg(0);
+	size_t pos = str.find_first_of(",");
+	while (pos != std::string::npos)
+	{
+		this->_cmd_args[0] = str.substr(0, pos);
+		(this->*_selection[comm])();
+		str = str.substr(pos + 1);
+		pos = str.find_first_of(",");
+	}
+	this->_cmd_args[0] = str;
+	return ;
+}
 
 void Commands::CAP(void)
 {
@@ -17,8 +32,6 @@ void Commands::CAP(void)
 	
 	this->_req_client->postInfo();
 }
-
-	// this->_req_client->postInfo();
 
 void Commands::PASS(void)
 {
@@ -67,7 +80,22 @@ void Commands::USER(void)
 
 void Commands::OPER(void)
 {
-
+	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
+	if (getCmdArg(0) == "")
+		this->_req_client->sendmsg(RED "Enter User to get Operator Privileges!" RESET "\n");
+	else if (!targetcl)
+		this->_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
+	else if (getCmdArg(1) == "")
+		this->_req_client->sendmsg(RED "Password Needed for Operator Privileges!" RESET "\n");
+	else if (getCmdArg(1) != this->_serv->getOperPass())
+		this->_req_client->sendmsg(RED "Incorrect Password for Operator Privileges!" RESET "\n");
+	else
+	{
+		this->_serv->addOperator(targetcl);
+		std::map<int, Client> clients = this->_serv->getClients();
+		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			it->second.sendmsg(CYAN + getCmdArg(0) + " is now an IRC operator!" RESET "\n");
+	}
 }
 
 void Commands::QUIT(void)
@@ -81,7 +109,8 @@ void Commands::QUIT(void)
 
 void Commands::JOIN(void)
 {
-	// TODO IMPLEMENT THE MULTIPLE SELECTION VIA COMMAS ','		<>{,<>}
+	if (!this->_multiple)
+		handleMultiple("JOIN");
 
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (targetch)
@@ -101,18 +130,27 @@ void Commands::JOIN(void)
 
 void Commands::PART(void)
 {
-	// TODO IMPLEMENT THE MULTIPLE SELECTION VIA COMMAS ','		<>{,<>}
+	if (!this->_multiple)
+		handleMultiple("PART");
 
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (targetch && targetch->exists(*this->_req_client))
+	if (getCmdArg(0) == "")
+		this->_req_client->sendmsg(RED "Enter Channel to Part From!" RESET "\n");
+	else if (targetch && targetch->exists(*this->_req_client))
+	{
 		targetch->kick(NULL, *this->_req_client);
-	
+		this->_req_client->sendmsg(GREEN "You have successfully left channel '" + getCmdArg(0) + "'!" RESET "\n");
+	}
+	else
+		this->_req_client->sendmsg(RED "You are not part of a channel '" + getCmdArg(0) + "'!" RESET "\n");
+
 	// ! CHANGE IT SO MASTERS CAN LEAVE USING PART BUT IT DELETES IF EMPTY OR GIVES SOMEONE ELSE MASTER
 }
 
 void Commands::KICK(void)
 {
-	// TODO IMPLEMENT THE MULTIPLE SELECTION VIA COMMAS ','		<>{,<>}
+	if (!this->_multiple)
+		handleMultiple("KICK");
 
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(1));
@@ -162,7 +200,7 @@ void Commands::TOPIC(void)
 	else if (!targetch)
 		this->_req_client->sendmsg(RED "Channel '" + getCmdArg(0) + "' does not exist!" RESET "\n");
 	else if (getCmdArg(1) == "")
-		this->_req_client->sendmsg(PURPLE "[" + getCmdArg(0) + "] " YELLOW + targetch->getTopic() + RESET "\n");
+		this->_req_client->sendmsg(PURPLE "[" + getCmdArg(0) + "] " GREEN "TOPIC= " YELLOW + targetch->getTopic() + RESET "\n");
 	else if (!targetch->exists(*this->_req_client)) // * EVERYTHING BELOW IS ABOUT SETTING TOPIC
 		this->_req_client->sendmsg(RED "Cannot set Topic of channel you are not part of!" RESET "\n");
 	else if (targetch->hasTopicRestrictions() && !targetch->isOp(*this->_req_client))
@@ -189,7 +227,7 @@ void	Commands::parseMode(void)
 
 	if (options == "")
 		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
-	else if (options[0] != '-' || options[0] != '+')
+	else if (options[0] != '-' && options[0] != '+')
 		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
 	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
 		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
@@ -217,14 +255,15 @@ std::string Commands::concArgs(int start)
 	std::string str = "";
 	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
 		str += *(it) + " ";
-	if (!str.empty() && str[str.size() - 1] == ' ') //* Added the fix here from C++11 to C++98
+	if (!str.empty() && str[str.size() - 1] == ' ')
         str[str.size() - 1] = '\0';
 	return (str);
 }
 
 void Commands::PRIVMSG(void)
 {
-	// TODO IMPLEMENT THE MULTIPLE SELECTION VIA COMMAS ','		<>{,<>}
+	if (!this->_multiple)
+		handleMultiple("PRIVMSG");
 
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
@@ -246,9 +285,10 @@ void Commands::NOTICE(void)
 
 void Commands::WHOIS(void)
 {
-	// TODO IMPLEMENT THE MULTIPLE SELECTION VIA COMMAS ','		<>{,<>}
-	std::map<std::string, Channel> &channels = this->_serv->getChannels();
+	if (!this->_multiple)
+		handleMultiple("WHOIS");
 
+	std::map<std::string, Channel> &channels = this->_serv->getChannels();
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (getCmdArg(0) == "")
 		_req_client->sendmsg(RED "Enter NickName of Query!" RESET "\n");
@@ -267,40 +307,55 @@ void Commands::WHOIS(void)
 				_req_client->sendmsg(PURPLE + it->first + RESET "\n");
 		_req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
 	}
-
-	// PRINT LIST OF CHANNELS PART OF
 }
 
 void Commands::KILL(void)
 {
-
+	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
+	if (!this->_serv->isOp(*this->_req_client))
+		_req_client->sendmsg(RED "Only an IRC operator can exeute KILL!" RESET "\n");
+	else if (getCmdArg(0) == "")
+		_req_client->sendmsg(RED "Enter NickName of KILL victim!" RESET "\n");
+	else if (!targetcl)
+		_req_client->sendmsg(RED "Victim does not Exist!" RESET "\n");
+	else
+	{
+		if (getCmdArg(1) != "")
+			targetcl->sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET + "\n");
+		this->_serv->removeUser(targetcl->getSocketFd());
+		std::map<int, Client> &clients = this->_serv->getClients();
+		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			it->second.sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET "\n");
+	}
 }
 
 Commands::Commands()
 {
-	_order = false;
+	this->_order = false;
+	this->_multiple = false;
 }
 
 Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
 {
-	_order = false;
-	_selection["CAP"] = &Commands::CAP;				// TODO
-	_selection["PASS"] = &Commands::PASS;			// !
-	_selection["PING"] = &Commands::PING;			// TODO
+	this->_order = false;
+	this->_multiple = false;
+	_selection["CAP"] = &Commands::CAP;				// ?
+	_selection["PASS"] = &Commands::PASS;			// DONE
+	_selection["PING"] = &Commands::PING;			// ?
 	_selection["NICK"] = &Commands::NICK;			// DONE
 	_selection["USER"] = &Commands::USER;			// DONE
-	_selection["OPER"] = &Commands::OPER;			// TODO
+	_selection["OPER"] = &Commands::OPER;			// DONE
 	_selection["QUIT"] = &Commands::QUIT;			// DONE
-	_selection["JOIN"] = &Commands::JOIN;			// TODO
-	_selection["PART"] = &Commands::PART;			// !
+	_selection["JOIN"] = &Commands::JOIN;			// DONE
+	_selection["PART"] = &Commands::PART;			// ! MASTER
 	_selection["KICK"] = &Commands::KICK;			// DONE
 	_selection["INVITE"] = &Commands::INVITE;		// DONE
 	_selection["TOPIC"] = &Commands::TOPIC;			// DONE
-	_selection["MODE"] = &Commands::MODE;			// *
+	_selection["MODE"] = &Commands::MODE;			// DONE
 	_selection["PRIVMSG"] = &Commands::PRIVMSG;		// DONE
-	_selection["NOTICE"] = &Commands::NOTICE;		// !
+	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
 	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
-	_selection["KILL"] = &Commands::KILL;			// TODO
+	_selection["KILL"] = &Commands::KILL;			// DONE
 }
 
 Commands::~Commands()

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/19 20:58:17 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/20 20:13:07 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,10 @@ void	Channel::kick(Client *c, Client &kickee)
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
 	if (c)
-		broadcast(*c, "*kicked " + kickee.getNickname() + " out of the channel*");
+		broadcast(*c, "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
 	else
 		broadcast(kickee, "*left the channel*");
+	kickee.sendmsg(PURPLE "You are no longer part of channel '" + getName() + "'!" RESET "\n");
 }
 
 void	Channel::invite(Client *c, Client &invitee)
@@ -112,7 +113,7 @@ void	Channel::handleL(Client *c, bool sign, std::string parameter)
 	else
 	{
 		try {
-			int	limit = atoi(parameter.c_str());
+			int	limit = atoi(parameter.c_str()); // TODO CHECK IF STRING VALID FIRST
 			if (limit < (int) this->users.size())
 				c->sendmsg(RED "Channel Size is Greater than Suggested Limited!" RESET "\n");
 			else
@@ -145,12 +146,6 @@ void	Channel::mode(Client *c, bool sign, char mode, std::string parameter)
 	else if (mode == 'l')
 		handleL(c, sign, parameter);		
 }
-
-// · i: Set/remove Invite-only channel
-// · t: Set/remove the restrictions of the TOPIC command to channel operators
-// · k: Set/remove the channel key (password)
-// · o: Give/take channel operator privilege
-// · l: Set/remove the user limit to channel
 
 void	Channel::print(void)
 {

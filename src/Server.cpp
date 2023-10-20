@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/18 21:43:11 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/20 18:12:39 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,20 @@
 
 Server::Server( void )
 {
+	this->operpass = OPERPASS;
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
 }
 
 Server::Server( const Server &f )
 {
 	// std::cout << YELLOW "Copy Server constructor called" RESET "\n";
-	(void) f;
+	this->operpass = f.getOperPass();
 }
 
 Server &Server::operator=( const Server &f )
 {
 	// std::cout << YELLOW "Copy Server assignment operator called" RESET "\n";
-	(void) f;
+	this->operpass = f.getOperPass();
 	return (*this);
 }
 
@@ -40,9 +41,14 @@ int	Server::getFd(void)
 	return(this->sfd);
 }
 
-std::string	Server::getPassword(void)
+std::string	Server::getPassword(void) const
 {
-	return (this->password);
+	return (this->joinpass);
+}
+
+std::string	Server::getOperPass(void) const
+{
+	return (this->operpass);
 }
 
 Client	*Server::getClient(int cfd)
@@ -87,9 +93,42 @@ std::map<std::string, Channel>	&Server::getChannels()
 	return (this->channels);
 }
 
+bool	Server::isUser(Client &c)
+{
+	return (this->clients.find(c.getSocketFd()) != this->clients.end());
+}
+
+bool	Server::isOp(Client &c)
+{
+	return (this->operators.find(c.getSocketFd()) != this->operators.end());
+}
+
 void	Server::setPassword(std::string pass)
 {
-	this->password = pass;
+	this->joinpass = pass;
+}
+
+void	Server::removeUser(int cfd)
+{
+	if (!getClient(cfd))
+		return ;
+	for (std::map<std::string, Channel>::iterator it = this->channels.begin(); it != this->channels.end(); it++)
+		if (it->second.exists(*getClient(cfd)))
+			it->second.kick(NULL, *getClient(cfd));
+	if (isOp(*getClient(cfd)))
+		this->operators.erase(cfd);
+	this->clients.erase(cfd);
+	close(cfd);
+}
+
+void	Server::setOperPass(std::string pass)
+{
+	this->operpass = pass;
+}
+
+void	Server::addOperator(Client *potop)
+{
+	this->operators.insert(std::pair<int, Client *>(potop->getSocketFd(), potop));
 }
 
 void	Server::addChannel(std::string name, Client &c)

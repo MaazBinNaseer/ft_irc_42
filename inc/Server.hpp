@@ -19,18 +19,16 @@
 class Server
 {
 	private:
-		int	sfd;
+		int								sfd;
+		bool							_extended_join;
+		bool							_invite_notify;
+		bool							_echo_message;
 		struct sockaddr_in				addr;
 		std::string						password;
 		std::vector<pollfd>				clientfds;
 		std::map<int, Client> 			clients;
 		std::map<std::string, Channel> 	channels;
-		struct capabilities
-		{
-			bool _extended_join; //* Extends the JOIN message to include the account name of the joining client.
-			bool _echo_message; //* Notifies clients when their PRIVMSG and NOTICEs are correctly received by the server.
-			bool _invite_notify; //* Notifies clients when other clients are invited to common channels.
-		};
+	
 		
 	public:
 		Server( void );

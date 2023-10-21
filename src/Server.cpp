@@ -15,11 +15,17 @@
 Server::Server( void )
 {
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
+	_extended_join = false;
+	_invite_notify = false;
+	_echo_message = false;
 }
 
 Server::Server( const Server &f )
 {
 	// std::cout << YELLOW "Copy Server constructor called" RESET "\n";
+	_extended_join = false;
+	_invite_notify = false;
+	_echo_message = false;
 	(void)f;
 }
 

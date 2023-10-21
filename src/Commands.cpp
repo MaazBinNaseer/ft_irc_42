@@ -8,10 +8,10 @@ void Commands::CAP(void)
 	if (command1 == "LS")
     {
         this->_req_client->_cap_order = true;
-        this->_req_client->sendmsg(GREEN "CAP * LIST: chghost, server_time, account_tag, extended_join, invite_notify\r" RESET "\n");
+        this->_req_client->sendmsg(GREEN "CAP * LIST: echo_message, extended_join, invite_notify\r" RESET "\n");
     }
     if(this->_req_client->_cap_order && command1 == "REQ")
-    {	
+    {
         this->_req_client->sendmsg(GREEN "Request has been granted\r" RESET "\n");
     }
 	this->_req_client->postInfo();

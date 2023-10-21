@@ -13,6 +13,7 @@ void Commands::handleMultiple(std::string comm)
 		pos = str.find_first_of(",");
 	}
 	this->_cmd_args[0] = str;
+	this->_multiple = false;
 	return ;
 }
 
@@ -136,15 +137,10 @@ void Commands::PART(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (getCmdArg(0) == "")
 		this->_req_client->sendmsg(RED "Enter Channel to Part From!" RESET "\n");
-	else if (targetch && targetch->exists(*this->_req_client))
-	{
-		targetch->kick(NULL, *this->_req_client);
-		this->_req_client->sendmsg(GREEN "You have successfully left channel '" + getCmdArg(0) + "'!" RESET "\n");
-	}
-	else
+	else if (!targetch || !targetch->exists(*this->_req_client))
 		this->_req_client->sendmsg(RED "You are not part of a channel '" + getCmdArg(0) + "'!" RESET "\n");
-
-	// ! CHANGE IT SO MASTERS CAN LEAVE USING PART BUT IT DELETES IF EMPTY OR GIVES SOMEONE ELSE MASTER
+	else if (targetch->kick(NULL, *this->_req_client))
+		this->_serv->removeChannel(getCmdArg(0));
 }
 
 void Commands::KICK(void)
@@ -166,8 +162,6 @@ void Commands::KICK(void)
 		_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
 	else if (!targetch->exists(*targetcl))
 		_req_client->sendmsg(RED "User is not Part of this Channel!" RESET "\n");
-	else if (targetcl == targetch->getMaster())
-		_req_client->sendmsg(RED "User is a Master Operator!" RESET "\n");
 	else
 		targetch->kick(this->_req_client, *targetcl);
 }
@@ -274,7 +268,11 @@ void Commands::PRIVMSG(void)
 	else if (!targetcl)
 		_req_client->sendmsg(RED "No User or Channel of that Name Exists!" RESET "\n");
 	else
+	{
 		targetcl->sendmsg(PURPLE "[PRIV] " GREEN + _req_client->getNickname() + ": " YELLOW + concArgs(1) + RESET "\n");
+		if (!this->_multiple && this->_req_client->getCaps().echo_msg)
+			this->_req_client->sendmsg(PURPLE "[PRIV] " GREEN + _req_client->getNickname() + ": " YELLOW + concArgs(1) + RESET "\n");
+	}
 }
 
 void Commands::NOTICE(void)
@@ -347,7 +345,7 @@ Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr
 	_selection["OPER"] = &Commands::OPER;			// DONE
 	_selection["QUIT"] = &Commands::QUIT;			// DONE
 	_selection["JOIN"] = &Commands::JOIN;			// DONE
-	_selection["PART"] = &Commands::PART;			// ! MASTER
+	_selection["PART"] = &Commands::PART;			// DONE
 	_selection["KICK"] = &Commands::KICK;			// DONE
 	_selection["INVITE"] = &Commands::INVITE;		// DONE
 	_selection["TOPIC"] = &Commands::TOPIC;			// DONE

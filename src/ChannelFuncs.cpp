@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/20 20:13:07 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 14:20:25 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ void	Channel::broadcast(Client &c, std::string msg)
 
 	std::map<int, Client *>::iterator it;
 	for (it = users.begin(); it != users.end(); it++)
-		it->second->sendmsg(newmsg);
+		if (c.getSocketFd() != it->second->getSocketFd() || c.getCaps().echo_msg)
+			it->second->sendmsg(newmsg);
 }
 
 void	Channel::broadcastOps(Client *c, std::string msg)
@@ -44,38 +45,44 @@ void	Channel::broadcastOps(Client *c, std::string msg)
 		it->second->sendmsg(newmsg);
 }
 
-void	Channel::kick(Client *c, Client &kickee)
+int	Channel::kick(Client *c, Client &kickee)
 {
-	if (!exists(kickee) || kickee.getSocketFd() == this->master->getSocketFd())
-		return ;
+	if (!exists(kickee))
+		return (0);
 	this->users.erase(kickee.getSocketFd());
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
-	if (c)
+	if (c && c->getSocketFd() != kickee.getSocketFd())
 		broadcast(*c, "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
 	else
 		broadcast(kickee, "*left the channel*");
 	kickee.sendmsg(PURPLE "You are no longer part of channel '" + getName() + "'!" RESET "\n");
+	if (this->ops.size() == 0 && getSize() != 0)
+		handleO(c, true, this->users.begin()->second->getNickname());
+	return (getSize() == 0);
 }
 
 void	Channel::invite(Client *c, Client &invitee)
 {
 	if (exists(invitee))
 		return ;
-	if (userlimit >= 0 && userlimit <= (int) users.size())
-	{
-		if (c)
-			c->sendmsg(RED "Cannot invite '" + invitee.getNickname() + "' to a Full Channel!" RESET "\n");
-		else
-			invitee.sendmsg(RED "Channel is Full! Cannot Join!" RESET "\n");
-	}
+	if (c && userlimit >= 0 && userlimit <= (int) users.size())
+		c->sendmsg(RED "Cannot invite '" + invitee.getNickname() + "' to a Full Channel!" RESET "\n");
+	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
+		invitee.sendmsg(RED "Channel is Full! Cannot Join!" RESET "\n");
 	else
 	{
 		this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
+		
+		std::string newmsg;
 		if (c)
-			broadcast(*c, "*invited " + invitee.getNickname() + " to the channel*");
-		else
-			broadcast(invitee, "*joined the channel*");
+			newmsg = PURPLE "[" + getName() + "] " GREEN + c->getNickname() + ": " YELLOW + "*invited " + invitee.getNickname() + " to the channel*" + RESET "\n";
+		else 
+			newmsg = PURPLE "[" + getName() + "] " GREEN + invitee.getNickname() + ": " YELLOW + "*joined the channel*" + RESET "\n";
+	
+		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
+			if (it->second->getCaps().inv_notif)
+				it->second->sendmsg(newmsg);
 	}
 }
 
@@ -87,8 +94,6 @@ void	Channel::handleO(Client *c, bool sign, std::string parameter)
 		c->sendmsg(RED "Input User to Edit Channel Operator Privilege!" RESET "\n");
 	else if (!potop)
 		c->sendmsg(RED "User does not exist in this Channel!" RESET "\n");
-	else if (potop == master)
-		c->sendmsg(RED "Trying to edit Master Operator Privileges!" RESET "\n");
 	else
 	{
 		if (sign == true && !isOp(*potop))

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/20 17:46:38 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 14:09:47 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class Server
 		void	setOperPass(std::string pass);
 		void	addOperator(Client *potop);
 		void	addChannel(std::string name, Client &c);
+		void	removeChannel(std::string name);
 		void	print(void);
 
 

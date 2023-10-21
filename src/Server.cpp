@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/20 18:12:39 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 14:10:27 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,11 @@ void	Server::addChannel(std::string name, Client &c)
 		return ;
 	Channel ch = Channel(name, c);
 	this->channels.insert(std::pair<std::string, Channel>(name, ch));
+}
+
+void	Server::removeChannel(std::string name)
+{
+	this->channels.erase(name);
 }
 
 void	Server::print(void)

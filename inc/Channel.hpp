@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/19 20:56:16 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 14:16:54 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ class Channel {
 		std::string				password;
 		std::map<int, Client *>	users;
 		std::map<int, Client *>	ops;
-		Client					*master;
 		bool					inviteonly;
 		bool					trestrict;
 		int						userlimit;
@@ -39,19 +38,17 @@ class Channel {
 		std::string				getPassword( void ) const ;
 		std::map<int, Client *> getUsers( void ) const ;
 		std::map<int, Client *> getOps( void ) const ;
-		Client					*getMaster( void ) const ;
 		bool					isInviteOnly( void ) const ;
 		bool					hasTopicRestrictions( void ) const;
 		int						getSize( void );
 		
-		void	setMaster(Client &c);
 		void	setTopic(Client *c, std::string t); // *	NULL if simply display
 	
 		bool	exists(Client c);
 		bool	isOp(Client c);
 		Client	*getClientNick(std::string nick);
 	
-		void	kick(Client *c, Client &kickee); // if last client removed delete this channel
+		int		kick(Client *c, Client &kickee); // if last client removed delete this channel
 		void	invite(Client *c, Client &invitee);
 
 		void	handleO(Client *c, bool sign, std::string parameter);

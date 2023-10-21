@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/18 21:34:56 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 12:38:32 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,30 @@
 Client::Client()
 {
 	_cap_order = false;
+	this->_caps.echo_msg = false;
+	this->_caps.ext_join = false;
+	this->_caps.inv_notif = false;
 }
 
 Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _client_id(fd), _hostname(hostname)
 {
 	this->_nickname = "AMMAazRuhan";
+	_cap_order = false;
+	this->_caps.echo_msg = false;
+	this->_caps.ext_join = false;
+	this->_caps.inv_notif = false;
+}
+
+Client::Client( const Client &f )
+{
+	if (this != &f)
+	{
+		this->_socket_fd = f._socket_fd;
+		this->_client_id = f._socket_fd;
+		this->_username = f._username;
+		this->_nickname = f._nickname;
+		this->_caps = f.getCaps();
+	}
 }
 
 Client & Client::operator=(Client const & rhs)
@@ -30,6 +49,7 @@ Client & Client::operator=(Client const & rhs)
 		this->_client_id = rhs._socket_fd;
 		this->_username = rhs._username;
 		this->_nickname = rhs._nickname;
+		this->_caps = rhs.getCaps();
 	}
 	return (*this);
 }
@@ -41,42 +61,42 @@ Client::~Client()
 
 /*----- Attribute getters -----*/
 
-int Client::getSocketFd()
+int Client::getSocketFd() const
 {
 	return (this->_socket_fd);
 }
 
-int Client::getClientId()
+int Client::getClientId() const
 {
 	return (this->_client_id);
 }
 
-std::string Client::getUsername()
+std::string Client::getUsername() const
 {
 	return (this->_username);
 }
 
-std::string Client::getHostname()
+std::string Client::getHostname() const
 {
 	return (this->_hostname);
 }
 
-std::string Client::getNickname()
+std::string Client::getNickname() const
 {
 	return (this->_nickname);
 }
 
-std::string Client::getRealname()
+std::string Client::getRealname() const
 {
 	return (this->_realname);
 }
 
-bool Client::getPass()
+bool Client::getPass() const
 {
 	return (this->_pass);
 }
 
-bool Client::getRegistered()
+bool Client::getRegistered() const
 {
 	return (this->_registered);
 }
@@ -89,6 +109,11 @@ std::string &Client::getReceiveBuffer()
 std::vector<std::string>	&Client::getSendBuffer(void)
 {
 	return (this->_sendBuffer);
+}
+
+t_cap	Client::getCaps(void) const
+{
+	return (this->_caps);
 }
 
 /*----- Attribute setters -----*/

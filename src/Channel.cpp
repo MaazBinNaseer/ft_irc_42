@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/19 20:50:47 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 14:16:59 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ Channel::Channel(std::string n, Client &c) : name(n)
 	this->password = "";
 	this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
 	this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
-	this->master = &c;
 	this->inviteonly = false;
 	this->trestrict = false;
 	this->userlimit = -1;
@@ -30,7 +29,6 @@ Channel::Channel( void ) : name("Default") // ! NEVER CALL DEFAULT
 {
 	this->topic = "[Set a topic]";
 	this->password = "";
-	this->master = NULL;
 	this->inviteonly = false;
 	this->trestrict = false;
 	this->userlimit = -1;
@@ -42,7 +40,6 @@ Channel::Channel( const Channel &f ) : name(f.getName())
 	this->password = f.getPassword();
 	this->users = f.getUsers();
 	this->ops = f.getOps();
-	this->master = f.getMaster();
 	this->inviteonly = false;
 	this->trestrict = false;
 	this->userlimit = -1;
@@ -89,11 +86,6 @@ std::map<int, Client *>	Channel::getOps( void ) const
 	return (this->ops);
 }
 
-Client	*Channel::getMaster( void ) const
-{
-	return (this->master);
-}
-
 bool	Channel::isInviteOnly( void ) const 
 {
 	return (this->inviteonly);
@@ -107,11 +99,6 @@ bool	Channel::hasTopicRestrictions( void ) const
 int	Channel::getSize( void )
 {
 	return (users.size());
-}
-
-void	Channel::setMaster(Client &c)
-{
-	this->master = &c;
 }
 
 void	Channel::setTopic(Client *c, std::string t)

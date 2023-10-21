@@ -6,13 +6,20 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/18 21:34:17 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/21 12:34:25 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ft_irc.hpp"
+
+typedef struct s_cap
+{
+	bool	echo_msg; // sends msg back when you send it to client or channel
+	bool	ext_join; // prints real name when joining channel
+	bool	inv_notif;	// notifies clients of channel someone joined
+}	t_cap;
 
 class Client
 {
@@ -28,28 +35,31 @@ class Client
 		bool						_registered;
 		std::string					_receiveBuffer;
 		std::vector<std::string> 	_sendBuffer;
-		
+		t_cap						_caps;
 
     public:
 
-        // *----- Orthodox Canonical Form -----
 		bool						_cap_order;
-		Client();
 		Client(unsigned int fd, std::string hostname);
+	
+        // *----- Orthodox Canonical Form -----
+		Client();
+		Client( const Client &f );
 		Client & operator=(Client const & rhs);
         ~Client();
 
 		// *------ Attribute getters ------
-		int							getSocketFd(void);
-		int							getClientId(void);
-		std::string					getUsername(void);
-		std::string					getHostname(void);
-		std::string					getNickname(void);
-		std::string					getRealname(void);
-		bool						getPass(void);
-		bool						getRegistered(void);
+		int							getSocketFd(void) const ;
+		int							getClientId(void) const ;
+		std::string					getUsername(void) const ;
+		std::string					getHostname(void) const ;
+		std::string					getNickname(void) const ;
+		std::string					getRealname(void) const ;
+		bool						getPass(void) const ;
+		bool						getRegistered(void) const ;
 		std::string					&getReceiveBuffer(void);
 		std::vector<std::string>	&getSendBuffer(void);
+		t_cap						getCaps(void) const ;
 
 		// *------ Attribute setters ------
 		void						setSocketFd(int fd);

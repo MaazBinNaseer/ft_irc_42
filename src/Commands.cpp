@@ -41,7 +41,7 @@ void Commands::PASS(void)
 	else
 	{
 		_req_client->sendmsg(RED "Incorrect Password! Termination Imminent!" RESET "\n");
-		close(_req_client->getSocketFd());
+		this->_serv->removeUser(this->_req_client->getSocketFd());
 	}
 }
 
@@ -104,8 +104,8 @@ void Commands::QUIT(void)
 	if (getCmdArg(0) == "")
 		this->_req_client->sendmsg(RED "Exiting Server! See you soon!" RESET "\n");
 	else
-		this->_req_client->sendmsg(RED + concArgs(0) + RESET + "\n");
-	close(this->_req_client->getSocketFd());
+		this->_req_client->sendmsg(RED "You have Quit Because: " + concArgs(0) + RESET + "\n");
+	this->_serv->removeUser(this->_req_client->getSocketFd());
 }
 
 void Commands::JOIN(void)
@@ -195,7 +195,7 @@ void Commands::TOPIC(void)
 		this->_req_client->sendmsg(RED "Channel '" + getCmdArg(0) + "' does not exist!" RESET "\n");
 	else if (getCmdArg(1) == "")
 		this->_req_client->sendmsg(PURPLE "[" + getCmdArg(0) + "] " GREEN "TOPIC= " YELLOW + targetch->getTopic() + RESET "\n");
-	else if (!targetch->exists(*this->_req_client)) // * EVERYTHING BELOW IS ABOUT SETTING TOPIC
+	else if (!targetch->exists(*this->_req_client))
 		this->_req_client->sendmsg(RED "Cannot set Topic of channel you are not part of!" RESET "\n");
 	else if (targetch->hasTopicRestrictions() && !targetch->isOp(*this->_req_client))
 		this->_req_client->sendmsg(RED "Setting Topic restricted to Channel Operators!" RESET "\n");

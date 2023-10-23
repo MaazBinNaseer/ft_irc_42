@@ -30,14 +30,10 @@ std::string	Parse::getCmdArg(unsigned long i)
 
 void	Parse::printCmdArgs()
 {
-	// std::vector<std::string>::iterator it = this->_cmd_args.begin();
-	// std::vector<std::string>::iterator end = this->_cmd_args.end();
-
 	std::cout << "ARGUMENTS: ";
 	for (size_t i = 0; i < this->_cmd_args.size(); i++)
 		std::cout << "[" << i << "] " << this->_cmd_args[i] << " AND ";
 	std::cout << std::endl;
-	// this->_cmd_args.clear();
 }
 
 int	Parse::getClientFd()

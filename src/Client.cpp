@@ -6,27 +6,32 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 16:14:51 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 17:59:14 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
 
+t_cap genDefaultCap()
+{
+	t_cap caps;
+	caps.echo_msg = true;
+	caps.ext_join = false;
+	caps.inv_notif = true;
+	return (caps);
+}
+
 Client::Client()
 {
 	_cap_order = false;
-	this->_caps.echo_msg = false;
-	this->_caps.ext_join = false;
-	this->_caps.inv_notif = false;
+	this->_caps = genDefaultCap();
 }
 
 Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _client_id(fd), _hostname(hostname)
 {
 	this->_nickname = "AMMAazRuhan";
 	_cap_order = false;
-	this->_caps.echo_msg = false;
-	this->_caps.ext_join = false;
-	this->_caps.inv_notif = false;
+	this->_caps = genDefaultCap();
 }
 
 Client::Client( const Client &f )

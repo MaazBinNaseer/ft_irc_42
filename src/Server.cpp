@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 17:45:49 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 17:55:06 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,9 @@ void	Server::removeUser(int cfd)
 	for (std::map<std::string, Channel>::iterator it = this->channels.begin(); it != this->channels.end(); it++)
 		if (it->second.exists(*getClient(cfd)))
 			it->second.kick(NULL, *getClient(cfd));
+	for (size_t i = 0; i < this->clientfds.size(); i++)
+		if (this->clientfds[i].fd == cfd)
+			this->clientfds.erase(this->clientfds.begin() + i--);
 	if (isOp(*getClient(cfd)))
 		this->operators.erase(cfd);
 	this->clients.erase(cfd);

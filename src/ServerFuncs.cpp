@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 17:46:13 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 17:54:51 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,12 +85,7 @@ int Server::HandleClients()
 			if (valread < 0)
 				return (-1);
 			else if (valread == 0)
-			{
-				// ! DELETE ALL INSTANCES OF THIS SOCKET_FD ACROSS ANY CHANNEL
-				// removeUser(this->clientfds[i--].fd); // ! THIS CLOSES SERVER
-				close(this->clientfds[i].fd);
-				this->clientfds.erase(this->clientfds.begin() + i--);
-			}
+				removeUser(this->clientfds[i--].fd);
 			else
 			{
 				// do {

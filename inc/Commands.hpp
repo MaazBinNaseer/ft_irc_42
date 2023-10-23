@@ -50,9 +50,11 @@ class Commands : public Parse
 	public:
 		Commands();
 		Commands(Client *req_client, Server *srvptr);
+		Commands(Client *req_client, Server *srvptr, std::string &buff);
 		~Commands();
 
-		void	executeCommand(void);
+		void	setAttributes( void );
+		void	executeCommand( void );
 
 		void	print();
 };

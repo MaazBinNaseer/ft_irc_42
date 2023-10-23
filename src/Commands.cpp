@@ -327,13 +327,7 @@ void Commands::KILL(void)
 	}
 }
 
-Commands::Commands()
-{
-	this->_order = false;
-	this->_multiple = false;
-}
-
-Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
+void	Commands::setAttributes()
 {
 	this->_order = false;
 	this->_multiple = false;
@@ -356,6 +350,34 @@ Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr
 	_selection["KILL"] = &Commands::KILL;			// DONE
 }
 
+Commands::Commands()
+{
+	setAttributes();
+}
+
+Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
+{
+	setAttributes();
+}
+
+Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse(req_client, srvptr)
+{
+	setAttributes();
+
+	size_t pos = buff.find_first_of('\n');
+	if (pos == std::string::npos)
+		return ;
+	std::string cmd = buff.substr(0, pos + 1);
+	buff = buff.substr(pos + 1);
+	trim(cmd);
+	if (cmd.empty())
+		return ;
+	this->_cmd = extractWord(cmd);
+	while (!cmd.empty())
+		this->_cmd_args.push_back(extractWord(cmd));
+	executeCommand();
+}
+
 Commands::~Commands()
 {
 
@@ -365,7 +387,6 @@ void	Commands::executeCommand()
 {
 	std::map<std::string, actions>::iterator select;
 
-	// ! Consider upper casing the first command
 	select = this->_selection.find(this->_cmd);
 	if (select != this->_selection.end())
 		(this->*select->second)();

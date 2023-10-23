@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/21 12:38:32 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 16:14:51 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,8 +179,14 @@ void	Client::postInfo(void)
 
 void	Client::sendmsg(std::string msg)
 {
-	// * you can send time if client has server_time activated.
 	send(getSocketFd(), msg.data(), msg.size(), 0);
+}
+
+void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
+{
+	this->_receiveBuffer += newbuff;
+	while (this->_receiveBuffer.find('\n') != std::string::npos)
+		Commands	extract(this, _serv, getReceiveBuffer());
 }
 
 void	Client::print(std::string color)

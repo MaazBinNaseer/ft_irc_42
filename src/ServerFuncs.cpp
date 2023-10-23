@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/20 17:14:36 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 17:46:13 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,48 +71,37 @@ int	Server::accept_connect( void )
 }
 
 //TODO Figure out and handle receiving authentications from the client: "Irssi"
-void	Server::HandleParse(int i)
-{
-	std::string buffed;
-
-	buffed = this->clients[clientfds[i].fd].getReceiveBuffer();
-	if (buffed.find('\n') != std::string::npos)
-	{
-		Commands  extract(&this->clients[this->clientfds[i].fd], this);
-		extract.trim(buffed);
-		extract.assignCommand(buffed);
-		if (!buffed.empty())
-			extract.assignArguments(buffed);
-		extract.executeCommand();
-		this->clients[this->clientfds[i].fd].getReceiveBuffer().clear();
-	}
-}
-
-// Handling the client data would be similar to the HandleClients function from the previous version
 int Server::HandleClients()
 {
-	char buffer[2056];
+	char buffer[BUFFER_SIZE];
 	int	valread;
 	
 	for (size_t i = 1; i < clientfds.size(); i++)
 	{
-		if (this->clientfds[i].revents & POLLIN) // ! CHECK IF & OR &&
+		if (this->clientfds[i].revents & POLLIN)
 		{
-			valread = recv(this->clientfds[i].fd, buffer, sizeof(buffer), 0);
-			std::memset(buffer + valread, 0, 1024 - valread);
+			valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
+			std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
 			if (valread < 0)
 				return (-1);
 			else if (valread == 0)
 			{
 				// ! DELETE ALL INSTANCES OF THIS SOCKET_FD ACROSS ANY CHANNEL
+				// removeUser(this->clientfds[i--].fd); // ! THIS CLOSES SERVER
 				close(this->clientfds[i].fd);
 				this->clientfds.erase(this->clientfds.begin() + i--);
 			}
-			else if (buffer[0] != '\n')
+			else
 			{
-				this->clients[clientfds[i].fd].getReceiveBuffer() += buffer;
-				HandleParse(i);
-			}		
+				// do {
+				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
+				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
+				// 	std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
+				// } while (valread == BUFFER_SIZE);
+				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
+				if (valread)
+					this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
+			}
 		}
 	}
 	return (0);

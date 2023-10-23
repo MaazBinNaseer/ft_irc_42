@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/20 17:19:07 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 16:02:07 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@
 
 #define MINPORT 1024
 #define MAXPORT 65535
+
+#define BUFFER_SIZE 2048
 
 #define OPERPASS "heeheeMJ"
 

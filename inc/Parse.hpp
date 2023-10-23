@@ -30,7 +30,5 @@ class Parse
 
 		// *----- Parser -----
 		void		trim(std::string &buffer);
-		void		assignCommand(std::string &buffer);
-		void		assignArguments(std::string &buffer);
-
+		std::string	extractWord(std::string &buffer);
 };

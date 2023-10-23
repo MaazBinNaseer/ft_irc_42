@@ -31,6 +31,7 @@ fclean: clean
 	rm -rf $(NAME)
 
 gpush:
+	make fclean
 	git add .
 	git commit -m sub
 	git push

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/21 12:34:25 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 16:09:27 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ typedef struct s_cap
 class Client
 {
     private:
-	
 		unsigned int				_socket_fd;
 		unsigned int				_client_id;
 		std::string					_hostname;
@@ -38,7 +37,6 @@ class Client
 		t_cap						_caps;
 
     public:
-
 		bool						_cap_order;
 		Client(unsigned int fd, std::string hostname);
 	
@@ -74,6 +72,7 @@ class Client
 		// *------ Other functions ------
 		void						fillInfo(int fd, std::string username, std::string nickname);
 		void						postInfo(void);
+		void						appendExecBuffer(std::string newbuff, Server *_serv);
 		void						sendmsg(std::string msg);
 		void						print(std::string color);
 };

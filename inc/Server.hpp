@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/21 14:09:47 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/23 16:10:56 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ class Server
 		int		appendpollfd(int new_socket);
 		int		assign(char *portstr, char *pass);
 		int		accept_connect( void );
-		void	HandleParse( int i );
 		int		HandleClients( void );
 
 		int		bootup(char *portstr, char *pass);

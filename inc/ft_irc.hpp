@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 16:02:07 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/25 19:04:03 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@
 #include <ostream>
 #include <sstream>
 #include <cstring>
-#include <stdbool.h>
 #include <string>
 #include <vector>
+#include <deque>
 #include <map>
 
 #include <sys/socket.h>
@@ -45,10 +45,15 @@
 
 #define OPERPASS "heeheeMJ"
 
+class Channel;
+class Client;
+class Commands;
 class Server; // * need to include so other classes can use Server as attribute
 
-#include "Client.hpp"
 #include "Channel.hpp"
+#include "Client.hpp"
+#include "Codes.hpp"
 #include "Parse.hpp"
 #include "Commands.hpp"
+#include "Courier.hpp"
 #include "Server.hpp"

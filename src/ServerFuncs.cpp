@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 17:54:51 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/25 19:14:09 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int	Server::assign(char *portstr, char *pass)
 
 	this->sfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->sfd == -1)
-		return (std::cerr << RED "Socket Failed!" RESET "\n", 1);
+		throw FailedFunction("Socket");
 
 	std::memset(&this->addr, 0, sizeof(this->addr));
 	this->addr.sin_family = AF_INET;
@@ -50,10 +50,14 @@ int	Server::assign(char *portstr, char *pass)
 	return (0);
 }
 
+// ! POTENTIAL CHANGES
+// TODO remove addr such that its no longer needed in attributes
+// TODO SEE IF caddr can be removed (pass NULL)
+
 int	Server::accept_connect( void )
 {
 	if (poll(this->clientfds.data(), this->clientfds.size(), 10) == -1)
-		return (std::cerr << RED "Poll Failed!" RESET "\n", -1);
+		throw FailedFunction("Poll");
 
 	if (!(this->clientfds[0].revents & POLLIN))
 		return (0);
@@ -63,7 +67,7 @@ int	Server::accept_connect( void )
 
 	int cfd = accept(this->sfd, (struct sockaddr *) &caddr, (socklen_t *) &addlen);
 	if (cfd == -1)
-		return (std::cerr << RED "Accept Failed!" RESET "\n", -1);
+		throw FailedFunction("Accept");
 	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
 	this->clients.insert(std::pair<int, Client>(cfd, login));
 	std::cout << GREEN "New Connection! Socket " << cfd << RESET "\n";
@@ -83,11 +87,11 @@ int Server::HandleClients()
 			valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
 			std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
 			if (valread < 0)
-				return (-1);
+				throw FailedFunction("Recv");
 			else if (valread == 0)
 				removeUser(this->clientfds[i--].fd);
 			else
-			{
+			{				
 				// do {
 				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
@@ -108,10 +112,10 @@ int	Server::bootup(char	*portstr, char *pass)
 		return (1);
 
 	if (bind(this->sfd, (struct sockaddr *) &this->addr, sizeof(this->addr)))
-		return (std::cerr << RED "Bind Failed!" RESET "\n", 1);
+		throw FailedFunction("Bind");
 	
 	if (listen(this->sfd, 3))
-		return (std::cerr << RED "Listen Failed!" RESET "\n", 1);
+		throw FailedFunction("Listen");
 
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
 

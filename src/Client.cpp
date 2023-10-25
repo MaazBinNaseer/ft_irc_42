@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 17:59:14 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/25 19:09:44 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,11 @@ int Client::getClientId() const
 	return (this->_client_id);
 }
 
+std::string Client::getServername() const
+{
+	return (this->_servername);
+}
+
 std::string Client::getUsername() const
 {
 	return (this->_username);
@@ -111,7 +116,7 @@ std::string &Client::getReceiveBuffer()
 	return (this->_receiveBuffer);
 }
 
-std::vector<std::string>	&Client::getSendBuffer(void)
+std::deque<std::string>	&Client::getSendBuffer(void)
 {
 	return (this->_sendBuffer);
 }
@@ -131,6 +136,11 @@ void Client::setSocketFd(int fd)
 void Client::setClientId(int fd)
 {
 	this->_client_id = fd;
+}
+
+void Client::setServername(std::string servername)
+{
+	this->_servername = servername;
 }
 
 void Client::setUsername(std::string username)
@@ -163,6 +173,11 @@ void Client:: setRegistered(bool set)
 	this->_registered = set;
 }
 
+void Client::pushSendBuffer(std::string string)
+{
+	this->_sendBuffer.push_back(string);
+}
+
 /*----- Other functions -----*/
 
 void	Client::fillInfo(int fd, std::string username, std::string nickname)
@@ -184,7 +199,9 @@ void	Client::postInfo(void)
 
 void	Client::sendmsg(std::string msg)
 {
-	send(getSocketFd(), msg.data(), msg.size(), 0);
+	// * you can send time if client has server_time activated.
+	if (send(getSocketFd(), msg.data(), msg.size(), 0))
+		throw FailedFunction("Send");
 }
 
 void	Client::appendExecBuffer(std::string newbuff, Server *_serv)

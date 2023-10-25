@@ -3,7 +3,7 @@ NAME = ircserv
 SRCDIR = src
 SRCS = main.cpp Server.cpp ServerFuncs.cpp \
 		Channel.cpp ChannelFuncs.cpp \
-		Client.cpp \
+		Client.cpp Courier.cpp \
 		Parse.cpp Commands.cpp
 		
 
@@ -33,7 +33,7 @@ fclean: clean
 gpush:
 	make fclean
 	git add .
-	git commit -m sub
+	git commit -m "Merged Ruhan and Ammar's work"
 	git push
 
 re: fclean all

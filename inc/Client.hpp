@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/23 16:09:27 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/25 18:39:40 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Client
     private:
 		unsigned int				_socket_fd;
 		unsigned int				_client_id;
+		std::string					_servername;
 		std::string					_hostname;
 		std::string					_username;
 		std::string					_nickname;
@@ -33,7 +34,7 @@ class Client
 		bool						_pass;
 		bool						_registered;
 		std::string					_receiveBuffer;
-		std::vector<std::string> 	_sendBuffer;
+		std::deque<std::string> 	_sendBuffer;
 		t_cap						_caps;
 
     public:
@@ -49,6 +50,7 @@ class Client
 		// *------ Attribute getters ------
 		int							getSocketFd(void) const ;
 		int							getClientId(void) const ;
+		std::string					getServername(void) const ;
 		std::string					getUsername(void) const ;
 		std::string					getHostname(void) const ;
 		std::string					getNickname(void) const ;
@@ -56,19 +58,21 @@ class Client
 		bool						getPass(void) const ;
 		bool						getRegistered(void) const ;
 		std::string					&getReceiveBuffer(void);
-		std::vector<std::string>	&getSendBuffer(void);
+		std::deque<std::string>		&getSendBuffer(void);
 		t_cap						getCaps(void) const ;
 
 		// *------ Attribute setters ------
 		void						setSocketFd(int fd);
 		void						setClientId(int id);
+		void						setServername(std::string servername);
 		void						setUsername(std::string username);
 		void						setHostname(std::string nickname);
 		void						setNickname(std::string nickname);
 		void						setRealname(std::string nickname);
 		void						setPass(bool set);
 		void						setRegistered(bool set);
-
+		void						pushSendBuffer(std::string string);
+	
 		// *------ Other functions ------
 		void						fillInfo(int fd, std::string username, std::string nickname);
 		void						postInfo(void);

@@ -20,18 +20,14 @@ void Commands::handleMultiple(std::string comm)
 void Commands::CAP(void)
 {
 	std::string command1 = getCmdArg(0);
-	std::cout << "Commands from CAP is called " << command1 << std::endl;
 	if (command1 == "LS")
     {
         this->_req_client->_cap_order = true;
-        this->_req_client->sendmsg(GREEN "CAP * LIST: chghost, server_time, account_tag, extended_join, invite_notify\r" RESET "\n");
+        this->_req_client->sendmsg("CAP * LS :chghost, server_time, account_tag, extended_join, invite_notify" "\r\n");
     }
-    if(this->_req_client->_cap_order && command1 == "REQ")
-    {	
+    if(this->_req_client->_cap_order && command1 == "REQ")	
         this->_req_client->sendmsg(GREEN "Request has been granted\r" RESET "\n");
-    }
-	
-	this->_req_client->postInfo();
+
 }
 
 void Commands::PASS(void)
@@ -110,6 +106,9 @@ void Commands::QUIT(void)
 
 void Commands::JOIN(void)
 {
+	if (getCmdArg(0) == ":")
+		return ; // ! THINK ABOUT ADDING CLIENT TO SERVER INSTEAD OF IGNORE
+
 	if (!this->_multiple)
 		handleMultiple("JOIN");
 
@@ -370,6 +369,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse
 	std::string cmd = buff.substr(0, pos + 1);
 	buff = buff.substr(pos + 1);
 	trim(cmd);
+	std::cout << PURPLE << cmd << RESET << "\n"; // ! DEBUGGING
 	if (cmd.empty())
 		return ;
 	this->_cmd = extractWord(cmd);

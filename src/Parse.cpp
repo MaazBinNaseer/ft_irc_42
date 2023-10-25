@@ -66,7 +66,7 @@ void	Parse::trim(std::string &buffer)
 			while (i < buffer.size() && buffer[i] != '\'')
 				i++;
 	}
-	while (buffer[buffer.size() - 2] == ' ')
+	while (buffer.size() > 1 && (buffer[buffer.size() - 2] == ' ' || buffer[buffer.size() - 2] == '\r'))
 		buffer.erase(buffer.size() - 2, 1);
 	buffer.erase(buffer.size() - 1, 1);
 }

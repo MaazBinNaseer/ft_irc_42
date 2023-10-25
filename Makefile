@@ -36,4 +36,7 @@ gpush:
 	git commit -m "Merged Ruhan and Ammar's work"
 	git push
 
+irssi:
+	docker run -it --rm --name irssi --network host irssi
+
 re: fclean all

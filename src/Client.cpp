@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 19:09:44 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/25 19:24:41 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void	Client::postInfo(void)
 void	Client::sendmsg(std::string msg)
 {
 	// * you can send time if client has server_time activated.
-	if (send(getSocketFd(), msg.data(), msg.size(), 0))
+	if (send(getSocketFd(), msg.data(), msg.size(), 0) == -1)
 		throw FailedFunction("Send");
 }
 

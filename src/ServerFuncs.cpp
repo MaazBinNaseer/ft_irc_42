@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 19:14:09 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/25 20:01:08 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,17 @@ int	Server::accept_connect( void )
 	return (appendpollfd(cfd));
 }
 
+void	printBuffer(std::string buff)
+{
+	for (unsigned long i = 0; i < buff.size(); i++)
+	{
+		if (buff[i] == ' ')
+			std::cout << "\n";
+		else
+			std::cout << (int) buff[i] << "   ";
+	}
+}
+
 //TODO Figure out and handle receiving authentications from the client: "Irssi"
 int Server::HandleClients()
 {
@@ -91,7 +102,7 @@ int Server::HandleClients()
 			else if (valread == 0)
 				removeUser(this->clientfds[i--].fd);
 			else
-			{				
+			{
 				// do {
 				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);

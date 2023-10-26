@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 18:39:40 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/26 16:31:41 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Client
 		std::string					_realname;
 		bool						_pass;
 		bool						_registered;
+		bool						_remove;
 		std::string					_receiveBuffer;
 		std::deque<std::string> 	_sendBuffer;
 		t_cap						_caps;
@@ -57,6 +58,7 @@ class Client
 		std::string					getRealname(void) const ;
 		bool						getPass(void) const ;
 		bool						getRegistered(void) const ;
+		bool						getRemove(void) const ;
 		std::string					&getReceiveBuffer(void);
 		std::deque<std::string>		&getSendBuffer(void);
 		t_cap						getCaps(void) const ;
@@ -71,6 +73,7 @@ class Client
 		void						setRealname(std::string nickname);
 		void						setPass(bool set);
 		void						setRegistered(bool set);
+		void						setRemove(bool set);
 		void						pushSendBuffer(std::string string);
 	
 		// *------ Other functions ------

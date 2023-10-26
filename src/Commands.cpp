@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <exception>
 
 void Commands::handleMultiple(std::string comm)
 {
@@ -22,23 +23,34 @@ void Commands::CAP(void)
 	std::string command1 = getCmdArg(0);
 	if (command1 == "LS")
     {
+		std::string message = "CAP * LS :chghost server_time account_tag extended_join invite_notify\r\n";
         this->_req_client->_cap_order = true;
-        this->_req_client->sendmsg("CAP * LS :chghost, server_time, account_tag, extended_join, invite_notify" "\r\n");
+        this->_req_client->pushSendBuffer(message);
     }
-    if(this->_req_client->_cap_order && command1 == "REQ")	
-        this->_req_client->sendmsg(GREEN "Request has been granted\r" RESET "\n");
+    if(this->_req_client->_cap_order && command1 == "REQ")
+	{
+		std::string message = "CAP * ACK " + getCmdArg(1) + "\r\n";
+        this->_req_client->pushSendBuffer(message);
+	}
 
 }
 
 void Commands::PASS(void)
 {
-	if (this->_serv->getPassword() == getCmdArg(0))
-		_req_client->sendmsg(GREEN "Connected! Welcome to our Server! :)" RESET "\n");
-	else
+	if (!_req_client->getPass())
 	{
-		_req_client->sendmsg(RED "Incorrect Password! Termination Imminent!" RESET "\n");
-		this->_serv->removeUser(this->_req_client->getSocketFd());
+		if (this->_cmd_args.size() < 1)
+			throw NeedMoreParams("1");
+		if (this->_serv->getPassword() == getCmdArg(0))
+			_req_client->setPass(true);
+		else
+		{
+			serverMessage(ERR_PASSWDMISMATCH, ":Password incorrect", *_req_client);
+			_req_client->setRemove(true);
+		}
 	}
+	else
+		serverMessage(ERR_ALREADYREGISTERED, ":No need to reregister", *_req_client);
 }
 
 void Commands::PING(void)
@@ -48,31 +60,64 @@ void Commands::PING(void)
 
 void Commands::NICK(void)
 {
-	if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
-		_req_client->sendmsg(RED "Nickname Taken! Choose another!" RESET "\n");
-	else if (this->_serv->getChannel(getCmdArg(0)))
-		_req_client->sendmsg(RED "Cannot set Channel Name as Nickname! Choose another!" RESET "\n");
+	if (this->_cmd_args.size() < 1)
+	{
+		serverMessage(ERR_NONICKNAMEGIVEN, ":No nickname given", *_req_client);
+		throw NeedMoreParams("1");
+	}
+	if (_req_client->getPass())
+	{
+		if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
+			serverMessage(ERR_NICKNAMEINUSE, getCmdArg(0) + " :Nickname is already in use by another user", *_req_client);
+		else if (this->_serv->getChannel(getCmdArg(0)))
+			serverMessage(ERR_NICKNAMEINUSE, getCmdArg(0) + " :Nickname is already in use by a channel", *_req_client);
+		else
+			this->_req_client->setNickname(getCmdArg(0));
+	}
 	else
-		this->_req_client->setNickname(getCmdArg(0));
+		serverMessage(ERR_PASSWDMISMATCH, ":Password needed", *_req_client);
 }
 
 void Commands::USER(void)
 {
-	std::string user = getCmdArg(0);
-	if (this->_serv->getClientUser(user))
-		_req_client->sendmsg(RED "Username Taken! Choose another!" RESET "\n");
-	else if (user != "" && user[0] != ':')
-		this->_req_client->setUsername(user);
-	for (unsigned long i = 0; i < this->_cmd_args.size() && getCmdArg(i) != ""; i++)
+	if (!_req_client->getRegistered())
 	{
-		if (getCmdArg(i)[0] == ':')
+		if (_req_client->getPass())
 		{
-			user = concArgs(i);
-			user.erase(0, 1);
-			this->_req_client->setRealname(user);
-			break ;
+			// std::string user = getCmdArg(0);
+			// if (this->_serv->getClientUser(user))
+			// 	_req_client->sendmsg(RED "Username Taken! Choose another!" RESET "\n"); // ? Would we need to check on usernames? thats for nicknames
+			// if (user != "" && user[0] != ':')
+			// 	this->_req_client->setUsername(user);
+			// for (unsigned long i = 0; i < this->_cmd_args.size() && getCmdArg(i) != ""; i++)
+			// {
+			// 	if (getCmdArg(i)[0] == ':')
+			// 	{
+			// 		user = concArgs(i);
+			// 		user.erase(0, 1);
+			// 		this->_req_client->setRealname(user);
+			// 		break ;
+			// 	}
+			// }
+			// ! Revise this code please
+			_req_client->setUsername(getCmdArg(0));
+			_req_client->setHostname(getCmdArg(1));
+			_req_client->setServername(getCmdArg(2));
+			_req_client->setRealname(getCmdArg(3));
+			if (_req_client->getNickname() == "*")
+				serverMessage(ERR_NONICKNAMEGIVEN, ":Nickname required to register", *_req_client);
+			else
+			{
+				_req_client->setRegistered(true);
+				welcomeMessage(*_req_client);
+			}
+
 		}
+		else
+			serverMessage(ERR_PASSWDMISMATCH, ":Password needed", *_req_client);
 	}
+	else
+		serverMessage(ERR_ALREADYREGISTERED, ":No need to reregister", *_req_client);
 }
 
 void Commands::OPER(void)
@@ -106,9 +151,6 @@ void Commands::QUIT(void)
 
 void Commands::JOIN(void)
 {
-	if (getCmdArg(0) == ":")
-		return ; // ! THINK ABOUT ADDING CLIENT TO SERVER INSTEAD OF IGNORE
-
 	if (!this->_multiple)
 		handleMultiple("JOIN");
 
@@ -383,13 +425,34 @@ Commands::~Commands()
 
 }
 
+bool	Commands::toRegister(std::string command)
+{
+	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER")
+		return(_req_client->getRegistered());
+	return (true);
+}
+
 void	Commands::executeCommand()
 {
 	std::map<std::string, actions>::iterator select;
 
 	select = this->_selection.find(this->_cmd);
-	if (select != this->_selection.end())
-		(this->*select->second)();
+	if (toRegister(this->_cmd))
+	{
+		if (select != this->_selection.end())
+		{
+			try
+			{
+				(this->*select->second)();
+			}
+			catch(std::exception &e)
+			{
+				serverMessage(ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters, need \'" + e.what() + "\' of them", *_req_client);
+			}
+		}
+		else
+			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
+	}
 	else
-		this->_req_client->sendmsg(RED "Invalid Command '" + getCmd() + "'!" RESET "\n");
+		serverMessage(ERR_NOTREGISTERED, ":need to register first\r\n", *_req_client);
 }

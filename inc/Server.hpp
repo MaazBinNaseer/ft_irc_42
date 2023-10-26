@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 18:55:32 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/26 16:53:00 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ class Server
 
 
 		// *---- ServerFuncs.cpp ----
-		void	deliverToClient(Client &client, int index);
+		void	deliverToClient(Client &client);
 		int		appendpollfd(int new_socket);
 		int		assign(char *portstr, char *pass);
 		int		accept_connect( void );

@@ -3,14 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 20:01:08 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/26 16:53:06 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+
+void	Server::deliverToClient(Client &client)
+{
+	std::deque<std::string> &messages = client.getSendBuffer();
+	std::string deliver;
+
+	while(!messages.empty())
+	{
+		deliver = messages.front();
+		messages.pop_front();
+		std::cout << "SENDING: " << deliver << std::endl;
+		client.sendmsg(deliver);
+	}
+	if (client.getRemove())
+		this->removeUser(client.getSocketFd());
+}
 
 int	Server::appendpollfd(int new_socket)
 {
@@ -18,7 +34,10 @@ int	Server::appendpollfd(int new_socket)
 
 	std::memset(&mypoll, 0, sizeof(mypoll));
 	mypoll.fd = new_socket;
-	mypoll.events = POLLIN;
+	if (new_socket == 3)
+		mypoll.events = POLLIN;
+	else if (new_socket >= 3)
+		mypoll.events = POLLIN | POLLOUT;
 	mypoll.revents = 0;
 	this->clientfds.push_back(mypoll);
 
@@ -74,17 +93,6 @@ int	Server::accept_connect( void )
 	return (appendpollfd(cfd));
 }
 
-void	printBuffer(std::string buff)
-{
-	for (unsigned long i = 0; i < buff.size(); i++)
-	{
-		if (buff[i] == ' ')
-			std::cout << "\n";
-		else
-			std::cout << (int) buff[i] << "   ";
-	}
-}
-
 //TODO Figure out and handle receiving authentications from the client: "Irssi"
 int Server::HandleClients()
 {
@@ -113,6 +121,8 @@ int Server::HandleClients()
 					this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 			}
 		}
+		if (this->clientfds[i].revents & POLLOUT)
+			this->deliverToClient(this->clients[this->clientfds[i].fd]);
 	}
 	return (0);
 }

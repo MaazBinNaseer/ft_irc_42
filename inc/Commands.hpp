@@ -54,6 +54,7 @@ class Commands : public Parse
 		~Commands();
 
 		void	setAttributes( void );
+		bool	toRegister( std::string command );
 		void	executeCommand( void );
 
 		void	print();

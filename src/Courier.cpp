@@ -13,6 +13,16 @@ const char * FailedFunction::what() const throw()
 	return ("Function Failure");
 }
 
+NeedMoreParams::NeedMoreParams(std::string params): _no_of_params(params.c_str())
+{
+
+}
+
+const char * NeedMoreParams::what() const throw()
+{
+	return (_no_of_params);
+}
+
 void serverLog(Client &acted, std::string target, std::string cmd, std::string note) // ! incase of debugging
 {
 	std::string message = "Client: " + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname()) + "\n";
@@ -47,9 +57,9 @@ void serverMessage(std::string code, std::string message, Client &client)
 
 void welcomeMessage(Client &client)
 {
-	serverMessage(RPL_WELCOME, " :Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()) + "\n", client);
-	serverMessage(RPL_YOURHOST, " :Your host is " + client.getHostname() + "\n", client);
-	serverMessage(RPL_CREATED, " :This server was created today\n", client);
-	serverMessage(RPL_MYINFO, client.getHostname(), client);
-	serverMessage(RPL_ISUPPORT, " :SUPPORTED TOKENS\n", client); // ! we need to discuss these tokens
+	serverMessage(RPL_WELCOME, " :Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()) + "\r\n", client);
+	serverMessage(RPL_YOURHOST, " :Your host is " + client.getHostname() + "\r\n", client);
+	serverMessage(RPL_CREATED, " :This server was created today\r\n", client);
+	serverMessage(RPL_MYINFO, client.getHostname() + "\r\n", client);
+	serverMessage(RPL_ISUPPORT, " :SUPPORTED TOKENS\r\n", client); // ! we need to discuss these tokens
 }

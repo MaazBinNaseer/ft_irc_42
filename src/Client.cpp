@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 19:24:41 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/26 19:20:11 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ Client::Client()
 
 Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _client_id(fd), _hostname(hostname)
 {
-	this->_nickname = "AMMAazRuhan";
+	_pass = false;
+	_registered = false;
+	_remove = false;
 	_cap_order = false;
 	this->_caps = genDefaultCap();
 }
@@ -93,6 +95,8 @@ std::string Client::getHostname() const
 
 std::string Client::getNickname() const
 {
+	if (this->_nickname.empty())
+		return ("*");
 	return (this->_nickname);
 }
 
@@ -109,6 +113,11 @@ bool Client::getPass() const
 bool Client::getRegistered() const
 {
 	return (this->_registered);
+}
+
+bool Client::getRemove() const
+{
+	return (this->_remove);
 }
 
 std::string &Client::getReceiveBuffer()
@@ -168,9 +177,14 @@ void Client::setPass(bool set)
 	this->_pass = set;
 }
 
-void Client:: setRegistered(bool set)
+void Client::setRegistered(bool set)
 {
 	this->_registered = set;
+}
+
+void Client::setRemove(bool set)
+{
+	this->_remove = set;
 }
 
 void Client::pushSendBuffer(std::string string)

@@ -36,13 +36,13 @@ class CommandError: public std::exception
 };
 
 // *----- Log Commands -----
-void logStart();
+void logStart(void);
 void logConnect(int fd);
 void logDisconnect(std::string reason, int fd);
 void logRecv(std::string input, int fd);
 void logSend(std::deque<std::string> messages, int fd);
 void logRegister(Client &client);
-void logEnd();
+void logEnd(void);
 void serverLog(Client &acted, std::string target, std::string note);
 
 // *----- Messages Sent to Clients -----

@@ -10,23 +10,39 @@
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-blah
+PASS a
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+NICK pain
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+USER poi bo ba
 \----------------------------------------/
 /----------------------------------------\
 >>>SENDING>>> (from 4): 
-: 451 * :need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>
+:ba 461 pain USER :Not enough parameters
  
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-PASS b
+USER poi bo ba then
+\----------------------------------------/
+/----------------------------------------\
+Client 4 registered successfully
+Hello, my name is: poi
+with my hostname of: bo
+and my Nick name is: pain
+and my Real name is: then
+and a client id of: 4
 \----------------------------------------/
 /----------------------------------------\
 >>>SENDING>>> (from 4): 
-: 464 * :Password incorrect
+:ba 001 pain  :Welcome to the Network, you are known as pain[!poi@bo]
+ :ba 002 pain  :Your host is bo
+ :ba 003 pain  :This server was created today
+ :ba 004 pain  :bo
+ :ba 005 pain  :SUPPORTED TOKENS
  
-\----------------------------------------/
-/----------------------------------------\
-** A client disconnected from the server, their socket fd is 4 **
-Left because: Inputted incorrect password
 \----------------------------------------/

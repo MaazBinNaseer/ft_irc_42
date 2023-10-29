@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 19:11:40 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/29 17:54:32 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	try
 	{
 		Server	irc;
-		return (irc.bootup(argv[1], argv[2]));
+		irc.bootup(argv[1], argv[2]);
 	}
 	catch(std::exception &e)
 	{

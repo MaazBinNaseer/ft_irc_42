@@ -6,13 +6,14 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/26 16:31:41 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 19:40:03 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ft_irc.hpp"
+#include <string>
 
 typedef struct s_cap
 {
@@ -34,6 +35,7 @@ class Client
 		bool						_pass;
 		bool						_registered;
 		bool						_remove;
+		std::string					_reason;
 		std::string					_receiveBuffer;
 		std::deque<std::string> 	_sendBuffer;
 		t_cap						_caps;
@@ -59,6 +61,7 @@ class Client
 		bool						getPass(void) const ;
 		bool						getRegistered(void) const ;
 		bool						getRemove(void) const ;
+		std::string					getReason(void) const ;
 		std::string					&getReceiveBuffer(void);
 		std::deque<std::string>		&getSendBuffer(void);
 		t_cap						getCaps(void) const ;
@@ -74,6 +77,7 @@ class Client
 		void						setPass(bool set);
 		void						setRegistered(bool set);
 		void						setRemove(bool set);
+		void						setReason(std::string reason);
 		void						pushSendBuffer(std::string string);
 	
 		// *------ Other functions ------

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/25 19:04:03 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/10/29 16:41:38 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <fstream>
 #include <cstring>
 #include <string>
 #include <vector>

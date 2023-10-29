@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/26 19:20:11 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 19:40:54 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,11 @@ bool Client::getRemove() const
 	return (this->_remove);
 }
 
+std::string Client::getReason() const
+{
+	return (this->_reason);
+}
+
 std::string &Client::getReceiveBuffer()
 {
 	return (this->_receiveBuffer);
@@ -185,6 +190,11 @@ void Client::setRegistered(bool set)
 void Client::setRemove(bool set)
 {
 	this->_remove = set;
+}
+
+void Client::setReason(std::string reason)
+{
+	this->_reason = reason;
 }
 
 void Client::pushSendBuffer(std::string string)

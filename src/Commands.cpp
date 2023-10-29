@@ -47,6 +47,7 @@ void Commands::PASS(void)
 		{
 			serverMessage(ERR_PASSWDMISMATCH, ":Password incorrect", *_req_client);
 			_req_client->setRemove(true);
+			_req_client->setReason("Inputted incorrect password");
 		}
 	}
 	else
@@ -454,5 +455,5 @@ void	Commands::executeCommand()
 			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
 	}
 	else
-		serverMessage(ERR_NOTREGISTERED, ":need to register first\r\n", *_req_client);
+		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>\r\n", *_req_client);
 }

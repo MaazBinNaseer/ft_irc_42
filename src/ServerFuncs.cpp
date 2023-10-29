@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/26 16:53:06 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 20:45:52 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	Server::deliverToClient(Client &client)
 	std::deque<std::string> &messages = client.getSendBuffer();
 	std::string deliver;
 
+	if (!messages.empty())
+		logSend(messages, client.getSocketFd(), log);
 	while(!messages.empty())
 	{
 		deliver = messages.front();
@@ -25,7 +27,11 @@ void	Server::deliverToClient(Client &client)
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove())
+	{
+		logDisconnect(client.getReason(), client.getSocketFd(), log);
+		std::cout << RED "Client disconnected! Socket " << client.getSocketFd() << RESET "\n";
 		this->removeUser(client.getSocketFd());
+	}
 }
 
 int	Server::appendpollfd(int new_socket)
@@ -63,7 +69,6 @@ int	Server::assign(char *portstr, char *pass)
 	this->addr.sin_addr.s_addr = INADDR_ANY;
 	
 	appendpollfd(this->sfd);
-
 	this->joinpass = pass;
 
 	return (0);
@@ -89,7 +94,8 @@ int	Server::accept_connect( void )
 		throw FailedFunction("Accept");
 	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
 	this->clients.insert(std::pair<int, Client>(cfd, login));
-	std::cout << GREEN "New Connection! Socket " << cfd << RESET "\n";
+	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
+	logConnect(cfd, log);
 	return (appendpollfd(cfd));
 }
 
@@ -108,9 +114,13 @@ int Server::HandleClients()
 			if (valread < 0)
 				throw FailedFunction("Recv");
 			else if (valread == 0)
-				removeUser(this->clientfds[i--].fd);
+			{
+				this->clients[this->clientfds[i].fd].setRemove(true);
+				this->clients[this->clientfds[i].fd].setReason("Used signal to leave");
+			}
 			else
 			{
+				logRecv(buffer, this->clientfds[i].fd, log);
 				// do {
 				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
@@ -129,6 +139,7 @@ int Server::HandleClients()
 
 int	Server::bootup(char	*portstr, char *pass)
 {
+	logStart(log);
 	if (assign(portstr, pass))
 		return (1);
 
@@ -139,7 +150,6 @@ int	Server::bootup(char	*portstr, char *pass)
 		throw FailedFunction("Listen");
 
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
-
 	while (true)
 		if (accept_connect() == -1 || HandleClients() == -1)
 			return (1);

@@ -6,13 +6,14 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 17:20:46 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:56:09 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ft_irc.hpp"
+#include <fstream>
 
 class Server
 {
@@ -21,7 +22,6 @@ class Server
 		struct sockaddr_in	addr;
 		std::string			joinpass;
 		std::string			operpass;
-		std::ofstream		log;
 		std::vector<pollfd>	clientfds;
 		std::map<int, Client> clients;
 		std::map<int, Client *> operators;

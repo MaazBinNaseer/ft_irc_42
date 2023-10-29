@@ -10,11 +10,21 @@
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-PASS f
+blah
 \----------------------------------------/
 /----------------------------------------\
 >>>SENDING>>> (from 4): 
-: 464 * :Password incorrect 
+: 451 * :need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>
+ 
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+PASS b
+\----------------------------------------/
+/----------------------------------------\
+>>>SENDING>>> (from 4): 
+: 464 * :Password incorrect
+ 
 \----------------------------------------/
 /----------------------------------------\
 ** A client disconnected from the server, their socket fd is 4 **

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 18:36:17 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:56:56 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Server::Server( void )
 {
-	log.open("Serverlog.txt");
+	std::ofstream log("Serverlog.txt");
 	log.close();
 	this->operpass = OPERPASS;
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
@@ -35,7 +35,7 @@ Server &Server::operator=( const Server &f )
 
 Server::~Server( void )
 {
-	logEnd(log);
+	logEnd();
 	// std::cout << YELLOW "Server Destructor called" RESET "\n";
 	// ! HANDLE CLOSING FD LEAKS
 }

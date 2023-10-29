@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 19:40:54 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:55:07 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,11 +214,13 @@ void	Client::fillInfo(int fd, std::string username, std::string nickname)
 
 void	Client::postInfo(void)
 {
-	std::cout << "Hello, my name is: " << YELLOW << this->_username << RESET << std::endl;
-	std::cout << "with my hostname of: " << YELLOW << this->_hostname << RESET << std::endl;
-	std::cout << "and my Nick name is: " << YELLOW << this->_nickname << RESET << std::endl;
-	std::cout << "with a socket fd of: " << YELLOW << this->_socket_fd << RESET << std::endl;
-	std::cout << "and a client id of: " << YELLOW << this->_client_id << RESET << std::endl;
+	std::ofstream log("Serverlog.txt", std::ios::app);
+	log << "Hello, my name is: " << this->_username << std::endl;
+	log << "with my hostname of: " << this->_hostname << std::endl;
+	log << "and my Nick name is: " << this->_nickname << std::endl;
+	log << "with a socket fd of: " << this->_socket_fd << std::endl;
+	log << "and a client id of: " << this->_client_id << std::endl;
+	log.close();
 }
 
 void	Client::sendmsg(std::string msg)

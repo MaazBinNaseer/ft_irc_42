@@ -13,21 +13,22 @@ const char * FailedFunction::what() const throw()
 	return ("Function Failure");
 }
 
-NeedMoreParams::NeedMoreParams(std::string params): _no_of_params(params.c_str())
+CommandError::CommandError(const char *type, std::string code, std::string message, Client &client)
 {
-
+	type_of_error = type;
+	serverMessage(code, message, client);
 }
 
-const char * NeedMoreParams::what() const throw()
+const char * CommandError::what() const throw()
 {
-	return (_no_of_params);
+	return (type_of_error);
 }
 
 // *----- Log Commands -----
 
-void logStart(std::ofstream &log)
+void logStart()
 {
-	log.open("Serverlog.txt", std::ios::app);
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << DASH;
 	log << "------------****************------------\n";
 	log << "-----------******************-----------\n";
@@ -38,18 +39,18 @@ void logStart(std::ofstream &log)
 	log.close();
 }
 
-void logConnect(int fd, std::ofstream &log)
+void logConnect(int fd)
 {
-	log.open("Serverlog.txt", std::ios::app);
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << CORNER_UP;
 	log << "** A client connected to the server, their socket fd is: " << fd << " **\n";
 	log << CORNER_DOWN;
 	log.close();
 }
 
-void logDisconnect(std::string reason, int fd, std::ofstream &log)
+void logDisconnect(std::string reason, int fd)
 {
-	log.open("Serverlog.txt", std::ios::app);
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << CORNER_UP;
 	log << "** A client disconnected from the server, their socket fd is " << fd << " **\n";
 	log << "Left because: " << reason << std::endl;
@@ -57,18 +58,18 @@ void logDisconnect(std::string reason, int fd, std::ofstream &log)
 	log.close();
 }
 
-void logRecv(std::string input, int fd, std::ofstream &log)
+void logRecv(std::string input, int fd)
 {
-	log.open("Serverlog.txt", std::ios::app);
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << CORNER_UP;
 	log << "<<<RECEIVED<<< (from " << fd << "): \n" + input;
 	log << CORNER_DOWN;
 	log.close();
 }
 
-void logSend(std::deque<std::string> messages, int fd, std::ofstream &log)
+void logSend(std::deque<std::string> messages, int fd)
 {
-	log.open("Serverlog.txt", std::ios::app);
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << CORNER_UP;
 	log << ">>>SENDING>>> (from " << fd << "): \n";
 	while(!messages.empty())
@@ -81,9 +82,14 @@ void logSend(std::deque<std::string> messages, int fd, std::ofstream &log)
 	log.close();
 }
 
-void logEnd(std::ofstream &log)
+void logRegister(Client &client)
 {
-	log.open("Serverlog.txt", std::ios::app);
+	client.postInfo();
+}
+
+void logEnd()
+{
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << DASH;
 	log << "------------****************------------\n";
 	log << "-----------******************-----------\n";
@@ -94,14 +100,13 @@ void logEnd(std::ofstream &log)
 	log.close();
 }
 
-void serverLog(Client &acted, std::string target, std::string cmd, std::string note) // ! incase of debugging
+void serverLog(Client &acted, std::string target, std::string note, std::ofstream &log) // ! incase of debugging
 {
 	std::string message = "Client: " + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname()) + "\n";
-	message += "Command: " + cmd + "\n";
+	message += "Note: " + note + "\n";
 	if (!target.empty())
 		message += "Target: " + target + "\n";
-	message += "Note: " + note + "\n";
-	std::cout << message << std::endl;
+	log << message;
 }
 
 // *----- Messages Sent to Clients -----
@@ -124,15 +129,15 @@ void targettedCommand(Client &acted, Client &target, std::string cmd, std::strin
 
 void serverMessage(std::string code, std::string message, Client &client)
 {
-	std::string send = ":" + client.getServername() + code + client.getNickname() + S + message;
+	std::string send = ":" + client.getServername() + code + client.getNickname() + S + message + "\r\n";
 	client.pushSendBuffer(send);
 }
 
 void welcomeMessage(Client &client)
 {
-	serverMessage(RPL_WELCOME, " :Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()) + "\r\n", client);
-	serverMessage(RPL_YOURHOST, " :Your host is " + client.getHostname() + "\r\n", client);
-	serverMessage(RPL_CREATED, " :This server was created today\r\n", client);
-	serverMessage(RPL_MYINFO, " :" + client.getHostname() + "\r\n", client);
-	serverMessage(RPL_ISUPPORT, " :SUPPORTED TOKENS\r\n", client); // ! we need to discuss these tokens
+	serverMessage(RPL_WELCOME, " :Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()), client);
+	serverMessage(RPL_YOURHOST, " :Your host is " + client.getHostname(), client);
+	serverMessage(RPL_CREATED, " :This server was created today", client);
+	serverMessage(RPL_MYINFO, " :" + client.getHostname(), client);
+	serverMessage(RPL_ISUPPORT, " :SUPPORTED TOKENS", client); // ! we need to discuss these tokens
 }

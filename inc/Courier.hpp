@@ -23,26 +23,27 @@ class FailedFunction: public std::exception
 	
 };
 
-class NeedMoreParams: public std::exception
+class CommandError: public std::exception
 {
 	private:
 
-	const char *	_no_of_params;
+	const char * type_of_error;
 
 	public:
 
-	NeedMoreParams(std::string params);
+	CommandError(const char *type, std::string code, std::string message, Client &client);
 	const char * what() const throw();
 };
 
 // *----- Log Commands -----
-void logStart(std::ofstream &log);
-void logConnect(int fd, std::ofstream &log);
-void logDisconnect(std::string reason, int fd, std::ofstream &log);
-void logRecv(std::string input, int fd, std::ofstream &log);
-void logSend(std::deque<std::string> messages, int fd, std::ofstream &log);
-void logEnd(std::ofstream &log);
-void serverLog(Client &acted, Client &target, std::string cmd, std::string msg);
+void logStart();
+void logConnect(int fd);
+void logDisconnect(std::string reason, int fd);
+void logRecv(std::string input, int fd);
+void logSend(std::deque<std::string> messages, int fd);
+void logRegister(Client &client);
+void logEnd();
+void serverLog(Client &acted, std::string target, std::string note);
 
 // *----- Messages Sent to Clients -----
 void selfCommand(Client &acted, std::string cmd, std::string msg);

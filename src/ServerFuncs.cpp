@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 20:45:52 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:59:00 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	Server::deliverToClient(Client &client)
 	std::string deliver;
 
 	if (!messages.empty())
-		logSend(messages, client.getSocketFd(), log);
+		logSend(messages, client.getSocketFd());
 	while(!messages.empty())
 	{
 		deliver = messages.front();
@@ -28,7 +28,7 @@ void	Server::deliverToClient(Client &client)
 	}
 	if (client.getRemove())
 	{
-		logDisconnect(client.getReason(), client.getSocketFd(), log);
+		logDisconnect(client.getReason(), client.getSocketFd());
 		std::cout << RED "Client disconnected! Socket " << client.getSocketFd() << RESET "\n";
 		this->removeUser(client.getSocketFd());
 	}
@@ -95,7 +95,7 @@ int	Server::accept_connect( void )
 	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
 	this->clients.insert(std::pair<int, Client>(cfd, login));
 	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
-	logConnect(cfd, log);
+	logConnect(cfd);
 	return (appendpollfd(cfd));
 }
 
@@ -120,7 +120,7 @@ int Server::HandleClients()
 			}
 			else
 			{
-				logRecv(buffer, this->clientfds[i].fd, log);
+				logRecv(buffer, this->clientfds[i].fd);
 				// do {
 				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
@@ -139,7 +139,7 @@ int Server::HandleClients()
 
 int	Server::bootup(char	*portstr, char *pass)
 {
-	logStart(log);
+	logStart();
 	if (assign(portstr, pass))
 		return (1);
 

@@ -152,11 +152,21 @@ void serverMessage(std::string code, std::string message, Client &client)
 	client.pushSendBuffer(send);
 }
 
-void welcomeMessage(Client &client)
+std::string intToString(int value) 
 {
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+void welcomeMessage(Client &client, Server &server)
+{
+	std::string fdString = intToString(server.getFd() - 1);
 	serverMessage(RPL_WELCOME, " :Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()), client);
 	serverMessage(RPL_YOURHOST, " :Your host is " + client.getHostname(), client);
 	serverMessage(RPL_CREATED, " :This server was created today", client);
 	serverMessage(RPL_MYINFO, " :" + client.getHostname(), client);
 	serverMessage(RPL_ISUPPORT, " :SUPPORTED TOKENS", client); // ! we need to discuss these tokens
+	serverMessage(RPL_ISUPPORT, " :CHANLIMIT=#:70 NICKLEN=16 CHANNLEN=50 USERLEN=50 KICKLEN=255: are supported by the server", client);
+	serverMessage(RPL_STAISTICS, ":I have " + fdString  + " clients and 1 server", client);
 }

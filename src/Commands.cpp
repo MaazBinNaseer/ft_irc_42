@@ -102,7 +102,7 @@ void Commands::USER(void)
 	_req_client->setRealname(getCmdArg(3));
 	_req_client->setRegistered(true);
 	logRegister(*_req_client);
-	welcomeMessage(*_req_client);
+	welcomeMessage(*_req_client, *_serv);
 }
 
 void Commands::OPER(void)

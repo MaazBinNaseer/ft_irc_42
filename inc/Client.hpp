@@ -65,6 +65,7 @@ class Client
 		std::string					&getReceiveBuffer(void);
 		std::deque<std::string>		&getSendBuffer(void);
 		t_cap						getCaps(void) const ;
+		int							getClientSize(int fd);
 
 		// *------ Attribute setters ------
 		void						setSocketFd(int fd);

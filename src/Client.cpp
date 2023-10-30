@@ -109,6 +109,7 @@ bool Client::getPass() const
 {
 	return (this->_pass);
 }
+	
 
 bool Client::getRegistered() const
 {
@@ -204,6 +205,7 @@ void Client::pushSendBuffer(std::string string)
 {
 	this->_sendBuffer.push_back(string);
 }
+
 
 /*----- Other functions -----*/
 

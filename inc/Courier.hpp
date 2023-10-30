@@ -50,4 +50,7 @@ void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std
 void selfCommand(Client &acted, std::string cmd, std::string msg);
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg);
 void serverMessage(std::string code, std::string message, Client &client);
-void welcomeMessage(Client &client);
+void welcomeMessage(Client &client, Server &server);
+
+// *----- Helper Function ---------
+std::string intToString(int value);

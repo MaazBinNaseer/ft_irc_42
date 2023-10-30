@@ -17,6 +17,7 @@ Server::Server( void )
 	std::ofstream log("Serverlog.txt");
 	log.close();
 	this->operpass = OPERPASS;
+	this->shutdown = false;
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
 }
 
@@ -42,7 +43,14 @@ Server::~Server( void )
 
 int	Server::getFd(void)
 {
-	return(this->sfd);
+	size_t size = this->clientfds.size();
+	std::cout << "Vector Pollfd size = " << size << std::endl;
+	return(size);
+}
+
+bool Server::getShutdown(void)
+{
+	return (this->shutdown);
 }
 
 std::string	Server::getPassword(void) const
@@ -105,6 +113,11 @@ bool	Server::isUser(Client &c)
 bool	Server::isOp(Client &c)
 {
 	return (this->operators.find(c.getSocketFd()) != this->operators.end());
+}
+
+void	Server::setShutDown(bool set)
+{
+	this->shutdown = set;
 }
 
 void	Server::setPassword(std::string pass)

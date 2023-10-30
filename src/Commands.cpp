@@ -348,6 +348,59 @@ void Commands::WHOIS(void)
 	}
 }
 
+void Commands::EXIT(void)
+{
+	std::map<int, Client> clients = this->_serv->getClients();
+	if (!this->_serv->isOp(*this->_req_client))
+		_req_client->sendmsg(RED "Only an IRC operator can exeute EXIT!" RESET "\n");
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		{
+			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
+				selfCommand(*broad, "EXIT",  YELLOW "\n Server is shutting down...... \n" RESET);
+		}
+
+	for (int counter = 3; counter > 0 ; counter--)
+	{
+		if(counter == 3)
+		{
+			std::string message = RED "Closing down in ...3\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		else if(counter == 2)
+		{
+			std::string message = RED "Closing down in ...2\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		else if(counter == 1)
+		{
+			std::string message = RED "Closing down in ...1\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		usleep(1000000);
+			
+	}
+	
+	this->_serv->setShutDown(true);
+	std::string message = RED "---- Shut down ---- Made by Ruhan, Ammar and Maaz.\n" RESET; 
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+	{
+		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+	}
+}
+
 void Commands::KILL(void)
 {
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
@@ -389,6 +442,7 @@ void	Commands::setAttributes()
 	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
 	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
 	_selection["KILL"] = &Commands::KILL;			// DONE
+	_selection["EXIT"] = &Commands::EXIT;
 }
 
 Commands::Commands()

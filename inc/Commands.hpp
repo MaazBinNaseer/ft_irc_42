@@ -46,7 +46,7 @@ class Commands : public Parse
 
 	//* Operator Messages
 	void	KILL(void); // ! disconnect users from the server
-
+	void 	EXIT(void);
 	public:
 		Commands();
 		Commands(Client *req_client, Server *srvptr);

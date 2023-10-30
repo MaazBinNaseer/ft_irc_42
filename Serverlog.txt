@@ -17,84 +17,76 @@ PASS a
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-NICK lel
+NICK h
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-USER lo la lh lg
+USER a b c d
 \----------------------------------------/
 /----------------------------------------\
 Client 4 registered successfully
-Hello, my name is: lo
-with my hostname of: la
-and my Nick name is: lel
-and my Real name is: lg
+Hello, my name is: a
+with my hostname of: b
+and my Nick name is: h
+and my Real name is: d
 and a client id of: 4
 \----------------------------------------/
 /----------------------------------------\
 >>>SENDING>>> (to 4): 
-:lh 001 lel  :Welcome to the Network, you are known as lel[!lo@la]
- :lh 002 lel  :Your host is la
- :lh 003 lel  :This server was created today
- :lh 004 lel  :la
- :lh 005 lel  :SUPPORTED TOKENS
+:c 001 h  :Welcome to the Network, you are known as h[!a@b]
+ :c 002 h  :Your host is b
+ :c 003 h  :This server was created today
+ :c 004 h  :b
+ :c 005 h  :SUPPORTED TOKENS
  
 \----------------------------------------/
 /----------------------------------------\
-<<<RECEIVED<<< (from 5): 
-PASS a
+<<<RECEIVED<<< (from 4): 
+OPER h heeheeMJ
 \----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 5): 
-NICK whoa
-\----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 5): 
-USER wo wu we wum
-\----------------------------------------/
-/----------------------------------------\
-Client 5 registered successfully
-Hello, my name is: wo
-with my hostname of: wu
-and my Nick name is: whoa
-and my Real name is: wum
-and a client id of: 5
-\----------------------------------------/
-/----------------------------------------\
->>>SENDING>>> (to 5): 
-:we 001 whoa  :Welcome to the Network, you are known as whoa[!wo@wu]
- :we 002 whoa  :Your host is wu
- :we 003 whoa  :This server was created today
- :we 004 whoa  :wu
- :we 005 whoa  :SUPPORTED TOKENS
- 
-\----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 5): 
-OPER lel hee
-\----------------------------------------/
-Client: whoa[!wo@wu]
-Note: Incorrect Password Error Caught
-
-/----------------------------------------\
->>>SENDING>>> (to 5): 
-:we 464 whoa :Incorrect Password for Operator Privileges!
- 
-\----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 5): 
-OPER lel heeheeMJ
-\----------------------------------------/
-Client: whoa[!wo@wu]
+Client: h[!a@b]
 Note: Turned target into an operator
-Target: lel
+Target: h
+/----------------------------------------\
+>>>SENDING>>> (to 4): 
+:c 381 h :You are now an IRC operator
+ 
+\----------------------------------------/
 /----------------------------------------\
 >>>SENDING>>> (to 5): 
-:lel[!lo@la] OPER :is now an IRC operator!
+:h[!a@b] OPER :is now an IRC operator!
  
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+EXIT
 \----------------------------------------/
 /----------------------------------------\
 >>>SENDING>>> (to 4): 
-:lh 381 lel :You are now an IRC operator
+:h[!a@b] EXIT [33m
+ Server is shutting down...... 
+[0m
  
 \----------------------------------------/
+/----------------------------------------\
+** A client disconnected from the server, their socket fd is 4 **
+Left because: 
+\----------------------------------------/
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+:*[!@] EXIT [33m
+ Server is shutting down...... 
+[0m
+ 
+\----------------------------------------/
+/----------------------------------------\
+** A client disconnected from the server, their socket fd is 5 **
+Left because: 
+\----------------------------------------/
+----------------------------------------
+------------****************------------
+-----------******************-----------
+----------** SERVER LOG END **----------
+-----------******************-----------
+------------****************------------
+----------------------------------------

@@ -26,7 +26,7 @@ void	Server::deliverToClient(Client &client)
 		std::cout << "SENDING: " << deliver << std::endl;
 		client.sendmsg(deliver);
 	}
-	if (client.getRemove())
+	if (client.getRemove() || getShutdown())
 	{
 		logDisconnect(client.getReason(), client.getSocketFd());
 		std::cout << RED "Client disconnected! Socket " << client.getSocketFd() << RESET "\n";
@@ -151,8 +151,15 @@ int	Server::bootup(char	*portstr, char *pass)
 
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
 	while (true)
+	{
 		if (accept_connect() == -1 || HandleClients() == -1)
 			return (1);
+		if (getShutdown() && getClients().empty())
+		{
+			close(this->sfd);
+			break ;
+		}
+	}
 
 	return (0);
 }

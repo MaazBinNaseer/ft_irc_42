@@ -19,6 +19,7 @@ class Server
 {
 	private:
 		int	sfd;
+		bool shutdown;
 		struct sockaddr_in	addr;
 		std::string			joinpass;
 		std::string			operpass;
@@ -36,6 +37,7 @@ class Server
 
 		// *----- Attribute getters -----
 		int								getFd(void);
+		bool							getShutdown(void);
 		std::string						getPassword(void) const;
 		std::string						getOperPass(void) const;
 		Client							*getClient(int cfd);
@@ -48,6 +50,7 @@ class Server
 		// *----- Attribute setters -----
 		bool	isUser(Client &c);
 		bool	isOp(Client &c);
+		void	setShutDown(bool set);
 		void	setPassword(std::string pass);
 		void	removeUser(int cfd);
 		void	setOperPass(std::string pass);

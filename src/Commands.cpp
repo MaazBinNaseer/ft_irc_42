@@ -130,7 +130,7 @@ void Commands::OPER(void)
 		{
 			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
 			if (broad != targetcl)
-				broadcastCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
+				broadcastallCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
 			// it->second.sendmsg(CYAN + getCmdArg(0) + " is now an IRC operator!" RESET "\n");
 		}
 	}

@@ -122,7 +122,7 @@ void serverLog(Client &acted, std::string target, std::string note) // ! incase 
 
 // *----- Messages Sent to Clients -----
 
-void broadcastCommand(Client &recipient, Client &target, std::string cmd, std::string msg)
+void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg)
 {
 	std::string message = ":" + TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());
 	message += S + cmd + S;

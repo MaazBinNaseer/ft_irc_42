@@ -74,8 +74,12 @@ void Commands::USER(void)
 {
 	if (_req_client->getRegistered())
 		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, ":No need to reregister", *_req_client);
-	if (!_req_client->getPass())
+	else if (!_req_client->getPass())
 		throw CommandError("Password Required", ERR_PASSWDMISMATCH, ":Password needed", *_req_client);
+	else if (this->_cmd_args.size() < 4)
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
+	else if (_req_client->getNickname() == "*")
+		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, ":Nickname required to register using NICK <nickname>", *_req_client);
 	// std::string user = getCmdArg(0);
 	// if (this->_serv->getClientUser(user))
 	// 	_req_client->sendmsg(RED "Username Taken! Choose another!" RESET "\n"); // ? Would we need to check on usernames? thats for nicknames
@@ -96,43 +100,53 @@ void Commands::USER(void)
 	_req_client->setHostname(getCmdArg(1));
 	_req_client->setServername(getCmdArg(2));
 	_req_client->setRealname(getCmdArg(3));
-	if (_req_client->getNickname() == "*")
-		serverMessage(ERR_NONICKNAMEGIVEN, ":Nickname required to register using NICK <nickname>", *_req_client);
-	else
-	{
-		_req_client->setRegistered(true);
-		logRegister(*_req_client);
-		welcomeMessage(*_req_client);
-	}
+	_req_client->setRegistered(true);
+	logRegister(*_req_client);
+	welcomeMessage(*_req_client);
 }
 
 void Commands::OPER(void)
 {
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (getCmdArg(0) == "")
-		this->_req_client->sendmsg(RED "Enter User to get Operator Privileges!" RESET "\n");
-	else if (!targetcl)
-		this->_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, ":Enter User to get Operator Privileges!", *_req_client);
+		// this->_req_client->sendmsg(RED "Enter User to get Operator Privileges!" RESET "\n");
 	else if (getCmdArg(1) == "")
-		this->_req_client->sendmsg(RED "Password Needed for Operator Privileges!" RESET "\n");
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, ":Password Needed for Operator Privileges!", *_req_client);
+		// this->_req_client->sendmsg(RED "Password Needed for Operator Privileges!" RESET "\n");
+	else if (!targetcl)
+		throw CommandError("User Not Found", ERR_NOSUCHNICK, ":User does not Exist!", *_req_client);
+		// this->_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
 	else if (getCmdArg(1) != this->_serv->getOperPass())
-		this->_req_client->sendmsg(RED "Incorrect Password for Operator Privileges!" RESET "\n");
+		throw CommandError("Incorrect Password", ERR_PASSWDMISMATCH, ":Incorrect Password for Operator Privileges!", *_req_client);
+		// this->_req_client->sendmsg(RED "Incorrect Password for Operator Privileges!" RESET "\n");
 	else
 	{
 		this->_serv->addOperator(targetcl);
 		std::map<int, Client> clients = this->_serv->getClients();
+		serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
+		serverMessage(RPL_YOUREOPER, ":You are now an IRC operator", *targetcl);
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			it->second.sendmsg(CYAN + getCmdArg(0) + " is now an IRC operator!" RESET "\n");
+		{
+			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
+			if (broad != targetcl)
+				broadcastCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
+			// it->second.sendmsg(CYAN + getCmdArg(0) + " is now an IRC operator!" RESET "\n");
+		}
 	}
 }
 
 void Commands::QUIT(void)
 {
-	if (getCmdArg(0) == "")
-		this->_req_client->sendmsg(RED "Exiting Server! See you soon!" RESET "\n");
+	if (this->_cmd_args.size() == 0)
+		selfCommand(*_req_client, this->_cmd, "leaving");
+		// this->_req_client->sendmsg(RED "Exiting Server! See you soon!" RESET "\n");
 	else
-		this->_req_client->sendmsg(RED "You have Quit Because: " + concArgs(0) + RESET + "\n");
-	this->_serv->removeUser(this->_req_client->getSocketFd());
+		selfCommand(*_req_client, this->_cmd, concArgs(0));
+		// this->_req_client->sendmsg(RED "You have Quit Because: " + concArgs(0) + RESET + "\n");
+	_req_client->setRemove(true);
+	_req_client->setReason(concArgs(0));
+	// this->_serv->removeUser(this->_req_client->getSocketFd());
 }
 
 void Commands::JOIN(void)
@@ -277,7 +291,7 @@ std::string Commands::concArgs(int start)
 	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
 		str += *(it) + " ";
 	if (!str.empty() && str[str.size() - 1] == ' ')
-        str[str.size() - 1] = '\0';
+        str.erase(str.size() - 1, 1);
 	return (str);
 }
 
@@ -413,7 +427,7 @@ Commands::~Commands()
 
 bool	Commands::toRegister(std::string command)
 {
-	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER")
+	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER" && command != "QUIT")
 		return(_req_client->getRegistered());
 	return (true);
 }
@@ -433,6 +447,8 @@ void	Commands::executeCommand()
 			}
 			catch(std::exception &e)
 			{
+				std::string error(e.what());
+				serverLog(*_req_client, "", error + " Error Caught\n");
 				std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
 			}
 		}

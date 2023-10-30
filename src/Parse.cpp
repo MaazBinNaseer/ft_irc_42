@@ -25,7 +25,7 @@ std::string	Parse::getCmdArg(unsigned long i)
 {
 	if (i < this->_cmd_args.size())
 		return (this->_cmd_args[i]);
-	throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
+	return ("");
 }
 
 void	Parse::printCmdArgs()
@@ -44,11 +44,6 @@ int	Parse::getClientFd()
 Client	*Parse::getReqClient()
 {
 	return (this->_req_client);
-}
-
-void	Parse::printClientData(Client *reqclient)
-{
-	reqclient->postInfo();
 }
 
 void	Parse::trim(std::string &buffer)

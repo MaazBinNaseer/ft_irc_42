@@ -71,7 +71,7 @@ void logSend(std::deque<std::string> messages, int fd)
 {
 	std::ofstream log("Serverlog.txt", std::ios::app);
 	log << CORNER_UP;
-	log << ">>>SENDING>>> (from " << fd << "): \n";
+	log << ">>>SENDING>>> (to " << fd << "): \n";
 	while(!messages.empty())
 	{
 		log << messages.front() << " ";
@@ -84,7 +84,16 @@ void logSend(std::deque<std::string> messages, int fd)
 
 void logRegister(Client &client)
 {
-	client.postInfo();
+	std::ofstream log("Serverlog.txt", std::ios::app);
+	log << CORNER_UP;
+	log << "Client " << client.getSocketFd() << " registered successfully" << std::endl;
+	log << "Hello, my name is: " << client.getUsername() << std::endl;
+	log << "with my hostname of: " << client.getHostname() << std::endl;
+	log << "and my Nick name is: " << client.getNickname() << std::endl;
+	log << "and my Real name is: " << client.getRealname() << std::endl;
+	log << "and a client id of: " << client.getClientId() << std::endl;
+	log << CORNER_DOWN;
+	log.close();
 }
 
 void logEnd()
@@ -100,22 +109,32 @@ void logEnd()
 	log.close();
 }
 
-void serverLog(Client &acted, std::string target, std::string note, std::ofstream &log) // ! incase of debugging
+void serverLog(Client &acted, std::string target, std::string note) // ! incase of debugging
 {
+	std::ofstream log("Serverlog.txt", std::ios::app);
 	std::string message = "Client: " + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname()) + "\n";
 	message += "Note: " + note + "\n";
 	if (!target.empty())
 		message += "Target: " + target + "\n";
 	log << message;
+	log.close();
 }
 
 // *----- Messages Sent to Clients -----
+
+void broadcastCommand(Client &recipient, Client &target, std::string cmd, std::string msg)
+{
+	std::string message = ":" + TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());
+	message += S + cmd + S;
+	message += msg + "\r\n";
+	recipient.pushSendBuffer(message);
+}
 
 void selfCommand(Client &acted, std::string cmd, std::string msg)
 {
 	std::string message = ":" + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
 	message += S + cmd + S;
-	message += ":" + msg;
+	message += msg + "\r\n";
 	acted.pushSendBuffer(message);
 }
 
@@ -123,7 +142,7 @@ void targettedCommand(Client &acted, Client &target, std::string cmd, std::strin
 {
 	std::string message = ":" + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
 	message += S + cmd + S + target.getNickname();
-	message += ":" + msg;
+	message += msg + "\r\n";
 	target.pushSendBuffer(message);
 }
 

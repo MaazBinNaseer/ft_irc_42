@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 22:10:20 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/30 10:59:13 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,7 +194,10 @@ void Client::setRemove(bool set)
 
 void Client::setReason(std::string reason)
 {
-	this->_reason = reason;
+	if (reason.empty())
+		this->_reason = "leaving";
+	else
+		this->_reason = reason;
 }
 
 void Client::pushSendBuffer(std::string string)
@@ -210,20 +213,6 @@ void	Client::fillInfo(int fd, std::string username, std::string nickname)
 	this->setClientId(fd);
 	this->setUsername(username);
 	this->setNickname(nickname);
-}
-
-void	Client::postInfo(void)
-{
-	std::ofstream log("Serverlog.txt", std::ios::app);
-	log << CORNER_UP;
-	log << "Client " << this->_socket_fd << " registered successfully" << std::endl;
-	log << "Hello, my name is: " << this->_username << std::endl;
-	log << "with my hostname of: " << this->_hostname << std::endl;
-	log << "and my Nick name is: " << this->_nickname << std::endl;
-	log << "and my Real name is: " << this->_realname << std::endl;
-	log << "and a client id of: " << this->_client_id << std::endl;
-	log << CORNER_DOWN;
-	log.close();
 }
 
 void	Client::sendmsg(std::string msg)

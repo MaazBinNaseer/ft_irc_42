@@ -5,13 +5,44 @@
 -----------******************-----------
 ------------****************------------
 ----------------------------------------
-----------------------------------------
-------------****************------------
------------******************-----------
-----------** SERVER LOG END **----------
------------******************-----------
-------------****************------------
-----------------------------------------
+/----------------------------------------\
+** A client connected to the server, their socket fd is: 4 **
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+PASS a 
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+NICK lol
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+USER user user1 user2 user3
+\----------------------------------------/
+/----------------------------------------\
+Client 4 registered successfully
+Hello, my name is: user
+with my hostname of: user1
+and my Nick name is: lol
+and my Real name is: user3
+and a client id of: 4
+\----------------------------------------/
+/----------------------------------------\
+>>>SENDING>>> (to 4): 
+:user2 001 lol  :Welcome to the Network, you are known as lol[!user@user1]
+ :user2 002 lol  :Your host is user1
+ :user2 003 lol  :This server was created today
+ :user2 004 lol  :user1
+ :user2 005 lol  :SUPPORTED TOKENS
+ :user2 005 lol  :CHANLIMIT=#:70 NICKLEN=16 CHANNLEN=50 USERLEN=50 KICKLEN=255: are supported by the server
+ :user2 055 lol :I have 1 clients and 1 server
+ 
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 4): 
+PING maaz
+\----------------------------------------/
 /----------------------------------------\
 ** A client disconnected from the server, their socket fd is 4 **
 Left because: Used signal to leave

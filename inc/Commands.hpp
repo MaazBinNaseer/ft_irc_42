@@ -21,6 +21,7 @@ class Commands : public Parse
 	void	CAP(void);
 	void	PASS(void);
 	void	PING(void); // ! Ping pong to check connection
+	void	PONG(void);
 
 	//* User Assigning Commands
 	void	NICK(void);

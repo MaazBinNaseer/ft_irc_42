@@ -6,11 +6,27 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 21:59:00 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/31 19:24:59 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+
+void Server::countDown()
+{
+	if (this->counter > 0)
+	{
+		std::string append_c = intToString(counter);
+		std::string message = RED "Closing down in ---" + append_c + RESET "\r\n"; 
+		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		{
+			Client *broad = getClientNick(it->second.getNickname());
+			selfCommand(*broad, "EXIT", message);
+		}
+		usleep(1000000);
+			this->counter--;
+	}
+}
 
 void	Server::deliverToClient(Client &client)
 {
@@ -26,13 +42,72 @@ void	Server::deliverToClient(Client &client)
 		std::cout << "SENDING: " << deliver << std::endl;
 		client.sendmsg(deliver);
 	}
-	if (client.getRemove() || getShutdown())
+	if (client.getRemove() || (getShutdown() && this->counter == 0))
 	{
 		logDisconnect(client.getReason(), client.getSocketFd());
 		std::cout << RED "Client disconnected! Socket " << client.getSocketFd() << RESET "\n";
 		this->removeUser(client.getSocketFd());
 	}
 }
+
+// ! POTENTIAL CHANGES
+// TODO remove addr such that its no longer needed in attributes
+// TODO SEE IF caddr can be removed (pass NULL)
+
+int Server::HandleClients()
+{
+	char	buffer[BUFFER_SIZE];
+	int		valread;
+	
+	for (size_t i = 1; i < clientfds.size(); i++)
+	{
+		if (this->clientfds[i].revents & POLLIN)
+		{
+			valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
+			std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
+			if (valread < 0)
+				throw FailedFunction("Recv");
+			else if (valread == 0)
+			{
+				this->clients[this->clientfds[i].fd].setRemove(true);
+				this->clients[this->clientfds[i].fd].setReason("Used signal to leave");
+			}
+			else
+				this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
+				// do {
+				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
+				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
+				// 	std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
+				// } while (valread == BUFFER_SIZE);
+				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
+		}
+		if (this->clientfds[i].revents & POLLOUT)
+			this->deliverToClient(this->clients[this->clientfds[i].fd]);
+	}
+	return (0);
+}
+
+int	Server::accept_connect( void )
+{
+	if (poll(this->clientfds.data(), this->clientfds.size(), 10) == -1)
+		throw FailedFunction("Poll");
+
+	if (!(this->clientfds[0].revents & POLLIN))
+		return (0);
+	
+	struct sockaddr_in	caddr;
+	size_t addlen = sizeof(caddr);
+
+	int cfd = accept(this->sfd, (struct sockaddr *) &caddr, (socklen_t *) &addlen);
+	if (cfd == -1)
+		throw FailedFunction("Accept");
+	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
+	this->clients.insert(std::pair<int, Client>(cfd, login));
+	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
+	logConnect(cfd);
+	return (appendpollfd(cfd));
+}
+
 
 int	Server::appendpollfd(int new_socket)
 {
@@ -74,69 +149,6 @@ int	Server::assign(char *portstr, char *pass)
 	return (0);
 }
 
-// ! POTENTIAL CHANGES
-// TODO remove addr such that its no longer needed in attributes
-// TODO SEE IF caddr can be removed (pass NULL)
-
-int	Server::accept_connect( void )
-{
-	if (poll(this->clientfds.data(), this->clientfds.size(), 10) == -1)
-		throw FailedFunction("Poll");
-
-	if (!(this->clientfds[0].revents & POLLIN))
-		return (0);
-	
-	struct sockaddr_in	caddr;
-	size_t addlen = sizeof(caddr);
-
-	int cfd = accept(this->sfd, (struct sockaddr *) &caddr, (socklen_t *) &addlen);
-	if (cfd == -1)
-		throw FailedFunction("Accept");
-	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
-	this->clients.insert(std::pair<int, Client>(cfd, login));
-	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
-	logConnect(cfd);
-	return (appendpollfd(cfd));
-}
-
-//TODO Figure out and handle receiving authentications from the client: "Irssi"
-int Server::HandleClients()
-{
-	char buffer[BUFFER_SIZE];
-	int	valread;
-	
-	for (size_t i = 1; i < clientfds.size(); i++)
-	{
-		if (this->clientfds[i].revents & POLLIN)
-		{
-			valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
-			std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
-			if (valread < 0)
-				throw FailedFunction("Recv");
-			else if (valread == 0)
-			{
-				this->clients[this->clientfds[i].fd].setRemove(true);
-				this->clients[this->clientfds[i].fd].setReason("Used signal to leave");
-			}
-			else
-			{
-				logRecv(buffer, this->clientfds[i].fd);
-				// do {
-				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
-				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
-				// 	std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
-				// } while (valread == BUFFER_SIZE);
-				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
-				if (valread)
-					this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
-			}
-		}
-		if (this->clientfds[i].revents & POLLOUT)
-			this->deliverToClient(this->clients[this->clientfds[i].fd]);
-	}
-	return (0);
-}
-
 int	Server::bootup(char	*portstr, char *pass)
 {
 	logStart();
@@ -154,12 +166,15 @@ int	Server::bootup(char	*portstr, char *pass)
 	{
 		if (accept_connect() == -1 || HandleClients() == -1)
 			return (1);
-		if (getShutdown() && getClients().empty())
+		if (getShutdown())
 		{
-			close(this->sfd);
-			break ;
+			countDown();
+			if (getClients().empty())
+			{
+				close(this->sfd);
+				break ;
+			}
 		}
 	}
-
 	return (0);
 }

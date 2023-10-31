@@ -1,6 +1,105 @@
 #include "../inc/ft_irc.hpp"
 #include <exception>
 
+//* ====== Canonical Orthodox Form
+
+Commands::Commands()
+{
+	setAttributes();
+}
+
+Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
+{
+	setAttributes();
+}
+
+Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse(req_client, srvptr)
+{
+	setAttributes();
+
+	size_t pos = buff.find_first_of('\n');
+	if (pos == std::string::npos)
+		return ;
+	std::string cmd = buff.substr(0, pos + 1);
+	buff = buff.substr(pos + 1);
+	trim(cmd);
+	std::cout << PURPLE << cmd << RESET << "\n"; // ! DEBUGGING
+	if (cmd.empty())
+		return ;
+	this->_cmd = extractWord(cmd);
+	while (!cmd.empty())
+		this->_cmd_args.push_back(extractWord(cmd));
+	executeCommand();
+}
+
+Commands::~Commands()
+{
+
+}
+
+//* ====== Command Execution Setup
+
+void	Commands::setAttributes()
+{
+	this->_order = false;
+	this->_multiple = false;
+	_selection["CAP"] = &Commands::CAP;				// ?
+	_selection["PASS"] = &Commands::PASS;			// DONE
+	_selection["PING"] = &Commands::PING;			// ?
+	_selection["NICK"] = &Commands::NICK;			// DONE
+	_selection["USER"] = &Commands::USER;			// DONE
+	_selection["OPER"] = &Commands::OPER;			// DONE
+	_selection["QUIT"] = &Commands::QUIT;			// DONE
+	_selection["JOIN"] = &Commands::JOIN;			// DONE
+	_selection["PART"] = &Commands::PART;			// DONE
+	_selection["KICK"] = &Commands::KICK;			// DONE
+	_selection["INVITE"] = &Commands::INVITE;		// DONE
+	_selection["TOPIC"] = &Commands::TOPIC;			// DONE
+	_selection["MODE"] = &Commands::MODE;			// DONE
+	_selection["PRIVMSG"] = &Commands::PRIVMSG;		// DONE
+	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
+	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
+	_selection["KILL"] = &Commands::KILL;			// DONE
+	_selection["EXIT"] = &Commands::EXIT;
+}
+
+bool	Commands::toRegister(std::string command)
+{
+	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER" && command != "QUIT")
+		return(_req_client->getRegistered());
+	return (true);
+}
+
+
+void	Commands::executeCommand()
+{
+	std::map<std::string, actions>::iterator select;
+
+	select = this->_selection.find(this->_cmd);
+	if (toRegister(this->_cmd))
+	{
+		if (select != this->_selection.end())
+		{
+			try
+			{
+				(this->*select->second)();
+			}
+			catch(std::exception &e)
+			{
+				std::string error(e.what());
+				serverLog(*_req_client, "", error + " Error Caught\n");
+				std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+			}
+		}
+		else
+			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
+	}
+	else
+		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>", *_req_client);
+}
+
+//* ====== Complementary Functions
+
 void Commands::handleMultiple(std::string comm)
 {
 	this->_multiple = true;
@@ -18,6 +117,46 @@ void Commands::handleMultiple(std::string comm)
 	return ;
 }
 
+void	fill(std::string options, char flags[5], bool present[5])
+{
+	for (unsigned long i = 1; i < options.size(); i++)
+		for (int j = 0; j < 5; j++)
+			if (options[i] == flags[j])
+				present[j] = true;
+}
+
+void	Commands::parseMode(void)
+{
+	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
+	std::string options = getCmdArg(1);
+	char	flags[6] = "itkol";
+	bool	present[5] = {false, false, false, false, false};
+	fill(options, flags, present);
+
+	if (options == "")
+		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
+	else if (options[0] != '-' && options[0] != '+')
+		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
+	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
+		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
+	else
+		for (int i = 0; i < 5; i++)
+			if (present[i])
+				targetch->mode(this->_req_client, options[0] == '+', flags[i], getCmdArg(2));
+}
+
+std::string Commands::concArgs(int start)
+{
+	std::string str = "";
+	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
+		str += *(it) + " ";
+	if (!str.empty() && str[str.size() - 1] == ' ')
+        str.erase(str.size() - 1, 1);
+	return (str);
+}
+
+//* ====== Authentication Commands
+
 void Commands::CAP(void)
 {
 	std::string command1 = getCmdArg(0);
@@ -29,7 +168,7 @@ void Commands::CAP(void)
     }
     if(this->_req_client->_cap_order && command1 == "REQ")
 	{
-		std::string message = "CAP * ACK " + getCmdArg(1) + "\r\n";
+		std::string message = "CAP * ACK :" + getCmdArg(1) + "\r\n";
         this->_req_client->pushSendBuffer(message);
 	}
 
@@ -55,6 +194,8 @@ void Commands::PING(void)
 {
 
 }
+
+//* ====== User Assigning Commands
 
 void Commands::NICK(void)
 {
@@ -148,6 +289,8 @@ void Commands::QUIT(void)
 	_req_client->setReason(concArgs(0));
 	// this->_serv->removeUser(this->_req_client->getSocketFd());
 }
+
+//* ====== Channe Related Commands
 
 void Commands::JOIN(void)
 {
@@ -244,34 +387,6 @@ void Commands::TOPIC(void)
 		targetch->setTopic(this->_req_client, concArgs(1));
 }
 
-void	fill(std::string options, char flags[5], bool present[5])
-{
-	for (unsigned long i = 1; i < options.size(); i++)
-		for (int j = 0; j < 5; j++)
-			if (options[i] == flags[j])
-				present[j] = true;
-}
-
-void	Commands::parseMode(void)
-{
-	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	std::string options = getCmdArg(1);
-	char	flags[6] = "itkol";
-	bool	present[5] = {false, false, false, false, false};
-	fill(options, flags, present);
-
-	if (options == "")
-		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
-	else if (options[0] != '-' && options[0] != '+')
-		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
-	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
-		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
-	else
-		for (int i = 0; i < 5; i++)
-			if (present[i])
-				targetch->mode(this->_req_client, options[0] == '+', flags[i], getCmdArg(2));
-}
-
 void Commands::MODE(void)
 {
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
@@ -285,15 +400,7 @@ void Commands::MODE(void)
 		parseMode();
 }
 
-std::string Commands::concArgs(int start)
-{
-	std::string str = "";
-	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
-		str += *(it) + " ";
-	if (!str.empty() && str[str.size() - 1] == ' ')
-        str.erase(str.size() - 1, 1);
-	return (str);
-}
+//* ====== Sending Messages
 
 void Commands::PRIVMSG(void)
 {
@@ -322,6 +429,8 @@ void Commands::NOTICE(void)
 	// ! DIFFERENCE: automatic replies must never be sent in response
 }
 
+//* ====== User Based Queries
+
 void Commands::WHOIS(void)
 {
 	if (!this->_multiple)
@@ -348,58 +457,7 @@ void Commands::WHOIS(void)
 	}
 }
 
-void Commands::EXIT(void)
-{
-	std::map<int, Client> clients = this->_serv->getClients();
-	if (!this->_serv->isOp(*this->_req_client))
-		_req_client->sendmsg(RED "Only an IRC operator can exeute EXIT!" RESET "\n");
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		{
-			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
-				selfCommand(*broad, "EXIT",  YELLOW "\n Server is shutting down...... \n" RESET);
-		}
-
-	for (int counter = 3; counter > 0 ; counter--)
-	{
-		if(counter == 3)
-		{
-			std::string message = RED "Closing down in ...3\n" RESET; 
-			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			{
-				Client *broad = this->_serv->getClientNick(it->second.getNickname());
-				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-			}
-		}
-		else if(counter == 2)
-		{
-			std::string message = RED "Closing down in ...2\n" RESET; 
-			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			{
-				Client *broad = this->_serv->getClientNick(it->second.getNickname());
-				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-			}
-		}
-		else if(counter == 1)
-		{
-			std::string message = RED "Closing down in ...1\n" RESET; 
-			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			{
-				Client *broad = this->_serv->getClientNick(it->second.getNickname());
-				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-			}
-		}
-		usleep(1000000);
-			
-	}
-	
-	this->_serv->setShutDown(true);
-	std::string message = RED "---- Shut down ---- Made by Ruhan, Ammar and Maaz.\n" RESET; 
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-	{
-		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-	}
-}
+//* ====== Operator Messages
 
 void Commands::KILL(void)
 {
@@ -421,94 +479,42 @@ void Commands::KILL(void)
 	}
 }
 
-void	Commands::setAttributes()
+void Commands::EXIT(void)
 {
-	this->_order = false;
-	this->_multiple = false;
-	_selection["CAP"] = &Commands::CAP;				// ?
-	_selection["PASS"] = &Commands::PASS;			// DONE
-	_selection["PING"] = &Commands::PING;			// ?
-	_selection["NICK"] = &Commands::NICK;			// DONE
-	_selection["USER"] = &Commands::USER;			// DONE
-	_selection["OPER"] = &Commands::OPER;			// DONE
-	_selection["QUIT"] = &Commands::QUIT;			// DONE
-	_selection["JOIN"] = &Commands::JOIN;			// DONE
-	_selection["PART"] = &Commands::PART;			// DONE
-	_selection["KICK"] = &Commands::KICK;			// DONE
-	_selection["INVITE"] = &Commands::INVITE;		// DONE
-	_selection["TOPIC"] = &Commands::TOPIC;			// DONE
-	_selection["MODE"] = &Commands::MODE;			// DONE
-	_selection["PRIVMSG"] = &Commands::PRIVMSG;		// DONE
-	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
-	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
-	_selection["KILL"] = &Commands::KILL;			// DONE
-	_selection["EXIT"] = &Commands::EXIT;
-}
-
-Commands::Commands()
-{
-	setAttributes();
-}
-
-Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
-{
-	setAttributes();
-}
-
-Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse(req_client, srvptr)
-{
-	setAttributes();
-
-	size_t pos = buff.find_first_of('\n');
-	if (pos == std::string::npos)
-		return ;
-	std::string cmd = buff.substr(0, pos + 1);
-	buff = buff.substr(pos + 1);
-	trim(cmd);
-	std::cout << PURPLE << cmd << RESET << "\n"; // ! DEBUGGING
-	if (cmd.empty())
-		return ;
-	this->_cmd = extractWord(cmd);
-	while (!cmd.empty())
-		this->_cmd_args.push_back(extractWord(cmd));
-	executeCommand();
-}
-
-Commands::~Commands()
-{
-
-}
-
-bool	Commands::toRegister(std::string command)
-{
-	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER" && command != "QUIT")
-		return(_req_client->getRegistered());
-	return (true);
-}
-
-void	Commands::executeCommand()
-{
-	std::map<std::string, actions>::iterator select;
-
-	select = this->_selection.find(this->_cmd);
-	if (toRegister(this->_cmd))
+	std::map<int, Client> clients = this->_serv->getClients();
+	if (!this->_serv->isOp(*this->_req_client))
+		throw CommandError("Privileges Required", ERR_NOPRIVILEGES, ":Permission Denied- You're not an IRC operator", *_req_client);
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 	{
-		if (select != this->_selection.end())
-		{
-			try
-			{
-				(this->*select->second)();
-			}
-			catch(std::exception &e)
-			{
-				std::string error(e.what());
-				serverLog(*_req_client, "", error + " Error Caught\n");
-				std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
-			}
-		}
-		else
-			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
+		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET "\r\n");
 	}
-	else
-		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>", *_req_client);
+		// if(counter == 3)
+		// {
+		// 	std::string message = RED "Closing down in ---3\n" RESET; 
+		// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		// 	{
+		// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+		// 	}
+		// }
+		// else if(counter == 2)
+		// {
+		// 	std::string message = RED "Closing down in ---2\n" RESET; 
+		// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		// 	{
+		// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+		// 	}
+		// }
+		// else if(counter == 1)
+		// {
+		// 	std::string message = RED "Closing down in ---1\n" RESET; 
+		// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		// 	{
+		// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+		// 	}
+		// }
+	this->_serv->setShutDown(true);
 }

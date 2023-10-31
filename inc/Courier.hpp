@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ft_irc.hpp"
-#include <exception>
 
 #define TRIPLE_INFO(nick, user, host) (nick + "[!" + user + "@" + host + "]")
 

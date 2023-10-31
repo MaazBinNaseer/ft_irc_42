@@ -6,27 +6,27 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/30 12:36:07 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/31 19:22:22 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ft_irc.hpp"
-#include <fstream>
 
 class Server
 {
 	private:
-		int	sfd;
-		bool shutdown;
-		struct sockaddr_in	addr;
-		std::string			joinpass;
-		std::string			operpass;
-		std::vector<pollfd>	clientfds;
-		std::map<int, Client> clients;
-		std::map<int, Client *> operators;
-		std::map<std::string, Channel> channels;
+		int								sfd;
+		int								counter;
+		bool							shutdown;
+		struct sockaddr_in				addr;
+		std::string						joinpass;
+		std::string						operpass;
+		std::vector<pollfd>				clientfds;
+		std::map<int, Client> 			clients;
+		std::map<int, Client *> 		operators;
+		std::map<std::string, Channel>	channels;
 
 	public:
 		// *----- Orthodox Canonical Form -----
@@ -37,6 +37,7 @@ class Server
 
 		// *----- Attribute getters -----
 		int								getFd(void);
+		int								getCounter(void);
 		bool							getShutdown(void);
 		std::string						getPassword(void) const;
 		std::string						getOperPass(void) const;
@@ -58,14 +59,16 @@ class Server
 		void	addChannel(std::string name, Client &c);
 		void	removeChannel(std::string name);
 		void	print(void);
+		void	decrementCounter(void);
 
 
 		// *---- ServerFuncs.cpp ----
-		void	deliverToClient(Client &client);
-		int		appendpollfd(int new_socket);
-		int		assign(char *portstr, char *pass);
-		int		accept_connect( void );
-		int		HandleClients( void );
+		void		countDown(void);
+		void		deliverToClient(Client &client);
+		int			HandleClients( void );
+		int			accept_connect( void );
+		int			appendpollfd(int new_socket);
+		int			assign(char *portstr, char *pass);
+		int			bootup(char *portstr, char *pass);
 
-		int		bootup(char *portstr, char *pass);
 };

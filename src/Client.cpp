@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/30 10:59:13 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/31 19:28:19 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,6 +226,7 @@ void	Client::sendmsg(std::string msg)
 
 void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 {
+	logRecv(newbuff, this->getClientId());
 	this->_receiveBuffer += newbuff;
 	while (this->_receiveBuffer.find('\n') != std::string::npos)
 		Commands	extract(this, _serv, getReceiveBuffer());

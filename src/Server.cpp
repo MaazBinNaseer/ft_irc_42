@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/30 11:36:36 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/10/31 19:34:25 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Server::Server( void )
 	log.close();
 	this->operpass = OPERPASS;
 	this->shutdown = false;
+	this->counter  = 3;
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
 }
 
@@ -46,6 +47,11 @@ int	Server::getFd(void)
 	size_t size = this->clientfds.size();
 	std::cout << "Vector Pollfd size = " << size << std::endl;
 	return(size);
+}
+
+int Server::getCounter(void)
+{
+	return (this->counter);
 }
 
 bool Server::getShutdown(void)
@@ -164,9 +170,7 @@ void	Server::removeChannel(std::string name)
 	this->channels.erase(name);
 }
 
-void	Server::print(void)
+void	Server::decrementCounter()
 {
-	std::map<std::string, Channel>::iterator it;
-	for (it = this->channels.begin(); it != this->channels.end(); it++)
-		it->second.print();
+	this->counter--;
 }

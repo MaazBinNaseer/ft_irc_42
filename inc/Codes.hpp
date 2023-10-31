@@ -9,8 +9,8 @@
 #define	RPL_CREATED				" 003 "
 #define	RPL_MYINFO				" 004 "
 #define	RPL_ISUPPORT			" 005 "
-//* ===== Satisitics =====
-#define RPL_STAISTICS           " 055 "
+//* ===== Statisitics =====
+#define RPL_STATISTICS			" 055 "
 //* ===== Client Mode =====
 #define	RPL_UMODEIS				" 221 "
 //* ===== WHOIS =====

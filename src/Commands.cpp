@@ -192,7 +192,20 @@ void Commands::PASS(void)
 
 void Commands::PING(void)
 {
-
+	if(this->_cmd_args.size() < 1)
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
+	else if (_req_client->getNickname() == "*")
+		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, ":Nickname required to register use PING <nickname>", *_req_client);
+	else if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
+		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " :Nickname is already in use by another user", *_req_client);
+	clock_t startTime = clock();
+	_req_client->sendmsg(GREEN "PONG " + getCmdArg(0) + ": " RESET);
+	clock_t endTime = clock();
+	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
+	std::ostringstream message;
+	message << std::fixed << std::setprecision(6);
+    message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
+    _req_client->sendmsg(message.str());
 }
 
 //* ====== User Assigning Commands
@@ -457,7 +470,56 @@ void Commands::WHOIS(void)
 	}
 }
 
-//* ====== Operator Messages
+void Commands::EXIT(void)
+{
+	std::map<int, Client> clients = this->_serv->getClients();
+	if (!this->_serv->isOp(*this->_req_client))
+		_req_client->sendmsg(RED "Only an IRC operator can exeute EXIT!" RESET "\n");
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		{
+			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
+				selfCommand(*broad, "EXIT",  YELLOW "\n Server is shutting down...... \n" RESET);
+		}
+	//! May need to revise this part of the code, looks hardcoded. 
+	for (int counter = 3; counter > 0 ; counter--)
+	{
+		if(counter == 3)
+		{
+			std::string message = RED "Closing down in ...3\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		else if(counter == 2)
+		{
+			std::string message = RED "Closing down in ...2\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		else if(counter == 1)
+		{
+			std::string message = RED "Closing down in ...1\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		usleep(1000000);
+	}	
+	this->_serv->setShutDown(true);
+	std::string message = RED "---- Shut down ---- Made by Ruhan, Ammar and Maaz.\n" RESET; 
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+	{
+		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+	}
+}
 
 void Commands::KILL(void)
 {

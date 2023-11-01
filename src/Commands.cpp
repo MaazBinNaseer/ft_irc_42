@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <exception>
 
 //* ====== Canonical Orthodox Form
 
@@ -177,9 +176,9 @@ void Commands::CAP(void)
 void Commands::PASS(void)
 {
 	if (_req_client->getPass())
-		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, ":No need to reregister", *_req_client);
+		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, "No need to reregister", *_req_client);
 	else if (this->_cmd_args.size() < 1)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
 	else if (this->_serv->getPassword() == getCmdArg(0))
 		_req_client->setPass(true);
 	else
@@ -200,13 +199,13 @@ void Commands::PING(void)
 void Commands::NICK(void)
 {
 	if (this->_cmd_args.size() < 1)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
 	else if (!_req_client->getPass())
-		throw CommandError("Password Required", ERR_PASSWDMISMATCH, ":Password needed", *_req_client);
+		throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
 	else if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
-		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " :Nickname is already in use by another user", *_req_client);
+		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by another user", *_req_client);
 	else if (this->_serv->getChannel(getCmdArg(0)))
-		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " :Nickname is already in use by a channel", *_req_client);
+		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by a channel", *_req_client);
 	else
 		this->_req_client->setNickname(getCmdArg(0));
 }
@@ -214,13 +213,13 @@ void Commands::NICK(void)
 void Commands::USER(void)
 {
 	if (_req_client->getRegistered())
-		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, ":No need to reregister", *_req_client);
+		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, "No need to reregister", *_req_client);
 	else if (!_req_client->getPass())
-		throw CommandError("Password Required", ERR_PASSWDMISMATCH, ":Password needed", *_req_client);
+		throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
 	else if (this->_cmd_args.size() < 4)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
 	else if (_req_client->getNickname() == "*")
-		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, ":Nickname required to register using NICK <nickname>", *_req_client);
+		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, "Nickname required to register using NICK <nickname>", *_req_client);
 	// std::string user = getCmdArg(0);
 	// if (this->_serv->getClientUser(user))
 	// 	_req_client->sendmsg(RED "Username Taken! Choose another!" RESET "\n"); // ? Would we need to check on usernames? thats for nicknames
@@ -237,10 +236,21 @@ void Commands::USER(void)
 	// 	}
 	// }
 	// ! Revise this code please
+
+	// TODO TOKENS MACROS check
+	// TODO RETURN ANY ACTION for confirmation
+
+	if (getCmdArg(3)[0] == ':')
+	{
+		std::string user = concArgs(3);
+		user.erase(0, 1);
+		this->_req_client->setRealname(user);
+	}
+	else
+		throw CommandError("No Colon For Real Name", ERR_NEEDMOREPARAMS, "USER needs ':' for Realname", *_req_client);
 	_req_client->setUsername(getCmdArg(0));
 	_req_client->setHostname(getCmdArg(1));
 	_req_client->setServername(getCmdArg(2));
-	_req_client->setRealname(getCmdArg(3));
 	_req_client->setRegistered(true);
 	logRegister(*_req_client);
 	welcomeMessage(*_req_client, *_serv);
@@ -250,23 +260,23 @@ void Commands::OPER(void)
 {
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (getCmdArg(0) == "")
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, ":Enter User to get Operator Privileges!", *_req_client);
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "Enter User to get Operator Privileges!", *_req_client);
 		// this->_req_client->sendmsg(RED "Enter User to get Operator Privileges!" RESET "\n");
 	else if (getCmdArg(1) == "")
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, ":Password Needed for Operator Privileges!", *_req_client);
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "Password Needed for Operator Privileges!", *_req_client);
 		// this->_req_client->sendmsg(RED "Password Needed for Operator Privileges!" RESET "\n");
 	else if (!targetcl)
-		throw CommandError("User Not Found", ERR_NOSUCHNICK, ":User does not Exist!", *_req_client);
+		throw CommandError("User Not Found", ERR_NOSUCHNICK, "User does not Exist!", *_req_client);
 		// this->_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
 	else if (getCmdArg(1) != this->_serv->getOperPass())
-		throw CommandError("Incorrect Password", ERR_PASSWDMISMATCH, ":Incorrect Password for Operator Privileges!", *_req_client);
+		throw CommandError("Incorrect Password", ERR_PASSWDMISMATCH, "Incorrect Password for Operator Privileges!", *_req_client);
 		// this->_req_client->sendmsg(RED "Incorrect Password for Operator Privileges!" RESET "\n");
 	else
 	{
 		this->_serv->addOperator(targetcl);
 		std::map<int, Client> clients = this->_serv->getClients();
 		serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
-		serverMessage(RPL_YOUREOPER, ":You are now an IRC operator", *targetcl);
+		serverMessage(RPL_YOUREOPER, "You are now an IRC operator", *targetcl);
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		{
 			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution

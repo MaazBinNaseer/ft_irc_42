@@ -33,6 +33,7 @@ fclean: clean
 
 gpush:
 	make fclean
+	rm -rf Severlog.txt .vscode
 	git add .
 	git commit -m "Merged Ruhan and Ammar's work"
 	git push

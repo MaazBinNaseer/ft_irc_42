@@ -10,75 +10,123 @@
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-CAP LS 302
-JOIN :
-\----------------------------------------/
-/----------------------------------------\
->>>SENDING>>> (to 4): 
-CAP * LS :chghost server_time account_tag extended_join invite_notify
- : 451 * ::need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>
- 
-\----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 4): 
-CAP REQ :chghost
-\----------------------------------------/
-/----------------------------------------\
->>>SENDING>>> (to 4): 
-CAP * ACK ::chghost
- 
-\----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 4): 
-CAP END
-\----------------------------------------/
-/----------------------------------------\
-<<<RECEIVED<<< (from 4): 
 PASS a
-NICK user
-USER user user host.docker.internal :Unknown
-\----------------------------------------/
-/----------------------------------------\
-Client 4 registered successfully
-Hello, my name is: user
-with my hostname of: user
-and my Nick name is: user
-and my Real name is: :Unknown
-and a client id of: 4
-\----------------------------------------/
-/----------------------------------------\
->>>SENDING>>> (to 4): 
-:host.docker.internal 001 user :Welcome to the Network, you are known as user[!user@user]
- :host.docker.internal 002 user :Your host is user
- :host.docker.internal 003 user :This server was created today
- :host.docker.internal 004 user :user
- :host.docker.internal 005 user :SUPPORTED TOKENS
- :host.docker.internal 005 user :CHANLIMIT=#:70 NICKLEN=16 CHANNLEN=50 USERLEN=50 KICKLEN=255: are supported by the server
- :host.docker.internal 055 user :I have 1 clients and 1 server
- 
 \----------------------------------------/
 /----------------------------------------\
 <<<RECEIVED<<< (from 4): 
-MODE user +i
+NICK test
 \----------------------------------------/
 /----------------------------------------\
-<<<RECEIVED<<< (from 4): 
-PING host.docker.internal
+** A client connected to the server, their socket fd is: 5 **
 \----------------------------------------/
 /----------------------------------------\
-<<<RECEIVED<<< (from 4): 
+<<<RECEIVED<<< (from 5): 
+PASS
+\----------------------------------------/
+Client: *[!@]
+Note: Insufficient Parameters Error Caught
 
-\----------------------------------------/
 /----------------------------------------\
-<<<RECEIVED<<< (from 4): 
-QUIT :leaving
-\----------------------------------------/
-/----------------------------------------\
->>>SENDING>>> (to 4): 
-:user[!user@user] QUIT :leaving
+>>>SENDING>>> (to 5): 
+: 461 * :[31mPASS Not enough parameters[0m
  
 \----------------------------------------/
 /----------------------------------------\
-** A client disconnected from the server, their socket fd is 4 **
-Left because: :leaving
+<<<RECEIVED<<< (from 5): 
+PASS af
+\----------------------------------------/
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+: 464 * ::Password incorrect
+ 
+\----------------------------------------/
+/----------------------------------------\
+** A client disconnected from the server, their socket fd is 5 **
+Left because: Inputted incorrect password
+\----------------------------------------/
+/----------------------------------------\
+** A client connected to the server, their socket fd is: 5 **
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+PASS dfg
+\----------------------------------------/
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+: 464 * ::Password incorrect
+ 
+\----------------------------------------/
+/----------------------------------------\
+** A client disconnected from the server, their socket fd is 5 **
+Left because: Inputted incorrect password
+\----------------------------------------/
+/----------------------------------------\
+** A client connected to the server, their socket fd is: 5 **
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+PASS a
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+USER mg s h 
+\----------------------------------------/
+Client: *[!@]
+Note: Insufficient Parameters Error Caught
+
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+: 461 * :[31mUSERNot enough parameters[0m
+ 
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+USER mg s h a
+\----------------------------------------/
+Client: *[!@]
+Note: No Nickname Given Error Caught
+
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+: 431 * :[31mNickname required to register using NICK <nickname>[0m
+ 
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+NICK r
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+USER mg s h a
+\----------------------------------------/
+Client: r[!@]
+Note: No Colon For Real Name Error Caught
+
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+: 461 r :[31mUSER needs ':' for Realname[0m
+ 
+\----------------------------------------/
+/----------------------------------------\
+<<<RECEIVED<<< (from 5): 
+USER mg s h :Ruhan
+\----------------------------------------/
+/----------------------------------------\
+Client 5 registered successfully
+Hello, my name is: mg
+with my hostname of: s
+and my Nick name is: r
+and my Real name is: Ruhan
+and a client id of: 5
+\----------------------------------------/
+/----------------------------------------\
+>>>SENDING>>> (to 5): 
+:h 001 r :Welcome to the Network, you are known as r[!mg@s]
+ :h 002 r :Your host is s
+ :h 003 r :This server was created today
+ :h 004 r :s
+ :h 005 r :SUPPORTED TOKENS
+ :h 005 r :CHANLIMIT=#:70 NICKLEN=16 CHANNLEN=50 USERLEN=50 KICKLEN=255: are supported by the server
+ :h 055 r :I have 2 clients and 1 server
+ 
 \----------------------------------------/

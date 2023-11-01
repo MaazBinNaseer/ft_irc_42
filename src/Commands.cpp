@@ -180,7 +180,10 @@ void Commands::PASS(void)
 	else if (this->_cmd_args.size() < 1)
 		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
 	else if (this->_serv->getPassword() == getCmdArg(0))
+	{
+		this->_req_client->sendmsg(GREEN "Correct Password!" RESET "\n");
 		_req_client->setPass(true);
+	}
 	else
 	{
 		serverMessage(ERR_PASSWDMISMATCH, ":Password incorrect", *_req_client);
@@ -222,7 +225,10 @@ void Commands::NICK(void)
 	else if (this->_serv->getChannel(getCmdArg(0)))
 		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by a channel", *_req_client);
 	else
+	{
 		this->_req_client->setNickname(getCmdArg(0));
+		this->_req_client->sendmsg(GREEN "Nickname set!" RESET "\n");
+	}
 }
 
 void Commands::USER(void)
@@ -251,8 +257,6 @@ void Commands::USER(void)
 	// 	}
 	// }
 	// ! Revise this code please
-
-	// TODO RETURN ANY ACTION for confirmation
 
 	if (getCmdArg(3)[0] == ':')
 	{
@@ -342,7 +346,10 @@ void Commands::JOIN(void)
 	else if (getCmdArg(0).size() > CHANNELEN)
 		throw CommandError("Channel Name Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Channel Name is too long", *_req_client); // !WRONG ERROR
 	else
+	{
+		this->_req_client->sendmsg(GREEN "You have made Channel: " + getCmdArg(0) + RESET "\n");
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
+	}
 }
 
 void Commands::PART(void)
@@ -420,7 +427,10 @@ void Commands::TOPIC(void)
 	else if (targetch->hasTopicRestrictions() && !targetch->isOp(*this->_req_client))
 		this->_req_client->sendmsg(RED "Setting Topic restricted to Channel Operators!" RESET "\n");
 	else
+	{
 		targetch->setTopic(this->_req_client, concArgs(1));
+		this->_req_client->sendmsg(GREEN "You have set the Topic!" RESET "\n");
+	}
 }
 
 void Commands::MODE(void)

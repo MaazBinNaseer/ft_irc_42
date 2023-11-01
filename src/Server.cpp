@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 17:45:49 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/01 18:23:43 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,9 @@ Server::~Server( void )
 	// ! HANDLE CLOSING FD LEAKS
 }
 
-int	Server::getFd(void)
+int	Server::getFdSize(void)
 {
-	size_t size = this->clientfds.size();
-	std::cout << "Vector Pollfd size = " << size << std::endl;
-	return(size);
+	return (this->clientfds.size());
 }
 
 int Server::getCounter(void)

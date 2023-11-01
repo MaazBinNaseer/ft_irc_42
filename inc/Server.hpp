@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 17:44:26 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/01 18:23:24 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class Server
 		~Server( void );
 
 		// *----- Attribute getters -----
-		int								getFd(void);
+		int								getFdSize(void);
 		int								getCounter(void);
 		bool							getShutdown(void);
 		std::string						getPassword(void) const;

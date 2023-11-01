@@ -155,7 +155,7 @@ void serverMessage(std::string code, std::string message, Client &client)
 
 void welcomeMessage(Client &client, Server &server)
 {
-	std::string fdString = intToString(server.getFd() - 1);
+	std::string fdString = intToString(server.getFdSize() - 1);
 	serverMessage(RPL_WELCOME, "Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()), client);
 	serverMessage(RPL_YOURHOST, "Your host is " + client.getHostname(), client);
 	serverMessage(RPL_CREATED, "This server was created today", client);

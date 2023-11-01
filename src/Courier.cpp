@@ -161,7 +161,8 @@ void welcomeMessage(Client &client, Server &server)
 	serverMessage(RPL_CREATED, "This server was created today", client);
 	serverMessage(RPL_MYINFO, client.getHostname(), client);
 	serverMessage(RPL_ISUPPORT, "SUPPORTED TOKENS", client);
-	serverMessage(RPL_ISUPPORT, "CHANLIMIT=#:70 NICKLEN=16 CHANNLEN=50 USERLEN=50 KICKLEN=255: are supported by the server", client);
+	serverMessage(RPL_ISUPPORT, "CHANLIMIT=#:70 NICKLEN=16 CHANNELEN=16 USERLEN=16 KICKLEN=255: are supported by the server", client);
+	// TODO UPDATE SO USES MACROS INSTEAD OF STRING
 	serverMessage(RPL_STATISTICS, "I have " + fdString  + " clients and 1 server", client);
 }
 

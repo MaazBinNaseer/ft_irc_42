@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 16:21:18 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/01 17:44:26 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Server
 		Client							*getClientUser(std::string user);
 		std::map<int, Client>			&getClients(void);
 		Channel							*getChannel(std::string name);
+		std::map<std::string, Channel*>	getChannels(Client *c);
 		std::map<std::string, Channel>	&getChannels(void);
 		
 		// *----- Attribute setters -----

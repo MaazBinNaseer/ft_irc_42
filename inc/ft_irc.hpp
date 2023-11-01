@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 16:23:59 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/01 17:31:09 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@
 
 #define BUFFER_SIZE 2048
 
-#define CHANLIMIT 70 // max 
-#define NICKLEN 16
-#define CHANNLEN 50
-#define USERLEN 50
-#define KICKLEN 255
+#define CHANLIMIT 70    // max number of channels a client can join
+#define NICKLEN 16      // max length of nickname
+#define CHANNELEN 16    // max length of channel name
+#define USERLEN 16      // max length of username
+#define KICKLEN 255     // max length of KICK reason
 
 #define OPERPASS "heeheeMJ"
 

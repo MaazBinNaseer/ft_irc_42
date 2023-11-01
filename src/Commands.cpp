@@ -204,7 +204,7 @@ void Commands::PING(void)
 	std::ostringstream message;
 	message << std::fixed << std::setprecision(6);
     message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
-    _req_client->sendmsg(message.str());
+    _req_client->sendmsg(GREEN + message.str() + RESET); // ! check if error
 }
 
 //* ====== User Assigning Commands
@@ -215,6 +215,8 @@ void Commands::NICK(void)
 		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
 	else if (!_req_client->getPass())
 		throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
+	else if (getCmdArg(0).size() > NICKLEN)
+		throw CommandError("Nickname Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Nickname is too long", *_req_client); // !WRONG ERROR
 	else if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
 		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by another user", *_req_client);
 	else if (this->_serv->getChannel(getCmdArg(0)))
@@ -250,7 +252,6 @@ void Commands::USER(void)
 	// }
 	// ! Revise this code please
 
-	// TODO TOKENS MACROS check
 	// TODO RETURN ANY ACTION for confirmation
 
 	if (getCmdArg(3)[0] == ':')
@@ -261,6 +262,8 @@ void Commands::USER(void)
 	}
 	else
 		throw CommandError("No Colon For Real Name", ERR_NEEDMOREPARAMS, "USER needs ':' for Realname", *_req_client);
+	if (getCmdArg(0).size() > USERLEN)
+		throw CommandError("Username Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Username is too long", *_req_client); // !WRONG ERROR
 	_req_client->setUsername(getCmdArg(0));
 	_req_client->setHostname(getCmdArg(1));
 	_req_client->setServername(getCmdArg(2));
@@ -328,10 +331,16 @@ void Commands::JOIN(void)
 		else if (targetch->getPassword() != "" && targetch->getPassword() != getCmdArg(1))
 			_req_client->sendmsg(RED "Wrong Channel Password!" RESET "\n");
 		else
+		{
+			if (this->_serv->getChannels(this->_req_client).size() >= CHANLIMIT)
+				throw CommandError("Channel Limit Reached", ERR_NOSUCHNICK, "Channel Limit Reached", *_req_client); // !WRONG ERROR
 			targetch->invite(NULL, *_req_client);
+		}
 	}
 	else if (this->_serv->getClientNick(getCmdArg(0)))
 		_req_client->sendmsg(RED "Nickname Exists! Cannot Create Channel!" RESET "\n");
+	else if (getCmdArg(0).size() > CHANNELEN)
+		throw CommandError("Channel Name Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Channel Name is too long", *_req_client); // !WRONG ERROR
 	else
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 }
@@ -370,7 +379,11 @@ void Commands::KICK(void)
 	else if (!targetch->exists(*targetcl))
 		_req_client->sendmsg(RED "User is not Part of this Channel!" RESET "\n");
 	else
+	{
+		if (getCmdArg(2) != "" && concArgs(2).size() <= KICKLEN)
+			targetcl->sendmsg(RED "You are being kicked because " + concArgs(2) + RESET "\n");
 		targetch->kick(this->_req_client, *targetcl);
+	}
 }
 
 void Commands::INVITE(void)
@@ -551,16 +564,16 @@ void Commands::KILL(void)
 	}
 }
 
-void Commands::EXIT(void)
-{
-	std::map<int, Client> clients = this->_serv->getClients();
-	if (!this->_serv->isOp(*this->_req_client))
-		throw CommandError("Privileges Required", ERR_NOPRIVILEGES, ":Permission Denied- You're not an IRC operator", *_req_client);
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-	{
-		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET "\r\n");
-	}
+// void Commands::EXIT(void)
+// {
+// 	std::map<int, Client> clients = this->_serv->getClients();
+// 	if (!this->_serv->isOp(*this->_req_client))
+// 		throw CommandError("Privileges Required", ERR_NOPRIVILEGES, ":Permission Denied- You're not an IRC operator", *_req_client);
+// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+// 	{
+// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+// 		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET "\r\n");
+// 	}
 		// if(counter == 3)
 		// {
 		// 	std::string message = RED "Closing down in ---3\n" RESET; 
@@ -588,5 +601,5 @@ void Commands::EXIT(void)
 		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
 		// 	}
 		// }
-	this->_serv->setShutDown(true);
-}
+// 	this->_serv->setShutDown(true);
+// }

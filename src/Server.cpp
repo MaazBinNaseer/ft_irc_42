@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/31 19:34:25 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/01 17:45:49 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,16 @@ Channel	*Server::getChannel(std::string name)
 	if (this->channels.find(name) != this->channels.end())
 		return (&this->channels[name]);
 	return (NULL);
+}
+
+std::map<std::string, Channel*>	Server::getChannels(Client *c)
+{
+	std::map<std::string, Channel*> chansin;
+
+	for (std::map<std::string, Channel>::iterator it= this->channels.begin(); it != this->channels.end(); it++)
+			if (it->second.exists(*c))
+				chansin[it->first] = &it->second;
+	return (chansin);
 }
 
 std::map<std::string, Channel>	&Server::getChannels()

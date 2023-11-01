@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 16:41:38 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/01 16:23:59 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <exception>
 #include <iostream>
 #include <ostream>
 #include <sstream>
@@ -44,12 +45,18 @@
 
 #define BUFFER_SIZE 2048
 
+#define CHANLIMIT 70 // max 
+#define NICKLEN 16
+#define CHANNLEN 50
+#define USERLEN 50
+#define KICKLEN 255
+
 #define OPERPASS "heeheeMJ"
 
 class Channel;
 class Client;
 class Commands;
-class Server; // * need to include so other classes can use Server as attribute
+class Server;
 
 #include "Channel.hpp"
 #include "Client.hpp"

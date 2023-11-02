@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/02 12:51:18 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:21:41 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ class Server
 
 
 		// *---- ServerFuncs.cpp ----
-		void		countDown(void);
+		bool		countDown(void);
+		void		clientDisconnect(std::string reason, int cfd);
 		void		deliverToClient(Client &client);
 		int			HandleClients( void );
 		int			appendpollfd(int new_socket);

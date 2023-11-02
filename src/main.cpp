@@ -6,11 +6,17 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/29 17:54:32 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:11:37 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+
+void signalHandler(int signum)
+{
+	if (signum == SIGINT)
+		std::cout << "SIGINT signal used" << std::endl;
+}
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +26,7 @@ int main(int argc, char *argv[])
 	try
 	{
 		Server	irc;
+		signal(SIGINT, signalHandler);
 		irc.bootup(argv[1], argv[2]);
 	}
 	catch(std::exception &e)

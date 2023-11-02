@@ -1,157 +1,93 @@
 #include "../inc/ft_irc.hpp"
 
-//* ====== Canonical Orthodox Form
-
-Commands::Commands()
+void Commands::checkConditions(std::string flags)
 {
-	setAttributes();
-}
-
-Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
-{
-	setAttributes();
-}
-
-Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse(req_client, srvptr)
-{
-	setAttributes();
-
-	size_t pos = buff.find_first_of('\n');
-	if (pos == std::string::npos)
-		return ;
-	std::string cmd = buff.substr(0, pos + 1);
-	buff = buff.substr(pos + 1);
-	trim(cmd);
-	std::cout << PURPLE << cmd << RESET << "\n"; // ! DEBUGGING
-	if (cmd.empty())
-		return ;
-	this->_cmd = extractWord(cmd);
-	while (!cmd.empty())
-		this->_cmd_args.push_back(extractWord(cmd));
-	executeCommand();
-}
-
-Commands::~Commands()
-{
-
-}
-
-//* ====== Command Execution Setup
-
-void	Commands::setAttributes()
-{
-	this->_order = false;
-	this->_multiple = false;
-	_selection["CAP"] = &Commands::CAP;				// ?
-	_selection["PASS"] = &Commands::PASS;			// DONE
-	_selection["PING"] = &Commands::PING;			// ?
-	_selection["NICK"] = &Commands::NICK;			// DONE
-	_selection["USER"] = &Commands::USER;			// DONE
-	_selection["OPER"] = &Commands::OPER;			// DONE
-	_selection["QUIT"] = &Commands::QUIT;			// DONE
-	_selection["JOIN"] = &Commands::JOIN;			// DONE
-	_selection["PART"] = &Commands::PART;			// DONE
-	_selection["KICK"] = &Commands::KICK;			// DONE
-	_selection["INVITE"] = &Commands::INVITE;		// DONE
-	_selection["TOPIC"] = &Commands::TOPIC;			// DONE
-	_selection["MODE"] = &Commands::MODE;			// DONE
-	_selection["PRIVMSG"] = &Commands::PRIVMSG;		// DONE
-	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
-	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
-	_selection["KILL"] = &Commands::KILL;			// DONE
-	_selection["EXIT"] = &Commands::EXIT;
-}
-
-bool	Commands::toRegister(std::string command)
-{
-	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER" && command != "QUIT")
-		return(_req_client->getRegistered());
-	return (true);
-}
-
-
-void	Commands::executeCommand()
-{
-	std::map<std::string, actions>::iterator select;
-
-	select = this->_selection.find(this->_cmd);
-	if (toRegister(this->_cmd))
+	for (unsigned long i = 0; i < flags.size(); i++)
 	{
-		if (select != this->_selection.end())
+		switch (flags[i])
 		{
-			try
+			case PARAM:
 			{
-				(this->*select->second)();
+				unsigned long num = flags[++i] - '0';
+				if (this->_cmd_args.size() < num)
+					throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
+				break ;
 			}
-			catch(std::exception &e)
+			case REGIS:
 			{
-				std::string error(e.what());
-				serverLog(*_req_client, "", error + " Error Caught\n");
-				std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+				if (_req_client->getPass())
+					throw CommandError("Already Registered", ERR_ALREADYREGISTERED, "No need to reregister", *_req_client);
+				break ;
+			}
+			case PASSW:
+			{
+				switch (flags[++i])
+				{
+					case CHECK:
+					{
+						if (this->_serv->getPassword() != getCmdArg(0))
+							throw CommandError("Password Incorrect", ERR_PASSWDMISMATCH, "Password incorrect", *_req_client);
+						break ;
+					}
+					case REQUIRED:
+					{
+						if (!this->_req_client->getPass())
+							throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
+						break ;
+					}
+				}
+			}
+			case LEN:
+			{
+				switch (flags[++i])
+				{
+					case NICKNAME:
+					{
+						if (getCmdArg(0).size() > NICKLEN)
+							throw CommandError("Nickname Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Nickname is too long", *_req_client); // !WRONG ERROR
+						break ;
+					}
+					case USERNAME:
+					{
+						if (getCmdArg(0).size() > USERLEN)
+							throw CommandError("Username Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Username is too long", *_req_client); // !WRONG ERROR
+						break ;
+					}
+				}
+			}
+			case USERNICK:
+			{
+				switch (flags[++i])
+				{
+					case NONICK:
+					{
+						if (_req_client->getNickname() == "*")
+							throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, "Nickname required to register using NICK <nickname>", *_req_client);
+						break ;
+					}
+					case NOFOUND:
+					{
+						Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
+						if (!targetcl)
+							throw CommandError("User Not Found", ERR_NOSUCHNICK, "User does not Exist!", *_req_client);
+						break ;
+					}
+					case INUSEN:
+					{
+						if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
+							throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by another user", *_req_client);
+						break ;
+					}
+					case INUSECH:
+					{
+						if (this->_serv->getChannel(getCmdArg(0)))
+							throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by a channel", *_req_client);
+						break ;
+					}
+				}
 			}
 		}
-		else
-			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
 	}
-	else
-		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>", *_req_client);
-}
-
-//* ====== Complementary Functions
-
-void Commands::handleMultiple(std::string comm)
-{
-	this->_multiple = true;
-	std::string str = getCmdArg(0);
-	size_t pos = str.find_first_of(",");
-	while (pos != std::string::npos)
-	{
-		this->_cmd_args[0] = str.substr(0, pos);
-		(this->*_selection[comm])();
-		str = str.substr(pos + 1);
-		pos = str.find_first_of(",");
-	}
-	this->_cmd_args[0] = str;
-	this->_multiple = false;
-	return ;
-}
-
-void	fill(std::string options, char flags[5], bool present[5])
-{
-	for (unsigned long i = 1; i < options.size(); i++)
-		for (int j = 0; j < 5; j++)
-			if (options[i] == flags[j])
-				present[j] = true;
-}
-
-void	Commands::parseMode(void)
-{
-	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	std::string options = getCmdArg(1);
-	char	flags[6] = "itkol";
-	bool	present[5] = {false, false, false, false, false};
-	fill(options, flags, present);
-
-	if (options == "")
-		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
-	else if (options[0] != '-' && options[0] != '+')
-		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
-	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
-		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
-	else
-		for (int i = 0; i < 5; i++)
-			if (present[i])
-				targetch->mode(this->_req_client, options[0] == '+', flags[i], getCmdArg(2));
-}
-
-std::string Commands::concArgs(int start)
-{
-	std::string str = "";
-	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
-		str += *(it) + " ";
-	if (!str.empty() && str[str.size() - 1] == ' ')
-        str.erase(str.size() - 1, 1);
-	return (str);
 }
 
 //* ====== Authentication Commands
@@ -175,31 +111,15 @@ void Commands::CAP(void)
 
 void Commands::PASS(void)
 {
-	if (_req_client->getPass())
-		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, "No need to reregister", *_req_client);
-	else if (this->_cmd_args.size() < 1)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
-	else if (this->_serv->getPassword() == getCmdArg(0))
-	{
-		this->_req_client->sendmsg(GREEN "Correct Password!" RESET "\n");
-		_req_client->setPass(true);
-	}
-	else
-	{
-		serverMessage(ERR_PASSWDMISMATCH, "Password incorrect", *_req_client);
-		_req_client->setRemove(true);
-		_req_client->setReason("Inputted incorrect password");
-	}
+	checkConditions("P1RWc");
+	if (_req_client->getReceiveBuffer().empty())
+		selfCommand(*_req_client, "PASS", GREEN "Correct Password!" RESET);
+	_req_client->setPass(true);
 }
 
-void Commands::PING(void)
+void Commands::PING(void) // TODO CHECK ERRORS FOR THIS COMMAND
 {
-	if(this->_cmd_args.size() < 1)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " :Not enough parameters", *_req_client);
-	else if (_req_client->getNickname() == "*")
-		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, ":Nickname required to register use PING <nickname>", *_req_client);
-	else if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
-		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " :Nickname is already in use by another user", *_req_client);
+	checkConditions("P1");
 	clock_t startTime = clock();
 	_req_client->sendmsg(GREEN "PONG " + getCmdArg(0) + ": " RESET);
 	clock_t endTime = clock();
@@ -214,50 +134,15 @@ void Commands::PING(void)
 
 void Commands::NICK(void)
 {
-	if (this->_cmd_args.size() < 1)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
-	else if (!_req_client->getPass())
-		throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
-	else if (getCmdArg(0).size() > NICKLEN)
-		throw CommandError("Nickname Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Nickname is too long", *_req_client); // !WRONG ERROR
-	else if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
-		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by another user", *_req_client);
-	else if (this->_serv->getChannel(getCmdArg(0)))
-		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by a channel", *_req_client);
-	else
-	{
-		this->_req_client->setNickname(getCmdArg(0));
-		this->_req_client->sendmsg(GREEN "Nickname set!" RESET "\n");
-	}
+	checkConditions("P1WrLnNiNh");
+	this->_req_client->setNickname(getCmdArg(0));
+	if (_req_client->getReceiveBuffer().empty())
+		selfCommand(*_req_client, "NICK", GREEN "Nickname set!" RESET);
 }
 
 void Commands::USER(void)
 {
-	if (_req_client->getRegistered())
-		throw CommandError("Already Registered", ERR_ALREADYREGISTERED, "No need to reregister", *_req_client);
-	else if (!_req_client->getPass())
-		throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
-	else if (this->_cmd_args.size() < 4)
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
-	else if (_req_client->getNickname() == "*")
-		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, "Nickname required to register using NICK <nickname>", *_req_client);
-	// std::string user = getCmdArg(0);
-	// if (this->_serv->getClientUser(user))
-	// 	_req_client->sendmsg(RED "Username Taken! Choose another!" RESET "\n"); // ? Would we need to check on usernames? thats for nicknames
-	// if (user != "" && user[0] != ':')
-	// 	this->_req_client->setUsername(user);
-	// for (unsigned long i = 0; i < this->_cmd_args.size() && getCmdArg(i) != ""; i++)
-	// {
-	// 	if (getCmdArg(i)[0] == ':')
-	// 	{
-	// 		user = concArgs(i);
-	// 		user.erase(0, 1);
-	// 		this->_req_client->setRealname(user);
-	// 		break ;
-	// 	}
-	// }
-	// ! Revise this code please
-
+	checkConditions("P4RWrNn");
 	if (getCmdArg(3)[0] == ':')
 	{
 		std::string user = concArgs(3);
@@ -266,44 +151,27 @@ void Commands::USER(void)
 	}
 	else
 		throw CommandError("No Colon For Real Name", ERR_NEEDMOREPARAMS, "USER needs ':' for Realname", *_req_client);
-	if (getCmdArg(0).size() > USERLEN)
-		throw CommandError("Username Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Username is too long", *_req_client); // !WRONG ERROR
-	_req_client->setUsername(getCmdArg(0));
-	_req_client->setHostname(getCmdArg(1));
-	_req_client->setServername(getCmdArg(2));
-	_req_client->setRegistered(true);
+	this->_req_client->setUsername(getCmdArg(0));
+	this->_req_client->setHostname(getCmdArg(1));
+	this->_req_client->setServername(getCmdArg(2));
+	this->_req_client->setRegistered(true);
 	logRegister(*_req_client);
 	welcomeMessage(*_req_client, *_serv);
 }
 
 void Commands::OPER(void)
 {
+	checkConditions("P2NfWc");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "Enter User to get Operator Privileges!", *_req_client);
-		// this->_req_client->sendmsg(RED "Enter User to get Operator Privileges!" RESET "\n");
-	else if (getCmdArg(1) == "")
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "Password Needed for Operator Privileges!", *_req_client);
-		// this->_req_client->sendmsg(RED "Password Needed for Operator Privileges!" RESET "\n");
-	else if (!targetcl)
-		throw CommandError("User Not Found", ERR_NOSUCHNICK, "User does not Exist!", *_req_client);
-		// this->_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
-	else if (getCmdArg(1) != this->_serv->getOperPass())
-		throw CommandError("Incorrect Password", ERR_PASSWDMISMATCH, "Incorrect Password for Operator Privileges!", *_req_client);
-		// this->_req_client->sendmsg(RED "Incorrect Password for Operator Privileges!" RESET "\n");
-	else
+	this->_serv->addOperator(targetcl);
+	std::map<int, Client> clients = this->_serv->getClients();
+	serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
+	serverMessage(RPL_YOUREOPER, "You are now an IRC operator", *targetcl);
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 	{
-		this->_serv->addOperator(targetcl);
-		std::map<int, Client> clients = this->_serv->getClients();
-		serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
-		serverMessage(RPL_YOUREOPER, "You are now an IRC operator", *targetcl);
-		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		{
-			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
-			if (broad != targetcl)
-				broadcastallCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
-			// it->second.sendmsg(CYAN + getCmdArg(0) + " is now an IRC operator!" RESET "\n");
-		}
+		Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
+		if (broad != targetcl)
+			broadcastallCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
 	}
 }
 
@@ -311,13 +179,10 @@ void Commands::QUIT(void)
 {
 	if (this->_cmd_args.size() == 0)
 		selfCommand(*_req_client, this->_cmd, "leaving");
-		// this->_req_client->sendmsg(RED "Exiting Server! See you soon!" RESET "\n");
 	else
 		selfCommand(*_req_client, this->_cmd, concArgs(0));
-		// this->_req_client->sendmsg(RED "You have Quit Because: " + concArgs(0) + RESET + "\n");
 	_req_client->setRemove(true);
 	_req_client->setReason(concArgs(0));
-	// this->_serv->removeUser(this->_req_client->getSocketFd());
 }
 
 //* ====== Channe Related Commands
@@ -534,4 +399,158 @@ void Commands::EXIT(void)
 		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET "\r\n");
 	}
 	this->_serv->setShutDown(true);
+}
+
+//* ====== Canonical Orthodox Form
+
+Commands::Commands()
+{
+	setAttributes();
+}
+
+Commands::Commands(Client *req_client, Server *srvptr): Parse(req_client, srvptr)
+{
+	setAttributes();
+}
+
+Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse(req_client, srvptr)
+{
+	setAttributes();
+
+	size_t pos = buff.find_first_of('\n');
+	if (pos == std::string::npos)
+		return ;
+	std::string cmd = buff.substr(0, pos + 1);
+	buff = buff.substr(pos + 1);
+	trim(cmd);
+	std::cout << PURPLE << cmd << RESET << "\n"; // ! DEBUGGING
+	if (cmd.empty())
+		return ;
+	this->_cmd = extractWord(cmd);
+	while (!cmd.empty())
+		this->_cmd_args.push_back(extractWord(cmd));
+	executeCommand();
+}
+
+Commands::~Commands()
+{
+
+}
+
+//* ====== Command Execution Setup
+
+void	Commands::setAttributes()
+{
+	this->_order = false;
+	this->_multiple = false;
+	_selection["CAP"] = &Commands::CAP;				// ?
+	_selection["PASS"] = &Commands::PASS;			// DONE
+	_selection["PING"] = &Commands::PING;			// ?
+	_selection["NICK"] = &Commands::NICK;			// DONE
+	_selection["USER"] = &Commands::USER;			// DONE
+	_selection["OPER"] = &Commands::OPER;			// DONE
+	_selection["QUIT"] = &Commands::QUIT;			// DONE
+	_selection["JOIN"] = &Commands::JOIN;			// DONE
+	_selection["PART"] = &Commands::PART;			// DONE
+	_selection["KICK"] = &Commands::KICK;			// DONE
+	_selection["INVITE"] = &Commands::INVITE;		// DONE
+	_selection["TOPIC"] = &Commands::TOPIC;			// DONE
+	_selection["MODE"] = &Commands::MODE;			// DONE
+	_selection["PRIVMSG"] = &Commands::PRIVMSG;		// DONE
+	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
+	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
+	_selection["KILL"] = &Commands::KILL;			// DONE
+	_selection["EXIT"] = &Commands::EXIT;
+}
+
+bool	Commands::toRegister(std::string command)
+{
+	if (command != "CAP" && command != "PASS" && command != "NICK" && command != "USER" && command != "QUIT")
+		return(_req_client->getRegistered());
+	return (true);
+}
+
+
+void	Commands::executeCommand()
+{
+	std::map<std::string, actions>::iterator select;
+
+	select = this->_selection.find(this->_cmd);
+	if (toRegister(this->_cmd))
+	{
+		if (select != this->_selection.end())
+		{
+			try
+			{
+				(this->*select->second)();
+			}
+			catch(std::exception &e)
+			{
+				std::string error(e.what());
+				serverLog(*_req_client, "", error + " Error Caught\n");
+				std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+			}
+		}
+		else
+			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
+	}
+	else
+		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>", *_req_client);
+}
+
+//* ====== Complementary Functions
+
+void Commands::handleMultiple(std::string comm)
+{
+	this->_multiple = true;
+	std::string str = getCmdArg(0);
+	size_t pos = str.find_first_of(",");
+	while (pos != std::string::npos)
+	{
+		this->_cmd_args[0] = str.substr(0, pos);
+		(this->*_selection[comm])();
+		str = str.substr(pos + 1);
+		pos = str.find_first_of(",");
+	}
+	this->_cmd_args[0] = str;
+	this->_multiple = false;
+	return ;
+}
+
+void	fill(std::string options, char flags[5], bool present[5])
+{
+	for (unsigned long i = 1; i < options.size(); i++)
+		for (int j = 0; j < 5; j++)
+			if (options[i] == flags[j])
+				present[j] = true;
+}
+
+void	Commands::parseMode(void)
+{
+	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
+	std::string options = getCmdArg(1);
+	char	flags[6] = "itkol";
+	bool	present[5] = {false, false, false, false, false};
+	fill(options, flags, present);
+
+	if (options == "")
+		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
+	else if (options[0] != '-' && options[0] != '+')
+		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
+	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
+		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
+	else
+		for (int i = 0; i < 5; i++)
+			if (present[i])
+				targetch->mode(this->_req_client, options[0] == '+', flags[i], getCmdArg(2));
+}
+
+std::string Commands::concArgs(int start)
+{
+	std::string str = "";
+	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
+		str += *(it) + " ";
+	if (!str.empty() && str[str.size() - 1] == ' ')
+        str.erase(str.size() - 1, 1);
+	return (str);
 }

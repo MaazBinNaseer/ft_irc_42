@@ -6,13 +6,13 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/02 14:20:41 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:56:57 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
 
-void Server::countDown()
+bool Server::countDown()
 {
 	if (this->counter > 0)
 	{
@@ -26,6 +26,14 @@ void Server::countDown()
 		usleep(1000000);
 		this->counter--;
 	}
+	return (getClients().empty());
+}
+
+void	Server::clientDisconnect(std::string reason, int cfd)
+{
+	logDisconnect(reason, cfd);
+	std::cout << RED "Client disconnected! Socket " << cfd << RESET "\n";
+	this->removeUser(cfd);
 }
 
 void	Server::deliverToClient(Client &client)
@@ -43,11 +51,7 @@ void	Server::deliverToClient(Client &client)
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))
-	{
-		logDisconnect(client.getReason(), client.getSocketFd());
-		std::cout << RED "Client disconnected! Socket " << client.getSocketFd() << RESET "\n";
-		this->removeUser(client.getSocketFd());
-	}
+		clientDisconnect(client.getReason(), client.getSocketFd());
 }
 
 // ! POTENTIAL CHANGES
@@ -62,6 +66,7 @@ int Server::HandleClients()
 	for (size_t i = 1; i < clientfds.size(); i++)
 	{
 		pollfd currentClient = this->clientfds[i];
+		Client *clientListSelect = &this->clients[currentClient.fd];
 		if (currentClient.revents & POLLIN)
 		{
 			valread = recv(currentClient.fd, buffer, BUFFER_SIZE, 0);
@@ -69,9 +74,9 @@ int Server::HandleClients()
 			if (valread < 0)
 				throw FailedFunction("Recv");
 			else if (valread == 0)
-				this->clients[currentClient.fd].setReason("Used signal to leave");
+				clientListSelect->setReason("Used signal to leave");
 			else
-				this->clients[currentClient.fd].appendExecBuffer(buffer, this);
+				clientListSelect->appendExecBuffer(buffer, this);
 				// do {
 				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
@@ -80,13 +85,9 @@ int Server::HandleClients()
 				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
 		}
 		if (currentClient.revents & POLLHUP)
-		{
-			std::cout << RED "Client disconnected! Socket " << this->clients[currentClient.fd].getSocketFd() << RESET "\n";
-			logDisconnect(this->clients[currentClient.fd].getReason(), this->clients[currentClient.fd].getSocketFd());
-			this->removeUser(currentClient.fd);
-		}
+			clientDisconnect(clientListSelect->getReason(), clientListSelect->getSocketFd());
 		else if (currentClient.revents & POLLOUT)
-			this->deliverToClient(this->clients[currentClient.fd]);
+			this->deliverToClient(*clientListSelect);
 	}
 	return (0);
 }
@@ -171,12 +172,8 @@ int	Server::bootup(char	*portstr, char *pass)
 			return (1);
 		if (getShutdown())
 		{
-			countDown();
-			if (getClients().empty())
-			{
-				close(this->sfd);
+			if (countDown())
 				break ;
-			}
 		}
 	}
 	return (0);

@@ -2,6 +2,22 @@
 
 #include "ft_irc.hpp"
 
+//* Condition Check Macros
+
+#define PARAM		'P'
+#define REGIS		'R'
+#define PASSW		'W'
+#define CHECK		'c'
+#define REQUIRED	'r'
+#define LEN			'L'
+#define NICKNAME	'n'
+#define USERNAME	'u'
+#define USERNICK	'N'
+#define NONICK		'n'
+#define NOFOUND		'f'
+#define INUSEN		'i'
+#define INUSECH		'h'
+
 class Commands : public Parse
 {
 	private:
@@ -12,11 +28,7 @@ class Commands : public Parse
 		bool _order;
 		bool _multiple;
 
-		//* Complementary Functions
-		void 	handleMultiple(std::string comm);
-		void	parseMode(void);
-		std::string	concArgs(int start);
-
+		void	checkConditions(std::string flags);
 		//* Authentication Commands
 		void	CAP(void);
 		void	PASS(void);
@@ -37,7 +49,6 @@ class Commands : public Parse
 		void	MODE(void);
 
 		//* Sending Messages
-		void	MSG(void);
 		void	PRIVMSG(void);
 		void	NOTICE(void); // ! send notices between users and channels
 
@@ -59,4 +70,9 @@ class Commands : public Parse
 		void	setAttributes( void );
 		bool	toRegister( std::string command );
 		void	executeCommand( void );
+
+		//* Complementary Functions
+		void 	handleMultiple(std::string comm);
+		void	parseMode(void);
+		std::string	concArgs(int start);
 };

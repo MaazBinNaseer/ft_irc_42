@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 17:31:09 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/02 18:04:51 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,11 @@
 #include <deque>
 #include <map>
 #include <iomanip>
+#include <csignal>
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <poll.h>

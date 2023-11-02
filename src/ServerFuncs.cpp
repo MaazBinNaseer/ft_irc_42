@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/31 19:24:59 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/02 14:20:41 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void Server::countDown()
 			selfCommand(*broad, "EXIT", message);
 		}
 		usleep(1000000);
-			this->counter--;
+		this->counter--;
 	}
 }
 
@@ -61,19 +61,17 @@ int Server::HandleClients()
 	
 	for (size_t i = 1; i < clientfds.size(); i++)
 	{
-		if (this->clientfds[i].revents & POLLIN)
+		pollfd currentClient = this->clientfds[i];
+		if (currentClient.revents & POLLIN)
 		{
-			valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
+			valread = recv(currentClient.fd, buffer, BUFFER_SIZE, 0);
 			std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
 			if (valread < 0)
 				throw FailedFunction("Recv");
 			else if (valread == 0)
-			{
-				this->clients[this->clientfds[i].fd].setRemove(true);
-				this->clients[this->clientfds[i].fd].setReason("Used signal to leave");
-			}
+				this->clients[currentClient.fd].setReason("Used signal to leave");
 			else
-				this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
+				this->clients[currentClient.fd].appendExecBuffer(buffer, this);
 				// do {
 				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
 				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
@@ -81,10 +79,32 @@ int Server::HandleClients()
 				// } while (valread == BUFFER_SIZE);
 				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
 		}
-		if (this->clientfds[i].revents & POLLOUT)
-			this->deliverToClient(this->clients[this->clientfds[i].fd]);
+		if (currentClient.revents & POLLHUP)
+		{
+			std::cout << RED "Client disconnected! Socket " << this->clients[currentClient.fd].getSocketFd() << RESET "\n";
+			logDisconnect(this->clients[currentClient.fd].getReason(), this->clients[currentClient.fd].getSocketFd());
+			this->removeUser(currentClient.fd);
+		}
+		else if (currentClient.revents & POLLOUT)
+			this->deliverToClient(this->clients[currentClient.fd]);
 	}
 	return (0);
+}
+
+int	Server::appendpollfd(int new_socket)
+{
+	struct pollfd mypoll;
+
+	std::memset(&mypoll, 0, sizeof(mypoll));
+	mypoll.fd = new_socket;
+	if (new_socket == 3)
+		mypoll.events = POLLIN;
+	else if (new_socket >= 3)
+		mypoll.events = POLLIN | POLLOUT;
+	mypoll.revents = 0;
+	this->clientfds.push_back(mypoll);
+
+	return (new_socket);
 }
 
 int	Server::accept_connect( void )
@@ -106,23 +126,6 @@ int	Server::accept_connect( void )
 	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
 	logConnect(cfd);
 	return (appendpollfd(cfd));
-}
-
-
-int	Server::appendpollfd(int new_socket)
-{
-	struct pollfd mypoll;
-
-	std::memset(&mypoll, 0, sizeof(mypoll));
-	mypoll.fd = new_socket;
-	if (new_socket == 3)
-		mypoll.events = POLLIN;
-	else if (new_socket >= 3)
-		mypoll.events = POLLIN | POLLOUT;
-	mypoll.revents = 0;
-	this->clientfds.push_back(mypoll);
-
-	return (new_socket);
 }
 
 int	Server::assign(char *portstr, char *pass)

@@ -186,7 +186,7 @@ void Commands::PASS(void)
 	}
 	else
 	{
-		serverMessage(ERR_PASSWDMISMATCH, ":Password incorrect", *_req_client);
+		serverMessage(ERR_PASSWDMISMATCH, "Password incorrect", *_req_client);
 		_req_client->setRemove(true);
 		_req_client->setReason("Inputted incorrect password");
 	}

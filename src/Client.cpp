@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/31 19:28:19 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/02 13:35:41 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,12 +209,12 @@ void Client::pushSendBuffer(std::string string)
 
 /*----- Other functions -----*/
 
-void	Client::fillInfo(int fd, std::string username, std::string nickname)
+void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 {
-	this->setSocketFd(fd);
-	this->setClientId(fd);
-	this->setUsername(username);
-	this->setNickname(nickname);
+	logRecv(newbuff, this->getClientId());
+	this->_receiveBuffer += newbuff;
+	while (this->_receiveBuffer.find('\n') != std::string::npos)
+		Commands	extract(this, _serv, getReceiveBuffer());
 }
 
 void	Client::sendmsg(std::string msg)
@@ -222,14 +222,6 @@ void	Client::sendmsg(std::string msg)
 	// * you can send time if client has server_time activated.
 	if (send(getSocketFd(), msg.data(), msg.size(), 0) == -1)
 		throw FailedFunction("Send");
-}
-
-void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
-{
-	logRecv(newbuff, this->getClientId());
-	this->_receiveBuffer += newbuff;
-	while (this->_receiveBuffer.find('\n') != std::string::npos)
-		Commands	extract(this, _serv, getReceiveBuffer());
 }
 
 void	Client::print(std::string color)

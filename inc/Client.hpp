@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/30 10:43:00 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/01 15:56:31 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,6 @@ class Client
 		void						pushSendBuffer(std::string string);
 	
 		// *------ Other functions ------
-		void						fillInfo(int fd, std::string username, std::string nickname);
 		void						appendExecBuffer(std::string newbuff, Server *_serv);
 		void						sendmsg(std::string msg);
 		void						print(std::string color);

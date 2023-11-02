@@ -149,7 +149,7 @@ void targettedCommand(Client &acted, Client &target, std::string cmd, std::strin
 
 void serverMessage(std::string code, std::string message, Client &client)
 {
-	std::string send = ":" + client.getServername() + code + client.getNickname() + S +  ": " + message + "\r\n";
+	std::string send = ":" + client.getServername() + code + client.getNickname() + S +  ":" + message + "\r\n";
 	client.pushSendBuffer(send);
 }
 

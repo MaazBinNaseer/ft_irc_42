@@ -24,10 +24,12 @@ class Channel {
 		bool					inviteonly;
 		bool					trestrict;
 		int						userlimit;
+		bool					isBotChannel;
 
 	public:
-		Channel(std::string n, Client &c);
-
+		Channel(std::string n, Client &c, bool isBotchannel);
+		// Channel(std::string n, Client &c, bool isBotChannel);
+		Channel(std::string n, bool isBotchannel);
 		Channel( void );
 		Channel( const Channel &f );
 		Channel &operator=( const Channel &f );
@@ -42,23 +44,27 @@ class Channel {
 		bool					hasTopicRestrictions( void ) const;
 		int						getSize( void );
 		
-		void	setTopic(Client *c, std::string t); // *	NULL if simply display
+		void					setTopic(Client *c, std::string t); // *	NULL if simply display
 	
-		bool	exists(Client c);
-		bool	isOp(Client c);
-		Client	*getClientNick(std::string nick);
+		bool					exists(Client c);
+		bool					isOp(Client c);
+		Client					*getClientNick(std::string nick);
 	
-		int		kick(Client *c, Client &kickee); // if last client removed delete this channel
-		void	invite(Client *c, Client &invitee);
+		int						kick(Client *c, Client &kickee); // if last client removed delete this channel
+		void					invite(Client *c, Client &invitee);
 
-		void	handleO(Client *c, bool sign, std::string parameter);
-		void	handleL(Client *c, bool sign, std::string parameter);
-		void	mode(Client *c, bool sign, char mode, std::string parameter);
+		void					handleO(Client *c, bool sign, std::string parameter);
+		void					handleL(Client *c, bool sign, std::string parameter);
+		void					mode(Client *c, bool sign, char mode, std::string parameter);
 
-		void	broadcast(Client &c, std::string msg);
-		void	broadcastOps(Client *c, std::string msg);
-		void	print(void);
-		void	botfuncs(); 
+		void					broadcast(Client &c, std::string msg);
+		void					broadcastOps(Client *c, std::string msg);
+		void					print(void);
+
+
+		void					botfuncs();
+
+		
 		/*	eg:
 		 *	detects curse word, kicks client
 		 *	could spit facts to keep server interesting

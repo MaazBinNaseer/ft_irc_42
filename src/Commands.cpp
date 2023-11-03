@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <sys/socket.h>
 
 //* ====== Canonical Orthodox Form
 
@@ -59,7 +60,7 @@ void	Commands::setAttributes()
 	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
 	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
 	_selection["KILL"] = &Commands::KILL;			// DONE
-	_selection["EXIT"] = &Commands::EXIT;
+	_selection["EXIT"] = &Commands::EXIT;			// DONE
 }
 
 bool	Commands::toRegister(std::string command)
@@ -315,26 +316,77 @@ void Commands::QUIT(void)
 
 //* ====== Channe Related Commands
 
+// void Commands::JOIN(void)
+// {
+// 	if (!this->_multiple)
+// 		handleMultiple("JOIN");
+
+// 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
+
+// 	if (targetch && targetch->getName() == "#bot")
+// 	{	
+// 		_req_client->sendmsg("You have joined the bot channel");
+// 	}
+// 	else if (targetch)
+// 	{
+// 		if (targetch->isInviteOnly())
+// 			_req_client->sendmsg(RED "Channel is Invite Only!" RESET "\n");
+// 		else if (targetch->getPassword() != "" && targetch->getPassword() != getCmdArg(1))
+// 			_req_client->sendmsg(RED "Wrong Channel Password!" RESET "\n");
+// 		else
+// 			targetch->invite(NULL, *_req_client);
+// 	}
+// 	else if (this->_serv->getClientNick(getCmdArg(0)))
+// 		_req_client->sendmsg(RED "Nickname Exists! Cannot Create Channel!" RESET "\n");
+// 	else
+// 		this->_serv->addChannel(getCmdArg(0), *_req_client);
+
+// }
+
 void Commands::JOIN(void)
 {
-	if (!this->_multiple)
-		handleMultiple("JOIN");
+	std::cout << "Trying to join: " << getCmdArg(0) << std::endl;
+    if (!this->_multiple)
+        handleMultiple("JOIN");
 
-	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (targetch)
-	{
-		if (targetch->isInviteOnly())
-			_req_client->sendmsg(RED "Channel is Invite Only!" RESET "\n");
-		else if (targetch->getPassword() != "" && targetch->getPassword() != getCmdArg(1))
-			_req_client->sendmsg(RED "Wrong Channel Password!" RESET "\n");
-		else
-			targetch->invite(NULL, *_req_client);
+    std::string channelName = getCmdArg(0);
+    Channel *targetch = this->_serv->getChannel(channelName);
+	
+	//* DEBUGGING  START-------------------------------------------------
+	std::cout << "All available channels:\n";
+	for (std::map<std::string, Channel>::const_iterator it = this->_serv->getChannels().begin(); it != this->_serv->getChannels().end(); ++it) {
+    	std::cout << "Key: " << it->first << ", Channel name: " << it->second.getName() << std::endl;
 	}
-	else if (this->_serv->getClientNick(getCmdArg(0)))
-		_req_client->sendmsg(RED "Nickname Exists! Cannot Create Channel!" RESET "\n");
-	else
-		this->_serv->addChannel(getCmdArg(0), *_req_client);
+	if(channelName == "#bot")
+		targetch = this->_serv->getChannel("#bot");
+	std::cout << "Channel fetched: " << targetch->getName() << std::endl;
+	//* DEBUGGING  END-------------------------------------------------
+    if (targetch && targetch->getName() == "#bot")
+    {
+		std::cout << "Inside #bot condition\n"; 
+        _req_client->sendmsg("Welcome to the bot channel! Ask any question, and I'll do my best to assist.");
+        std::cout << "Bot welcome message sent to client" << std::endl;
+		targetch->invite(NULL, *_req_client);
+		return ;
+    }
+    // Remaining code for other channels...
+    else if (targetch)
+    {
+        if (targetch->isInviteOnly())
+            _req_client->sendmsg(RED "Channel is Invite Only!" RESET "\n");
+        else if (targetch->getPassword() != "" && targetch->getPassword() != getCmdArg(1))
+            _req_client->sendmsg(RED "Wrong Channel Password!" RESET "\n");
+        else
+            targetch->invite(NULL, *_req_client);
+    }
+    else if (this->_serv->getClientNick(channelName))
+        _req_client->sendmsg(RED "Nickname Exists! Cannot Create Channel!" RESET "\n");
+    else
+        this->_serv->addChannel(channelName, *_req_client);
 }
+
+
+
 
 void Commands::PART(void)
 {
@@ -480,56 +532,56 @@ void Commands::WHOIS(void)
 	}
 }
 
-void Commands::EXIT(void)
-{
-	std::map<int, Client> clients = this->_serv->getClients();
-	if (!this->_serv->isOp(*this->_req_client))
-		_req_client->sendmsg(RED "Only an IRC operator can exeute EXIT!" RESET "\n");
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		{
-			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
-				selfCommand(*broad, "EXIT",  YELLOW "\n Server is shutting down...... \n" RESET);
-		}
-	//! May need to revise this part of the code, looks hardcoded. 
-	for (int counter = 3; counter > 0 ; counter--)
-	{
-		if(counter == 3)
-		{
-			std::string message = RED "Closing down in ...3\n" RESET; 
-			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			{
-				Client *broad = this->_serv->getClientNick(it->second.getNickname());
-				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-			}
-		}
-		else if(counter == 2)
-		{
-			std::string message = RED "Closing down in ...2\n" RESET; 
-			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			{
-				Client *broad = this->_serv->getClientNick(it->second.getNickname());
-				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-			}
-		}
-		else if(counter == 1)
-		{
-			std::string message = RED "Closing down in ...1\n" RESET; 
-			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			{
-				Client *broad = this->_serv->getClientNick(it->second.getNickname());
-				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-			}
-		}
-		usleep(1000000);
-	}	
-	this->_serv->setShutDown(true);
-	std::string message = RED "---- Shut down ---- Made by Ruhan, Ammar and Maaz.\n" RESET; 
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-	{
-		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-	}
-}
+// void Commands::EXIT(void)
+// {
+// 	std::map<int, Client> clients = this->_serv->getClients();
+// 	if (!this->_serv->isOp(*this->_req_client))
+// 		_req_client->sendmsg(RED "Only an IRC operator can exeute EXIT!" RESET "\n");
+// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+// 		{
+// 			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
+// 				selfCommand(*broad, "EXIT",  YELLOW "\n Server is shutting down...... \n" RESET);
+// 		}
+// 	//! May need to revise this part of the code, looks hardcoded. 
+// 	for (int counter = 3; counter > 0 ; counter--)
+// 	{
+// 		if(counter == 3)
+// 		{
+// 			std::string message = RED "Closing down in ...3\n" RESET; 
+// 			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+// 			{
+// 				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+// 				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+// 			}
+// 		}
+// 		else if(counter == 2)
+// 		{
+// 			std::string message = RED "Closing down in ...2\n" RESET; 
+// 			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+// 			{
+// 				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+// 				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+// 			}
+// 		}
+// 		else if(counter == 1)
+// 		{
+// 			std::string message = RED "Closing down in ...1\n" RESET; 
+// 			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+// 			{
+// 				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+// 				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+// 			}
+// 		}
+// 		usleep(1000000);
+// 	}	
+// 	this->_serv->setShutDown(true);
+// 	std::string message = RED "---- Shut down ---- Made by Ruhan, Ammar and Maaz.\n" RESET; 
+// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+// 	{
+// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
+// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+// 	}
+// }
 
 void Commands::KILL(void)
 {
@@ -561,32 +613,35 @@ void Commands::EXIT(void)
 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
 		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET "\r\n");
 	}
-		// if(counter == 3)
-		// {
-		// 	std::string message = RED "Closing down in ---3\n" RESET; 
-		// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		// 	{
-		// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-		// 	}
-		// }
-		// else if(counter == 2)
-		// {
-		// 	std::string message = RED "Closing down in ---2\n" RESET; 
-		// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		// 	{
-		// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-		// 	}
-		// }
-		// else if(counter == 1)
-		// {
-		// 	std::string message = RED "Closing down in ---1\n" RESET; 
-		// 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		// 	{
-		// 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		// 		send(broad->getSocketFd(), message.c_str(), message.size(), 0);
-		// 	}
-		// }
+	for (int counter = 3; counter > 0 ; counter--)
+	{
+		if(counter == 3)
+		{
+			std::string message = RED "Closing down in ---3\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		else if(counter == 2)
+		{
+			std::string message = RED "Closing down in ---2\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+		else if(counter == 1)
+		{
+			std::string message = RED "Closing down in ---1\n" RESET; 
+			for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+			{
+				Client *broad = this->_serv->getClientNick(it->second.getNickname());
+				send(broad->getSocketFd(), message.c_str(), message.size(), 0);
+			}
+		}
+	}
 	this->_serv->setShutDown(true);
 }

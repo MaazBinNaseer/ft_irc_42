@@ -49,26 +49,32 @@ class Server
 		std::map<std::string, Channel>	&getChannels(void);
 		
 		// *----- Attribute setters -----
-		bool	isUser(Client &c);
-		bool	isOp(Client &c);
-		void	setShutDown(bool set);
-		void	setPassword(std::string pass);
-		void	removeUser(int cfd);
-		void	setOperPass(std::string pass);
-		void	addOperator(Client *potop);
-		void	addChannel(std::string name, Client &c);
-		void	removeChannel(std::string name);
-		void	print(void);
-		void	decrementCounter(void);
+		bool							isUser(Client &c);
+		bool							isOp(Client &c);
+		void							setShutDown(bool set);
+		void							setPassword(std::string pass);
+		void							removeUser(int cfd);
+		void							setOperPass(std::string pass);
+		void							addOperator(Client *potop);
+		void							addChannel(std::string name, Client &c);
+		void							removeChannel(std::string name);
+		void							print(void);
+		void							decrementCounter(void);
 
 
 		// *---- ServerFuncs.cpp ----
-		void		countDown(void);
-		void		deliverToClient(Client &client);
-		int			HandleClients( void );
-		int			accept_connect( void );
-		int			appendpollfd(int new_socket);
-		int			assign(char *portstr, char *pass);
-		int			bootup(char *portstr, char *pass);
+		void							countDown(void);
+		void							deliverToClient(Client &client);
+		int								HandleClients( void );
+		int								accept_connect( void );
+		int								appendpollfd(int new_socket);
+		int								assign(char *portstr, char *pass);
+		int								bootup(char *portstr, char *pass);
+		void							createBotChannel();
+
+
+		const std::map<std::string, Channel>& getChannels() const {
+        return channels;
+    }
 
 };

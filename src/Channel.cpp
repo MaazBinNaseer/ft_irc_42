@@ -12,18 +12,35 @@
 
 #include "../inc/ft_irc.hpp"
 
-Channel::Channel(std::string n, Client &c) : name(n)
-{
-	this->topic = "[Set a topic]";
-	this->password = "";
-	this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
-	this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
-	this->inviteonly = false;
-	this->trestrict = false;
-	this->userlimit = -1;
-
+Channel::Channel(std::string n, Client &c, bool isBotChannel) : name(n), isBotChannel(false)
+{	
+	if(isBotChannel == true)
+	{
+		this->topic ="Welcome to the bot channel";
+		this->password = "";
+	}
+	else
+		{
+			this->topic = "[Set a topic]";
+			this->password = "";
+			this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
+			this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
+			this->inviteonly = false;
+			this->trestrict = false;
+			this->userlimit = -1;
+		}
 	std::cout << YELLOW "Channel " << n << " created!" RESET "\n";
 }
+Channel::Channel(std::string n, bool isBotchannel) :  name(n), isBotChannel(isBotchannel) 
+{
+    // Set default properties for the bot channel
+    this->topic = "Welcome to the bot channel!";
+   	this->password = "";  // Let's assume it's a public channel without a password
+    this->inviteonly = false;
+    this->trestrict = false; // or true depending on your requirements
+    this->userlimit = 100;
+}
+
 
 Channel::Channel( void ) : name("Default") // ! NEVER CALL DEFAULT
 {

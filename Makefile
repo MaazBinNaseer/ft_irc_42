@@ -6,7 +6,10 @@ SRCS = main.cpp Server.cpp ServerFuncs.cpp \
 		Commands.cpp\
 		Client.cpp Courier.cpp \
 		Parse.cpp
-		
+
+GREEN   =   \033[1;32m
+RESET   =   \033[0m
+
 
 OBJDIR = obj
 OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
@@ -23,7 +26,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 $(NAME): $(OBJS)
 	c++ -Wall -Wextra -Werror -std=c++98 $(OBJS) -o $(NAME)
-	printf "\x1B[32m$(NAME) ready\x1B[0m\n";
+	@echo "$(GREEN)\033[1mCompilation complete: IRC Server Ready$(RESET)"
 
 clean:
 	rm -rf $(OBJDIR)

@@ -19,6 +19,7 @@ Server::Server( void )
 	this->operpass = OPERPASS;
 	this->shutdown = false;
 	this->counter  = 3;
+	createBotChannel();
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
 }
 
@@ -99,11 +100,16 @@ std::map<int, Client>	&Server::getClients(void)
 	return (this->clients);
 }
 
-Channel	*Server::getChannel(std::string name)
+Channel *Server::getChannel(std::string name)
 {
-	if (this->channels.find(name) != this->channels.end())
-		return (&this->channels[name]);
-	return (NULL);
+    std::cout << "Requested channel name: " << name << std::endl;
+    if (this->channels.find(name) != this->channels.end())
+    {
+        std::cout << "Found channel: " << this->channels[name].getName() << std::endl;
+        return &this->channels[name];
+    }
+    std::cout << "Channel not found!" << std::endl;
+    return NULL;
 }
 
 std::map<std::string, Channel>	&Server::getChannels()
@@ -161,7 +167,7 @@ void	Server::addChannel(std::string name, Client &c)
 {
 	if (getChannel(name) || getClientNick(name))
 		return ;
-	Channel ch = Channel(name, c);
+	Channel ch = Channel(name, c, false);
 	this->channels.insert(std::pair<std::string, Channel>(name, ch));
 }
 
@@ -173,4 +179,12 @@ void	Server::removeChannel(std::string name)
 void	Server::decrementCounter()
 {
 	this->counter--;
+}
+
+void Server::createBotChannel()
+{
+	if(channels.find("#bot") == channels.end())
+	{
+		channels["#bot"] = Channel("#BOT", true);
+	}
 }

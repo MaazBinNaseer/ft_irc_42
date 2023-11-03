@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 18:23:43 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/03 16:51:00 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,8 @@ Channel	*Server::getChannel(std::string name)
 {
 	if (this->channels.find(name) != this->channels.end())
 		return (&this->channels[name]);
+	if (name[0] == '#')
+		return (getChannel(name.substr(1)));
 	return (NULL);
 }
 

@@ -2,9 +2,13 @@
 
 #include "ft_irc.hpp"
 
-class Commands : public Parse
+class Commands
 {
 	private:
+		std::string 					_cmd;
+		std::vector<std::string>		_cmd_args;
+		Client							*_req_client;
+		Server							*_serv;
 
 		typedef void (Commands::*actions)(void);
 		std::map<std::string, actions> 	_selection;
@@ -48,12 +52,20 @@ class Commands : public Parse
 		void	KILL(void); // ! disconnect users from the server
 		void 	EXIT(void);
 
+		// *----- Parser -----
+		void		trim(std::string &buffer);
+		std::string	extractWord(std::string &buffer);
+
 	public:
 		//* Canonical Orthodox Form
 		Commands();
 		Commands(Client *req_client, Server *srvptr);
 		Commands(Client *req_client, Server *srvptr, std::string &buff);
 		~Commands();
+
+		// *----- Attribute getters and printers -----
+		std::string getCmd(void);
+		std::string	getCmdArg(unsigned long i);
 
 		//* Command Execution Setup
 		void	setAttributes( void );

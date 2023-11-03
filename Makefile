@@ -3,9 +3,8 @@ NAME = ircserv
 SRCDIR = src
 SRCS = main.cpp Server.cpp ServerFuncs.cpp \
 		Channel.cpp ChannelFuncs.cpp \
-		Commands.cpp\
+		Commands.cpp CommandsFuncs.cpp \
 		Client.cpp Courier.cpp \
-		Parse.cpp
 		
 
 OBJDIR = obj

@@ -92,7 +92,6 @@ void logRegister(Client &client)
 	log << "with my hostname of: " << client.getHostname() << std::endl;
 	log << "and my Nick name is: " << client.getNickname() << std::endl;
 	log << "and my Real name is: " << client.getRealname() << std::endl;
-	log << "and a client id of: " << client.getClientId() << std::endl;
 	log << CORNER_DOWN;
 	log.close();
 }
@@ -161,8 +160,9 @@ void welcomeMessage(Client &client, Server &server)
 	serverMessage(RPL_CREATED, "This server was created today", client);
 	serverMessage(RPL_MYINFO, client.getHostname(), client);
 	serverMessage(RPL_ISUPPORT, "SUPPORTED TOKENS", client);
-	serverMessage(RPL_ISUPPORT, "CHANLIMIT=#:70 NICKLEN=16 CHANNELEN=16 USERLEN=16 KICKLEN=255: are supported by the server", client);
-	// TODO UPDATE SO USES MACROS INSTEAD OF STRING
+	std::string	msg = "CHANLIMIT=#:" + std::to_string(CHANLIMIT) + " NICKLEN=" + std::to_string(NICKLEN) + " CHANNELEN=" + std::to_string(CHANNELEN);
+	msg += " USERLEN=" + std::to_string(USERLEN) + " KICKLEN=" + std::to_string(KICKLEN) + ": are supported by the server";
+	serverMessage(RPL_ISUPPORT, msg, client);
 	serverMessage(RPL_STATISTICS, "I have " + fdString  + " clients and 1 server", client);
 }
 

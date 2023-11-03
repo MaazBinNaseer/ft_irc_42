@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/31 19:24:59 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/03 15:47:03 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	Server::deliverToClient(Client &client)
 	{
 		deliver = messages.front();
 		messages.pop_front();
-		std::cout << "SENDING: " << deliver << std::endl;
+		// std::cout << "SENDING: " << deliver << std::endl;
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))
@@ -49,10 +49,6 @@ void	Server::deliverToClient(Client &client)
 		this->removeUser(client.getSocketFd());
 	}
 }
-
-// ! POTENTIAL CHANGES
-// TODO remove addr such that its no longer needed in attributes
-// TODO SEE IF caddr can be removed (pass NULL)
 
 int Server::HandleClients()
 {
@@ -74,12 +70,6 @@ int Server::HandleClients()
 			}
 			else
 				this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
-				// do {
-				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
-				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
-				// 	std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
-				// } while (valread == BUFFER_SIZE);
-				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
 		}
 		if (this->clientfds[i].revents & POLLOUT)
 			this->deliverToClient(this->clients[this->clientfds[i].fd]);
@@ -94,16 +84,15 @@ int	Server::accept_connect( void )
 
 	if (!(this->clientfds[0].revents & POLLIN))
 		return (0);
-	
-	struct sockaddr_in	caddr;
-	size_t addlen = sizeof(caddr);
 
-	int cfd = accept(this->sfd, (struct sockaddr *) &caddr, (socklen_t *) &addlen);
+	int cfd = accept(this->sfd, NULL, NULL);
 	if (cfd == -1)
 		throw FailedFunction("Accept");
-	Client	login = Client(cfd, inet_ntoa(caddr.sin_addr));
+
+	Client	login = Client(cfd);
 	this->clients.insert(std::pair<int, Client>(cfd, login));
 	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
+
 	logConnect(cfd);
 	return (appendpollfd(cfd));
 }
@@ -138,13 +127,17 @@ int	Server::assign(char *portstr, char *pass)
 	if (this->sfd == -1)
 		throw FailedFunction("Socket");
 
-	std::memset(&this->addr, 0, sizeof(this->addr));
-	this->addr.sin_family = AF_INET;
-	this->addr.sin_port = htons(port);
-	this->addr.sin_addr.s_addr = INADDR_ANY;
+	struct sockaddr_in	addr;
+	std::memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = INADDR_ANY;
 	
 	appendpollfd(this->sfd);
 	this->joinpass = pass;
+
+	if (bind(this->sfd, (struct sockaddr *) &addr, sizeof(addr)))
+		throw FailedFunction("Bind");
 
 	return (0);
 }
@@ -154,9 +147,6 @@ int	Server::bootup(char	*portstr, char *pass)
 	logStart();
 	if (assign(portstr, pass))
 		return (1);
-
-	if (bind(this->sfd, (struct sockaddr *) &this->addr, sizeof(this->addr)))
-		throw FailedFunction("Bind");
 	
 	if (listen(this->sfd, 3))
 		throw FailedFunction("Listen");

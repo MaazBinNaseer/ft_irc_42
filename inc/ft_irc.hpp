@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 17:31:09 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/03 15:57:23 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,14 @@
 #include <stdlib.h>
 #include <poll.h>
 
-#define RED "\x1B[31m"
-#define GREEN "\x1B[32m"
-#define YELLOW "\x1B[33m"
-#define RESET "\x1B[0m"
-
-# define DEFAULT	"\033[0m"
-# define PURPLE		"\033[0;35m"
-# define CYAN		"\033[1;36m"
+#define GREY	"\x1B[30m"
+#define RED		"\x1B[31m"
+#define GREEN	"\x1B[32m"
+#define YELLOW	"\x1B[33m"
+#define BLUE	"\x1B[34m"
+#define PURPLE	"\x1B[35m"
+#define CYAN	"\x1B[36m"
+#define RESET	"\x1B[0m"
 
 #define MINPORT 1024
 #define MAXPORT 65535

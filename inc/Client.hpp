@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/30 10:43:00 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/03 15:32:48 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ class Client
 {
     private:
 		unsigned int				_socket_fd;
-		unsigned int				_client_id;
 		std::string					_servername;
 		std::string					_hostname;
 		std::string					_username;
@@ -42,7 +41,7 @@ class Client
 
     public:
 		bool						_cap_order;
-		Client(unsigned int fd, std::string hostname);
+		Client(unsigned int fd);
 	
         // *----- Orthodox Canonical Form -----
 		Client();
@@ -52,7 +51,6 @@ class Client
 
 		// *------ Attribute getters ------
 		int							getSocketFd(void) const ;
-		int							getClientId(void) const ;
 		std::string					getServername(void) const ;
 		std::string					getUsername(void) const ;
 		std::string					getHostname(void) const ;
@@ -69,7 +67,6 @@ class Client
 
 		// *------ Attribute setters ------
 		void						setSocketFd(int fd);
-		void						setClientId(int id);
 		void						setServername(std::string servername);
 		void						setUsername(std::string username);
 		void						setHostname(std::string nickname);

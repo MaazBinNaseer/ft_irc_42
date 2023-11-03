@@ -32,8 +32,7 @@ void	Parse::printCmdArgs()
 {
 	std::cout << "ARGUMENTS: ";
 	for (size_t i = 0; i < this->_cmd_args.size(); i++)
-		std::cout << "[" << i << "] " << this->_cmd_args[i] << " AND ";
-	std::cout << std::endl;
+		std::cout << "[" << i << "] '" << this->_cmd_args[i] << "'\n";
 }
 
 int	Parse::getClientFd()

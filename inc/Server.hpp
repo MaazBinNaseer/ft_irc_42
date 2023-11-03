@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 18:23:24 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/03 15:25:23 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ class Server
 		int								sfd;
 		int								counter;
 		bool							shutdown;
-		struct sockaddr_in				addr;
 		std::string						joinpass;
 		std::string						operpass;
 		std::vector<pollfd>				clientfds;

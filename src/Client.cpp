@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/31 19:28:19 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/03 15:32:45 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,10 @@ Client::Client()
 	this->_caps = genDefaultCap();
 }
 
-Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _client_id(fd), _hostname(hostname)
+Client::Client(unsigned int fd): _socket_fd(fd)
 {
 	_pass = false;
 	_registered = false;
-	_remove = false;
 	_cap_order = false;
 	this->_caps = genDefaultCap();
 }
@@ -41,7 +40,6 @@ Client::Client( const Client &f )
 	if (this != &f)
 	{
 		this->_socket_fd = f._socket_fd;
-		this->_client_id = f._socket_fd;
 		this->_username = f._username;
 		this->_nickname = f._nickname;
 		this->_caps = f.getCaps();
@@ -53,7 +51,6 @@ Client & Client::operator=(Client const & rhs)
 	if (this != &rhs)
 	{
 		this->_socket_fd = rhs._socket_fd;
-		this->_client_id = rhs._socket_fd;
 		this->_username = rhs._username;
 		this->_nickname = rhs._nickname;
 		this->_caps = rhs.getCaps();
@@ -71,11 +68,6 @@ Client::~Client()
 int Client::getSocketFd() const
 {
 	return (this->_socket_fd);
-}
-
-int Client::getClientId() const
-{
-	return (this->_client_id);
 }
 
 std::string Client::getServername() const
@@ -109,7 +101,6 @@ bool Client::getPass() const
 {
 	return (this->_pass);
 }
-	
 
 bool Client::getRegistered() const
 {
@@ -146,11 +137,6 @@ t_cap	Client::getCaps(void) const
 void Client::setSocketFd(int fd)
 {
 	this->_socket_fd = fd;
-}
-
-void Client::setClientId(int fd)
-{
-	this->_client_id = fd;
 }
 
 void Client::setServername(std::string servername)
@@ -212,7 +198,6 @@ void Client::pushSendBuffer(std::string string)
 void	Client::fillInfo(int fd, std::string username, std::string nickname)
 {
 	this->setSocketFd(fd);
-	this->setClientId(fd);
 	this->setUsername(username);
 	this->setNickname(nickname);
 }
@@ -226,7 +211,7 @@ void	Client::sendmsg(std::string msg)
 
 void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 {
-	logRecv(newbuff, this->getClientId());
+	logRecv(newbuff, getSocketFd());
 	this->_receiveBuffer += newbuff;
 	while (this->_receiveBuffer.find('\n') != std::string::npos)
 		Commands	extract(this, _serv, getReceiveBuffer());

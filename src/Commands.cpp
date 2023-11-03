@@ -42,23 +42,23 @@ void	Commands::setAttributes()
 {
 	this->_order = false;
 	this->_multiple = false;
-	_selection["CAP"] = &Commands::CAP;				// ?
-	_selection["PASS"] = &Commands::PASS;			// DONE
-	_selection["PING"] = &Commands::PING;			// ?
-	_selection["NICK"] = &Commands::NICK;			// DONE
-	_selection["USER"] = &Commands::USER;			// DONE
-	_selection["OPER"] = &Commands::OPER;			// DONE
-	_selection["QUIT"] = &Commands::QUIT;			// DONE
-	_selection["JOIN"] = &Commands::JOIN;			// DONE
-	_selection["PART"] = &Commands::PART;			// DONE
-	_selection["KICK"] = &Commands::KICK;			// DONE
-	_selection["INVITE"] = &Commands::INVITE;		// DONE
-	_selection["TOPIC"] = &Commands::TOPIC;			// DONE
-	_selection["MODE"] = &Commands::MODE;			// DONE
-	_selection["PRIVMSG"] = &Commands::PRIVMSG;		// DONE
-	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO
-	_selection["WHOIS"] = &Commands::WHOIS;			// DONE
-	_selection["KILL"] = &Commands::KILL;			// DONE
+	_selection["CAP"] = &Commands::CAP;				// ? Whats Left ?
+	_selection["PASS"] = &Commands::PASS;
+	_selection["PING"] = &Commands::PING;			// ? Whats Left ?
+	_selection["NICK"] = &Commands::NICK;
+	_selection["USER"] = &Commands::USER;
+	_selection["OPER"] = &Commands::OPER;
+	_selection["QUIT"] = &Commands::QUIT;
+	_selection["JOIN"] = &Commands::JOIN;
+	_selection["PART"] = &Commands::PART;
+	_selection["KICK"] = &Commands::KICK;
+	_selection["INVITE"] = &Commands::INVITE;
+	_selection["TOPIC"] = &Commands::TOPIC;
+	_selection["MODE"] = &Commands::MODE;
+	_selection["PRIVMSG"] = &Commands::PRIVMSG;
+	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO MSGS HANDLE???
+	_selection["WHOIS"] = &Commands::WHOIS;
+	_selection["KILL"] = &Commands::KILL;
 	_selection["EXIT"] = &Commands::EXIT;
 }
 
@@ -219,7 +219,7 @@ void Commands::NICK(void)
 	else if (!_req_client->getPass())
 		throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
 	else if (getCmdArg(0).size() > NICKLEN)
-		throw CommandError("Nickname Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Nickname is too long", *_req_client); // !WRONG ERROR
+		throw CommandError("Nickname Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Nickname is too long", *_req_client); // ! FIX EXIT CODE
 	else if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
 		throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by another user", *_req_client);
 	else if (this->_serv->getChannel(getCmdArg(0)))
@@ -241,36 +241,19 @@ void Commands::USER(void)
 		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
 	else if (_req_client->getNickname() == "*")
 		throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, "Nickname required to register using NICK <nickname>", *_req_client);
-	// std::string user = getCmdArg(0);
-	// if (this->_serv->getClientUser(user))
-	// 	_req_client->sendmsg(RED "Username Taken! Choose another!" RESET "\n"); // ? Would we need to check on usernames? thats for nicknames
-	// if (user != "" && user[0] != ':')
-	// 	this->_req_client->setUsername(user);
-	// for (unsigned long i = 0; i < this->_cmd_args.size() && getCmdArg(i) != ""; i++)
-	// {
-	// 	if (getCmdArg(i)[0] == ':')
-	// 	{
-	// 		user = concArgs(i);
-	// 		user.erase(0, 1);
-	// 		this->_req_client->setRealname(user);
-	// 		break ;
-	// 	}
-	// }
-	// ! Revise this code please
+	else if (this->_serv->getClientUser(getCmdArg(0)))
+		throw CommandError("Username already exists", ERR_ALREADYREGISTERED, "Username Already Exists", *_req_client); // ! FIX EXIT CODE
+	else if (getCmdArg(0).size() > USERLEN)
+		throw CommandError("Username Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Username is too long", *_req_client); // ! FIX EXIT CODE
+	else if (getCmdArg(3)[0] != ':')
+		throw CommandError("No Colon For Real Name", ERR_NEEDMOREPARAMS, "USER needs ':' for Realname", *_req_client); // ! FIX EXIT CODE
 
-	if (getCmdArg(3)[0] == ':')
-	{
-		std::string user = concArgs(3);
-		user.erase(0, 1);
-		this->_req_client->setRealname(user);
-	}
-	else
-		throw CommandError("No Colon For Real Name", ERR_NEEDMOREPARAMS, "USER needs ':' for Realname", *_req_client);
-	if (getCmdArg(0).size() > USERLEN)
-		throw CommandError("Username Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Username is too long", *_req_client); // !WRONG ERROR
 	_req_client->setUsername(getCmdArg(0));
 	_req_client->setHostname(getCmdArg(1));
 	_req_client->setServername(getCmdArg(2));
+	std::string user = concArgs(3);
+	user.erase(0, 1);
+	this->_req_client->setRealname(user);	
 	_req_client->setRegistered(true);
 	logRegister(*_req_client);
 	welcomeMessage(*_req_client, *_serv);
@@ -279,32 +262,20 @@ void Commands::USER(void)
 void Commands::OPER(void)
 {
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "Enter User to get Operator Privileges!", *_req_client);
-		// this->_req_client->sendmsg(RED "Enter User to get Operator Privileges!" RESET "\n");
-	else if (getCmdArg(1) == "")
-		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "Password Needed for Operator Privileges!", *_req_client);
-		// this->_req_client->sendmsg(RED "Password Needed for Operator Privileges!" RESET "\n");
+	if (getCmdArg(0) == "" || getCmdArg(1) == "")
+		throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, "User And Password Needed for Operator Privileges!", *_req_client);
 	else if (!targetcl)
 		throw CommandError("User Not Found", ERR_NOSUCHNICK, "User does not Exist!", *_req_client);
-		// this->_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
 	else if (getCmdArg(1) != this->_serv->getOperPass())
 		throw CommandError("Incorrect Password", ERR_PASSWDMISMATCH, "Incorrect Password for Operator Privileges!", *_req_client);
-		// this->_req_client->sendmsg(RED "Incorrect Password for Operator Privileges!" RESET "\n");
-	else
-	{
-		this->_serv->addOperator(targetcl);
-		std::map<int, Client> clients = this->_serv->getClients();
-		serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
-		serverMessage(RPL_YOUREOPER, "You are now an IRC operator", *targetcl);
-		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		{
-			Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
-			if (broad != targetcl)
-				broadcastallCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
-			// it->second.sendmsg(CYAN + getCmdArg(0) + " is now an IRC operator!" RESET "\n");
-		}
-	}
+
+	this->_serv->addOperator(targetcl);
+	std::map<int, Client> clients = this->_serv->getClients();
+	serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
+	serverMessage(RPL_YOUREOPER, "You are now an IRC operator", *targetcl);
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		if (it->first != targetcl->getSocketFd())
+			broadcastallCommand(it->second, *targetcl, this->_cmd, ":is now an IRC operator!");
 }
 
 void Commands::QUIT(void)
@@ -483,11 +454,29 @@ void Commands::WHOIS(void)
 		handleMultiple("WHOIS");
 
 	std::map<std::string, Channel> &channels = this->_serv->getChannels();
+
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
+	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (getCmdArg(0) == "")
-		_req_client->sendmsg(RED "Enter NickName of Query!" RESET "\n");
-	else if (!targetcl)
-		_req_client->sendmsg(RED "User not Found!" RESET "\n");
+		_req_client->sendmsg(RED "Enter Nick/Name of Query!" RESET "\n");
+	else if (!targetcl && !targetch)
+		_req_client->sendmsg(RED "Entity not Found!" RESET "\n");
+	else if (targetch)
+	{
+		_req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
+		_req_client->sendmsg(GREEN "Channel Name: " + targetch->getName() + RESET "\n");
+		_req_client->sendmsg(GREEN "Channel Topic: " + targetch->getTopic() + RESET "\n");
+		_req_client->sendmsg(BLUE "Channel Operators: " RESET "\n");
+		std::map<int, Client *>	cmap = targetch->getOps();
+		for (std::map<int, Client *>::iterator it = cmap.begin(); it != cmap.end(); it++)
+			_req_client->sendmsg(PURPLE + it->second->getNickname() + RESET "\n");
+		_req_client->sendmsg(BLUE "Channel Regular Users: " RESET "\n");
+		cmap = targetch->getUsers();
+		for (std::map<int, Client *>::iterator it = cmap.begin(); it != cmap.end(); it++)
+			if (!targetch->isOp(*it->second))
+				_req_client->sendmsg(CYAN + it->second->getNickname() + RESET "\n");
+		_req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
+	}
 	else
 	{
 		_req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");

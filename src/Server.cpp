@@ -36,6 +36,11 @@ Server &Server::operator=( const Server &f )
 	return (*this);
 }
 
+Bot& Server::getBot()
+{
+	return (botInstance);
+}
+
 Server::~Server( void )
 {
 	logEnd();
@@ -167,7 +172,7 @@ void	Server::addChannel(std::string name, Client &c)
 {
 	if (getChannel(name) || getClientNick(name))
 		return ;
-	Channel ch = Channel(name, c, false);
+	Channel ch = Channel(name, c);
 	this->channels.insert(std::pair<std::string, Channel>(name, ch));
 }
 
@@ -185,6 +190,6 @@ void Server::createBotChannel()
 {
 	if(channels.find("#bot") == channels.end())
 	{
-		channels["#bot"] = Channel("#BOT", true);
+		channels["#bot"] = Channel("#bot", true);
 	}
 }

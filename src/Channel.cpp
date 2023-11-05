@@ -12,38 +12,38 @@
 
 #include "../inc/ft_irc.hpp"
 
-Channel::Channel(std::string n, Client &c, bool isBotChannel) : name(n), isBotChannel(false)
+Channel::Channel(std::string n, Client &c) : name(n)
 {	
-	if(isBotChannel == true)
-	{
-		this->topic ="Welcome to the bot channel";
+		this->topic = "[Set a topic]";
 		this->password = "";
-	}
-	else
-		{
-			this->topic = "[Set a topic]";
-			this->password = "";
-			this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
-			this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
-			this->inviteonly = false;
-			this->trestrict = false;
-			this->userlimit = -1;
-		}
+		this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
+		this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
+		this->inviteonly = false;
+		this->trestrict = false;
+		this->userlimit = -1;
+
 	std::cout << YELLOW "Channel " << n << " created!" RESET "\n";
 }
+
+/*
+* @brief: This constructor is for the bot channel creation. 
+*/
 Channel::Channel(std::string n, bool isBotchannel) :  name(n), isBotChannel(isBotchannel) 
 {
-    // Set default properties for the bot channel
-    this->topic = "Welcome to the bot channel!";
-   	this->password = "";  // Let's assume it's a public channel without a password
-    this->inviteonly = false;
-    this->trestrict = false; // or true depending on your requirements
-    this->userlimit = 100;
+	if(isBotChannel)
+	{
+		std::cout << "BOT CONSTRUCTOR CALLED\n";
+		this->topic = "Bot Channel";
+		this->password = "";  // Let's assume it's a public channel without a password
+		this->inviteonly = false;
+		this->trestrict = false; // or true depending on your requirements
+		this->userlimit = 100;
+	}
 }
 
-
-Channel::Channel( void ) : name("Default") // ! NEVER CALL DEFAULT
+Channel::Channel( void )// ! NEVER CALL DEFAULT
 {
+	std::cout << "VOID CONSTRUCTOR CALLED\n";
 	this->topic = "[Set a topic]";
 	this->password = "";
 	this->inviteonly = false;
@@ -65,11 +65,11 @@ Channel::Channel( const Channel &f ) : name(f.getName())
 Channel &Channel::operator=( const Channel &f )
 {
 	// this->topic = f.topic;
+	this->name = f.name;
 	// this->password = f.password;
 	// this->inviteonly = f.inviteonly;
 	// this->trestrict = f.trestrict;
 	// this->userlimit = f.userlimit;
-	(void) f;
 	return (*this);
 }
 

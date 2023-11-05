@@ -58,5 +58,6 @@ class Commands : public Parse
 		//* Command Execution Setup
 		void	setAttributes( void );
 		bool	toRegister( std::string command );
+		std::string stripQuotes(const std::string& input);
 		void	executeCommand( void );
 };

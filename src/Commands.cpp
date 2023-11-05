@@ -345,27 +345,16 @@ void Commands::QUIT(void)
 
 void Commands::JOIN(void)
 {
-	std::cout << "Trying to join: " << getCmdArg(0) << std::endl;
     if (!this->_multiple)
         handleMultiple("JOIN");
 
     std::string channelName = getCmdArg(0);
     Channel *targetch = this->_serv->getChannel(channelName);
 	
-	//* DEBUGGING  START-------------------------------------------------
-	std::cout << "All available channels:\n";
-	for (std::map<std::string, Channel>::const_iterator it = this->_serv->getChannels().begin(); it != this->_serv->getChannels().end(); ++it) {
-    	std::cout << "Key: " << it->first << ", Channel name: " << it->second.getName() << std::endl;
-	}
-	if(channelName == "#bot")
-		targetch = this->_serv->getChannel("#bot");
-	std::cout << "Channel fetched: " << targetch->getName() << std::endl;
-	//* DEBUGGING  END-------------------------------------------------
     if (targetch && targetch->getName() == "#bot")
     {
-		std::cout << "Inside #bot condition\n"; 
-        _req_client->sendmsg("Welcome to the bot channel! Ask any question, and I'll do my best to assist.");
-        std::cout << "Bot welcome message sent to client" << std::endl;
+        // _req_client->sendmsg(YELLOW "Welcome to the bot channel! Ask any question, and I'll do my best to assist.\n" RESET);
+		_serv->getBot().BotIntroduction(_req_client);
 		targetch->invite(NULL, *_req_client);
 		return ;
     }
@@ -385,8 +374,18 @@ void Commands::JOIN(void)
         this->_serv->addChannel(channelName, *_req_client);
 }
 
+std::string Commands::stripQuotes(const std::string& input)
+{
+ std::string result;
+    // Start from the first character if it's not a quote, otherwise from the second
+    size_t start = input[0] == '"' ? 1 : 0;
+    // End at the last character if it's not a quote, otherwise one before the last
+    size_t end = input[input.size() - 1] == '"' ? input.size() - 1 : input.size();
+    // Assign the substring without the quotes
+    result.assign(input.begin() + start, input.begin() + end);
+    return result;
 
-
+}
 
 void Commands::PART(void)
 {
@@ -485,7 +484,18 @@ void Commands::PRIVMSG(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (targetch && targetch->exists(*this->_req_client))
-		targetch->broadcast(*_req_client, concArgs(1));
+	{
+		if(targetch->getName() == "#bot")
+		{
+				std::string botMessage = concArgs(1);
+				botMessage = stripQuotes(botMessage);
+				std::cout << "Bot message: " << botMessage << std::endl;
+				if(botMessage == "1" || botMessage == "facts")
+					_serv->getBot().factBot(_req_client);
+		}
+		else
+			targetch->broadcast(*_req_client, concArgs(1));
+	}
 	else if (targetch)
 		_req_client->sendmsg(RED "Join channel '" + targetch->getName() + "' to send message!" RESET "\n");
 	else if (!targetcl)
@@ -645,3 +655,16 @@ void Commands::EXIT(void)
 	}
 	this->_serv->setShutDown(true);
 }
+
+
+// /*
+// 	//* DEBUGGING  START-------------------------------------------------
+// 	// std::cout << "All available channels:\n";
+// 	// for (std::map<std::string, Channel>::const_iterator it = this->_serv->getChannels().begin(); it != this->_serv->getChannels().end(); ++it) {
+//     // 	std::cout << "Key: " << it->first << ", Channel name: " << it->second.getName() << std::endl;
+// 	// }
+// 	// if(channelName == "#bot")
+// 	// 	targetch = this->_serv->getChannel("#bot");
+// 	// std::cout << "Channel fetched: " << targetch->getName() << std::endl;
+// 	//* DEBUGGING  END-------------------------------------------------
+// */

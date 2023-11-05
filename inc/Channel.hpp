@@ -16,7 +16,7 @@
 
 class Channel {
 	private:
-		const std::string		name;
+		std::string				name;
 		std::string				topic;
 		std::string				password;
 		std::map<int, Client *>	users;
@@ -27,10 +27,10 @@ class Channel {
 		bool					isBotChannel;
 
 	public:
-		Channel(std::string n, Client &c, bool isBotchannel);
-		// Channel(std::string n, Client &c, bool isBotChannel);
-		Channel(std::string n, bool isBotchannel);
+		// Bot                     *bot();
 		Channel( void );
+		Channel(std::string n, Client &c);
+		Channel(std::string n, bool isBotchannel);
 		Channel( const Channel &f );
 		Channel &operator=( const Channel &f );
 		~Channel( void );

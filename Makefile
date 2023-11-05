@@ -4,7 +4,7 @@ SRCDIR = src
 SRCS = main.cpp Server.cpp ServerFuncs.cpp \
 		Channel.cpp ChannelFuncs.cpp \
 		Commands.cpp\
-		Client.cpp Courier.cpp \
+		Client.cpp Courier.cpp Bot.cpp \
 		Parse.cpp
 
 GREEN   =   \033[1;32m

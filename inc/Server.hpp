@@ -27,11 +27,13 @@ class Server
 		std::map<int, Client> 			clients;
 		std::map<int, Client *> 		operators;
 		std::map<std::string, Channel>	channels;
+		Bot								botInstance;
 
 	public:
 		// *----- Orthodox Canonical Form -----
 		Server( void );
 		Server( const Server &f );
+		Bot &getBot();
 		Server &operator=( const Server &f );
 		~Server( void );
 

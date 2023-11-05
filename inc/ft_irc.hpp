@@ -22,6 +22,8 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <ctime>
+#include <cstdlib>
 #include <iomanip>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -60,6 +62,7 @@ class Server;
 
 #include "Channel.hpp"
 #include "Client.hpp"
+#include "Bot.hpp"
 #include "Codes.hpp"
 #include "Parse.hpp"
 #include "Commands.hpp"

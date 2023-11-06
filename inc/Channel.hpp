@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/10/21 14:16:54 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/06 15:35:27 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ class Channel {
 		
 		void	setTopic(Client *c, std::string t); // *	NULL if simply display
 	
-		bool	exists(Client c);
+		bool	exists(Client &c);
 		bool	isOp(Client c);
 		Client	*getClientNick(std::string nick);
 	
@@ -55,7 +55,7 @@ class Channel {
 		void	handleL(Client *c, bool sign, std::string parameter);
 		void	mode(Client *c, bool sign, char mode, std::string parameter);
 
-		void	broadcast(Client &c, std::string msg);
+		void	broadcast(Client &c, std::string cmd, std::string msg);
 		void	broadcastOps(Client *c, std::string msg);
 		void	print(void);
 		void	botfuncs(); 

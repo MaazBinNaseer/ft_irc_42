@@ -1,95 +1,5 @@
 #include "../inc/ft_irc.hpp"
 
-void Commands::checkConditions(std::string flags)
-{
-	for (unsigned long i = 0; i < flags.size(); i++)
-	{
-		switch (flags[i])
-		{
-			case PARAM:
-			{
-				unsigned long num = flags[++i] - '0';
-				if (this->_cmd_args.size() < num)
-					throw CommandError("Insufficient Parameters", ERR_NEEDMOREPARAMS, this->_cmd + " Not enough parameters", *_req_client);
-				break ;
-			}
-			case REGIS:
-			{
-				if (_req_client->getPass())
-					throw CommandError("Already Registered", ERR_ALREADYREGISTERED, "No need to reregister", *_req_client);
-				break ;
-			}
-			case PASSW:
-			{
-				switch (flags[++i])
-				{
-					case CHECK:
-					{
-						if (this->_serv->getPassword() != getCmdArg(0))
-							throw CommandError("Password Incorrect", ERR_PASSWDMISMATCH, "Password incorrect", *_req_client);
-						break ;
-					}
-					case REQUIRED:
-					{
-						if (!this->_req_client->getPass())
-							throw CommandError("Password Required", ERR_PASSWDMISMATCH, "Password needed", *_req_client);
-						break ;
-					}
-				}
-			}
-			case LEN:
-			{
-				switch (flags[++i])
-				{
-					case NICKNAME:
-					{
-						if (getCmdArg(0).size() > NICKLEN)
-							throw CommandError("Nickname Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Nickname is too long", *_req_client); // !WRONG ERROR
-						break ;
-					}
-					case USERNAME:
-					{
-						if (getCmdArg(0).size() > USERLEN)
-							throw CommandError("Username Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Username is too long", *_req_client); // !WRONG ERROR
-						break ;
-					}
-				}
-			}
-			case USERNICK:
-			{
-				switch (flags[++i])
-				{
-					case NONICK:
-					{
-						if (_req_client->getNickname() == "*")
-							throw CommandError("No Nickname Given", ERR_NONICKNAMEGIVEN, "Nickname required to register using NICK <nickname>", *_req_client);
-						break ;
-					}
-					case NOFOUND:
-					{
-						Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
-						if (!targetcl)
-							throw CommandError("User Not Found", ERR_NOSUCHNICK, "User does not Exist!", *_req_client);
-						break ;
-					}
-					case INUSEN:
-					{
-						if (this->_serv->getClientNick(getCmdArg(0)) && this->_serv->getClientNick(getCmdArg(0)) != this->_req_client)
-							throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by another user", *_req_client);
-						break ;
-					}
-					case INUSECH:
-					{
-						if (this->_serv->getChannel(getCmdArg(0)))
-							throw CommandError("Nickname In Use", ERR_NICKNAMEINUSE, getCmdArg(0) + " Nickname is already in use by a channel", *_req_client);
-						break ;
-					}
-				}
-			}
-		}
-	}
-}
-
 //* ====== Authentication Commands
 
 void Commands::CAP(void)
@@ -111,7 +21,7 @@ void Commands::CAP(void)
 
 void Commands::PASS(void)
 {
-	checkConditions("P1RWc");
+	checkConditions("RP1Wc");
 	if (_req_client->getReceiveBuffer().empty())
 		selfCommand(*_req_client, "PASS", GREEN "Correct Password!" RESET);
 	_req_client->setPass(true);
@@ -134,7 +44,7 @@ void Commands::PING(void) // TODO CHECK ERRORS FOR THIS COMMAND
 
 void Commands::NICK(void)
 {
-	checkConditions("P1WrLnNiNh");
+	checkConditions("WrP1LnNiNh");
 	this->_req_client->setNickname(getCmdArg(0));
 	if (_req_client->getReceiveBuffer().empty())
 		selfCommand(*_req_client, "NICK", GREEN "Nickname set!" RESET);
@@ -142,7 +52,7 @@ void Commands::NICK(void)
 
 void Commands::USER(void)
 {
-	checkConditions("P4RWrNn");
+	checkConditions("WrNnRP4Lu");
 	if (getCmdArg(3)[0] == ':')
 	{
 		std::string user = concArgs(3);
@@ -161,17 +71,17 @@ void Commands::USER(void)
 
 void Commands::OPER(void)
 {
-	checkConditions("P2NfWc");
+	checkConditions("P2NfWo");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	this->_serv->addOperator(targetcl);
 	std::map<int, Client> clients = this->_serv->getClients();
 	serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
-	serverMessage(RPL_YOUREOPER, "You are now an IRC operator", *targetcl);
+	serverMessage(RPL_YOUREOPER, GREEN "You are now an IRC operator" RESET, *targetcl);
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 	{
 		Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
 		if (broad != targetcl)
-			broadcastallCommand(*broad, *targetcl, this->_cmd, ":is now an IRC operator!");
+			broadcastallCommand(*broad, *targetcl, this->_cmd, ":" GREEN "is now an IRC operator!" RESET);
 	}
 }
 
@@ -190,125 +100,91 @@ void Commands::QUIT(void)
 void Commands::JOIN(void)
 {
 	if (!this->_multiple)
+	{
+		checkConditions("P1");
 		handleMultiple("JOIN");
-
+	}
+	checkConditions("CiCpClNiLc");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (targetch)
-	{
-		if (targetch->isInviteOnly())
-			_req_client->sendmsg(RED "Channel is Invite Only!" RESET "\n");
-		else if (targetch->getPassword() != "" && targetch->getPassword() != getCmdArg(1))
-			_req_client->sendmsg(RED "Wrong Channel Password!" RESET "\n");
-		else
-		{
-			if (this->_serv->getChannels(this->_req_client).size() >= CHANLIMIT)
-				throw CommandError("Channel Limit Reached", ERR_NOSUCHNICK, "Channel Limit Reached", *_req_client); // !WRONG ERROR
-			targetch->invite(NULL, *_req_client);
-		}
-	}
-	else if (this->_serv->getClientNick(getCmdArg(0)))
-		_req_client->sendmsg(RED "Nickname Exists! Cannot Create Channel!" RESET "\n");
-	else if (getCmdArg(0).size() > CHANNELEN)
-		throw CommandError("Channel Name Too Long", ERR_NOSUCHNICK, getCmdArg(0) + " Channel Name is too long", *_req_client); // !WRONG ERROR
+		targetch->invite(NULL, *_req_client);
 	else
 	{
-		this->_req_client->sendmsg(GREEN "You have made Channel: " + getCmdArg(0) + RESET "\n");
+		checkConditions("Nh");
+		selfCommand(*_req_client, "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
+		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
 
 void Commands::PART(void)
 {
 	if (!this->_multiple)
+	{
+		checkConditions("P1");
 		handleMultiple("PART");
-
+	}
+	checkConditions("CeCn");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		this->_req_client->sendmsg(RED "Enter Channel to Part From!" RESET "\n");
-	else if (!targetch || !targetch->exists(*this->_req_client))
-		this->_req_client->sendmsg(RED "You are not part of a channel '" + getCmdArg(0) + "'!" RESET "\n");
-	else if (targetch->kick(NULL, *this->_req_client))
+	if (targetch->kick(NULL, *this->_req_client))
 		this->_serv->removeChannel(getCmdArg(0));
 }
 
 void Commands::KICK(void)
 {
 	if (!this->_multiple)
+	{
+		checkConditions("P2");
 		handleMultiple("KICK");
-
+	}
+	checkConditions("CeCoNd");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(1));
-	if (getCmdArg(0) == "")
-		_req_client->sendmsg(RED "Enter Channel to Kick From!" RESET "\n");
-	else if (!targetch)
-		_req_client->sendmsg(RED "Channel not Found!" RESET "\n");
-	else if (!targetch->isOp(*this->_req_client))
-		_req_client->sendmsg(RED "You are not an Operator of this Channel!" RESET "\n");
-	else if (getCmdArg(1) == "")
-		_req_client->sendmsg(RED "Enter User to Kick!" RESET "\n");
-	else if (!targetcl)
-		_req_client->sendmsg(RED "User does not Exist!" RESET "\n");
-	else if (!targetch->exists(*targetcl))
-		_req_client->sendmsg(RED "User is not Part of this Channel!" RESET "\n");
-	else
+	if (targetch && targetcl && !targetch->exists(*targetcl))
+		throw CommandError("User Not In Channel", ERR_USERNOTINCHANNEL, targetcl->getNickname() + " is not in " + targetch->getName() + " channel", *_req_client);
+	else if (targetcl)
 	{
 		if (getCmdArg(2) != "" && concArgs(2).size() <= KICKLEN)
-			targetcl->sendmsg(RED "You are being kicked because " + concArgs(2) + RESET "\n");
+			selfCommand(*targetcl, "KICK", "You are being kicked because " + concArgs(2));
+		serverLog(*_req_client, targetcl->getNickname(), "Has kicked the target user");
 		targetch->kick(this->_req_client, *targetcl);
 	}
 }
 
 void Commands::INVITE(void)
 {
+	checkConditions("P2Nf");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	Channel *targetch = this->_serv->getChannel(getCmdArg(1));
-	if (getCmdArg(0) == "")
-		_req_client->sendmsg(RED "Enter User to be Invited!" RESET "\n");
-	else if (!targetcl)
-		_req_client->sendmsg(RED "User not Found!" RESET "\n");
-	else if (getCmdArg(1) == "")
-		_req_client->sendmsg(RED "Enter Channel to be Invited to!" RESET "\n");
-	else if (!targetch && this->_serv->getClientNick(getCmdArg(1)))
-		_req_client->sendmsg(RED "Cannot invite User to another User!" RESET "\n");
+	if (!targetch && this->_serv->getClientNick(getCmdArg(1)))
+		_req_client->sendmsg(RED "Cannot invite User to another User!" RESET "\n"); // ? Would we have # to indicate a channel name
 	else if (!targetch)
 		this->_serv->addChannel(getCmdArg(1), *targetcl);
 	else if (targetch && targetch->isInviteOnly() && !targetch->isOp(*_req_client))
-		_req_client->sendmsg(RED "Only Channel Operators can invite to channel '" + getCmdArg(1) + "!" RESET "\n");
+		selfCommand(*_req_client, "INVITE", "Only Channel Operators can invite to channel '" + getCmdArg(1) + "'!");
 	else
 		targetch->invite(this->_req_client, *targetcl);
 }
 
 void Commands::TOPIC(void)
 {
+	checkConditions("P1CeCn");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		this->_req_client->sendmsg(RED "Include Channel Name!" RESET "\n");
-	else if (!targetch)
-		this->_req_client->sendmsg(RED "Channel '" + getCmdArg(0) + "' does not exist!" RESET "\n");
-	else if (getCmdArg(1) == "")
-		this->_req_client->sendmsg(PURPLE "[" + getCmdArg(0) + "] " GREEN "TOPIC= " YELLOW + targetch->getTopic() + RESET "\n");
-	else if (!targetch->exists(*this->_req_client))
-		this->_req_client->sendmsg(RED "Cannot set Topic of channel you are not part of!" RESET "\n");
+	if (getCmdArg(1) == "")
+		selfCommand(*_req_client, "TOPIC" , PURPLE "[" + getCmdArg(0) + "] " GREEN "TOPIC= " YELLOW + targetch->getTopic() + RESET);
 	else if (targetch->hasTopicRestrictions() && !targetch->isOp(*this->_req_client))
-		this->_req_client->sendmsg(RED "Setting Topic restricted to Channel Operators!" RESET "\n");
+		throw CommandError("Operator Privilege Needed", ERR_CHANOPRIVSNEEDED, "Setting Topic restricted to Channel Operators", *_req_client);
 	else
 	{
 		targetch->setTopic(this->_req_client, concArgs(1));
-		this->_req_client->sendmsg(GREEN "You have set the Topic!" RESET "\n");
+		selfCommand(*_req_client, "TOPIC", GREEN "You have set the topic: " + concArgs(1) + RESET);
 	}
 }
 
 void Commands::MODE(void)
 {
-	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		this->_req_client->sendmsg(RED "Include Channel Name!" RESET "\n");
-	else if (!targetch)
-		this->_req_client->sendmsg(RED "Channel '" + getCmdArg(0) + "' does not exist!" RESET "\n");
-	else if (!targetch->isOp(*_req_client))
-		this->_req_client->sendmsg(RED "You are not an Operator of this Channel!" RESET "\n");
-	else
-		parseMode();
+	checkConditions("P2CeCo");
+	parseMode();
 }
 
 //* ====== Sending Messages
@@ -316,22 +192,24 @@ void Commands::MODE(void)
 void Commands::PRIVMSG(void)
 {
 	if (!this->_multiple)
+	{
+		checkConditions("P1");
 		handleMultiple("PRIVMSG");
-
+	}
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (targetch && targetch->exists(*this->_req_client))
-		targetch->broadcast(*_req_client, concArgs(1));
+		targetch->broadcast(*_req_client, "PRIVMSG", concArgs(1));
 	else if (targetch)
-		_req_client->sendmsg(RED "Join channel '" + targetch->getName() + "' to send message!" RESET "\n");
-	else if (!targetcl)
-		_req_client->sendmsg(RED "No User or Channel of that Name Exists!" RESET "\n");
-	else
+		throw CommandError("Channel Incompatibility", ERR_CANNOTSENDTOCHAN, "Join channel '" + targetch->getName() + "' to send messages", *_req_client);
+	else if (targetcl)
 	{
-		targetcl->sendmsg(PURPLE "[PRIV] " GREEN + _req_client->getNickname() + ": " YELLOW + concArgs(1) + RESET "\n");
+		targettedCommand(*_req_client, *targetcl, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
 		if (!this->_multiple && this->_req_client->getCaps().echo_msg)
-			this->_req_client->sendmsg(PURPLE "[PRIV] " GREEN + _req_client->getNickname() + ": " YELLOW + concArgs(1) + RESET "\n");
+			selfCommand(*_req_client, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
+		return ;
 	}
+	checkConditions("NfCe");
 }
 
 void Commands::NOTICE(void)
@@ -345,58 +223,64 @@ void Commands::NOTICE(void)
 void Commands::WHOIS(void)
 {
 	if (!this->_multiple)
+	{
+		checkConditions("P1");
 		handleMultiple("WHOIS");
-
+	}
+	checkConditions("Nf");
 	std::map<std::string, Channel> &channels = this->_serv->getChannels();
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
-	if (getCmdArg(0) == "")
-		_req_client->sendmsg(RED "Enter NickName of Query!" RESET "\n");
-	else if (!targetcl)
-		_req_client->sendmsg(RED "User not Found!" RESET "\n");
-	else
-	{
-		_req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
-		_req_client->sendmsg(GREEN "Username: " + targetcl->getUsername() + RESET "\n");
-		_req_client->sendmsg(GREEN "Hostname: " + targetcl->getHostname() + RESET "\n");
-		_req_client->sendmsg(GREEN "Nickname: " + targetcl->getNickname() + RESET "\n");
-		_req_client->sendmsg(GREEN "Realname: " + targetcl->getRealname() + RESET "\n");
-		_req_client->sendmsg(CYAN "Channels: " RESET "\n");
-		for (std::map<std::string, Channel>::iterator it=channels.begin(); it != channels.end(); it++)
-			if (it->second.exists(*targetcl))
-				_req_client->sendmsg(PURPLE + it->first + RESET "\n");
-		_req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
-	}
+	// if (getCmdArg(0) == "")
+	// 	_req_client->sendmsg(RED "Enter NickName of Query!" RESET "\n");
+	// else if (!targetcl)
+	// 	_req_client->sendmsg(RED "User not Found!" RESET "\n");
+	// else
+	// {
+	selfCommand(*_req_client, "WHOIS", YELLOW "_____________________________________" RESET);
+	selfCommand(*_req_client, "WHOIS", GREEN "Username: " + targetcl->getUsername() + RESET);
+	selfCommand(*_req_client, "WHOIS", GREEN "Hostname: " + targetcl->getHostname() + RESET);
+	selfCommand(*_req_client, "WHOIS", GREEN "Nickname: " + targetcl->getNickname() + RESET);
+	selfCommand(*_req_client, "WHOIS", GREEN "Realname: " + targetcl->getRealname() + RESET); // ? Should we show real name with this
+	selfCommand(*_req_client, "WHOIS", CYAN "Channels: " RESET);
+	for (std::map<std::string, Channel>::iterator it=channels.begin(); it != channels.end(); it++)
+		if (it->second.exists(*targetcl))
+			selfCommand(*_req_client, "WHOIS", PURPLE + it->first + RESET);
+	selfCommand(*_req_client, "WHOIS", YELLOW "_____________________________________" RESET);
+		// _req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
+		// _req_client->sendmsg(GREEN "Username: " + targetcl->getUsername() + RESET "\n");
+		// _req_client->sendmsg(GREEN "Hostname: " + targetcl->getHostname() + RESET "\n");
+		// _req_client->sendmsg(GREEN "Nickname: " + targetcl->getNickname() + RESET "\n");
+		// _req_client->sendmsg(GREEN "Realname: " + targetcl->getRealname() + RESET "\n");
+		// _req_client->sendmsg(CYAN "Channels: " RESET "\n");
+		// for (std::map<std::string, Channel>::iterator it=channels.begin(); it != channels.end(); it++)
+		// 	if (it->second.exists(*targetcl))
+		// 		_req_client->sendmsg(PURPLE + it->first + RESET "\n");
+		// _req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
+	// }
 }
 
 void Commands::KILL(void)
 {
+	checkConditions("NoP1Nf");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
-	if (!this->_serv->isOp(*this->_req_client))
-		_req_client->sendmsg(RED "Only an IRC operator can exeute KILL!" RESET "\n");
-	else if (getCmdArg(0) == "")
-		_req_client->sendmsg(RED "Enter NickName of KILL victim!" RESET "\n");
-	else if (!targetcl)
-		_req_client->sendmsg(RED "Victim does not Exist!" RESET "\n");
-	else
-	{
-		if (getCmdArg(1) != "")
-			targetcl->sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET + "\n");
-		this->_serv->removeUser(targetcl->getSocketFd());
-		std::map<int, Client> &clients = this->_serv->getClients();
-		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-			it->second.sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET "\n");
-	}
+	if (getCmdArg(1) != "")
+		targettedCommand(*_req_client, *targetcl, "KILL", PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET);
+		// targetcl->sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET + "\n");
+	this->_serv->removeUser(targetcl->getSocketFd());
+	std::map<int, Client> &clients = this->_serv->getClients();
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		selfCommand(it->second, "KILL", PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET);
+		// it->second.sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET "\n");
 }
 
 void Commands::EXIT(void)
 {
+	checkConditions("No");
 	std::map<int, Client> clients = this->_serv->getClients();
-	if (!this->_serv->isOp(*this->_req_client))
-		throw CommandError("Privileges Required", ERR_NOPRIVILEGES, ":Permission Denied- You're not an IRC operator", *_req_client);
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 	{
 		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET "\r\n");
+		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET);
 	}
 	this->_serv->setShutDown(true);
 }
@@ -427,6 +311,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff): Parse
 	if (cmd.empty())
 		return ;
 	this->_cmd = extractWord(cmd);
+	std::transform(this->_cmd.begin(), this->_cmd.end(), this->_cmd.begin(), ::toupper);
 	while (!cmd.empty())
 		this->_cmd_args.push_back(extractWord(cmd));
 	executeCommand();
@@ -492,10 +377,10 @@ void	Commands::executeCommand()
 			}
 		}
 		else
-			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
+			serverMessage(ERR_UNKNOWNCOMMAND, RED + this->_cmd + " Unknown command" RESET, *_req_client);
 	}
 	else
-		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>", *_req_client);
+		serverMessage(ERR_NOTREGISTERED, RED "Need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>" RESET, *_req_client);
 }
 
 //* ====== Complementary Functions
@@ -508,7 +393,18 @@ void Commands::handleMultiple(std::string comm)
 	while (pos != std::string::npos)
 	{
 		this->_cmd_args[0] = str.substr(0, pos);
-		(this->*_selection[comm])();
+		try 
+		{
+			if (this->_cmd_args[0].empty())
+				throw CommandError("Empty Arguments (double commas)", ERR_UNKNOWNCOMMAND, "Empty argument (double commas)", *_req_client);
+			(this->*_selection[comm])();
+		} 
+		catch(std::exception &e)
+		{
+			std::string error(e.what());
+			serverLog(*_req_client, "", error + " Error Caught\n");
+			std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+		}
 		str = str.substr(pos + 1);
 		pos = str.find_first_of(",");
 	}
@@ -534,11 +430,14 @@ void	Commands::parseMode(void)
 	fill(options, flags, present);
 
 	if (options == "")
-		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
+		selfCommand(*_req_client, "", RED "Input Channel's Mode!" RESET);
+		// this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
 	else if (options[0] != '-' && options[0] != '+')
-		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
+		selfCommand(*_req_client, "", RED "Specify direction of mode! (+ or -)" RESET);
+		// this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
 	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
-		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
+		selfCommand(*_req_client, "", RED "Cannot Use Modes - k,o,l - Together!" RESET);
+		// this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
 	else
 		for (int i = 0; i < 5; i++)
 			if (present[i])

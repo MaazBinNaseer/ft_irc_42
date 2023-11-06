@@ -26,7 +26,6 @@ class Parse
 		void		printCmdArgs(void);
 		int			getClientFd(void);
 		Client		*getReqClient(void);
-		void		printClientData(Client *reqclient);
 
 		// *----- Parser -----
 		void		trim(std::string &buffer);

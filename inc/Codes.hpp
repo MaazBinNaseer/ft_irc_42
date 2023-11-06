@@ -40,15 +40,17 @@
 //* --------------------------
 //* ----- Error Messages -----
 //* --------------------------
+#define ERR_UNKNOWNERROR		" 400 "
 //* ===== NICK =====
 #define	ERR_NOSUCHNICK			" 401 "
 //* ===== Channel =====
+#define ERR_NOSUCHCHANNEL		" 403 "
 #define	ERR_CANNOTSENDTOCHAN	" 404 "
 #define	ERR_TOOMANYCHANNELS		" 405 "
 //* ===== PRIVMSG =====
 #define	ERR_NORECIPIENT			" 411 "
 #define	ERR_NOTEXTOSEND			" 412 "
-// #define	ERR_INPUTTOOLONG		" 417 "
+#define	ERR_INPUTTOOLONG		" 417 "
 //* ===== Command =====
 #define	ERR_UNKNOWNCOMMAND		" 421 "
 //* ===== MOTD =====
@@ -57,7 +59,7 @@
 #define ERR_NONICKNAMEGIVEN		" 431 "
 #define	ERR_NICKNAMEINUSE		" 433 "
 //* ===== Channel =====
-#define ERR_ISUSERNOTINCHANNEL	" 441 "
+#define ERR_USERNOTINCHANNEL	" 441 "
 #define	ERR_NOTONCHANNEL		" 442 "
 #define ERR_USERONCHANNEL		" 443 "
 //* ===== Registeration =====

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/02 18:16:28 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/06 14:00:25 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,7 @@ void	Server::removeUser(int cfd)
 			this->clientfds.erase(this->clientfds.begin() + i--);
 	if (isOp(*getClient(cfd)))
 		this->operators.erase(cfd);
+	serverLog(this->clients[cfd], "", "Has been removed from the server");
 	this->clients.erase(cfd);
 	close(cfd);
 }

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/02 18:56:57 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/06 19:26:56 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ bool Server::countDown()
 	if (this->counter > 0)
 	{
 		std::string append_c = intToString(counter);
-		std::string message = RED "Closing down in ---" + append_c + RESET "\r\n"; 
+		std::string message = RED "Closing down in ---" + append_c + RESET; 
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		{
 			Client *broad = getClientNick(it->second.getNickname());
@@ -77,12 +77,6 @@ int Server::HandleClients()
 				clientListSelect->setReason("Used signal to leave");
 			else
 				clientListSelect->appendExecBuffer(buffer, this);
-				// do {
-				// 	this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
-				// 	valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
-				// 	std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
-				// } while (valread == BUFFER_SIZE);
-				// ! NEED A LOOP (SUCH AS A FIXED VERSION OF ABOVE) to account for commands more than BUFFERSIZE
 		}
 		if (currentClient.revents & POLLHUP)
 			clientDisconnect(clientListSelect->getReason(), clientListSelect->getSocketFd());

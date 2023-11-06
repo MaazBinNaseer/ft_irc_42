@@ -134,7 +134,8 @@ void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std
 void selfCommand(Client &acted, std::string cmd, std::string msg)
 {
 	std::string message;
-	message += cmd + S;
+	if (!cmd.empty())
+		message += cmd + S;
 	message += msg + "\r\n";
 	acted.pushSendBuffer(message);
 }
@@ -163,7 +164,7 @@ void welcomeMessage(Client &client, Server &server)
 	serverMessage(RPL_ISUPPORT, "SUPPORTED TOKENS", client);
 	serverMessage(RPL_ISUPPORT, "CHANLIMIT=#:70 NICKLEN=16 CHANNELEN=16 USERLEN=16 KICKLEN=255: are supported by the server", client);
 	// TODO UPDATE SO USES MACROS INSTEAD OF STRING
-	serverMessage(RPL_STATISTICS, "I have " + fdString  + " clients and 1 server", client);
+	serverMessage(RPL_STATISTICS, "I have " + fdString  + " client(s) and 1 server", client);
 }
 
 std::string intToString(int value) 

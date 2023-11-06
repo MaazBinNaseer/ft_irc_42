@@ -4,19 +4,30 @@
 
 //* Condition Check Macros
 
-#define PARAM		'P'
-#define REGIS		'R'
-#define PASSW		'W'
-#define CHECK		'c'
-#define REQUIRED	'r'
-#define LEN			'L'
-#define NICKNAME	'n'
-#define USERNAME	'u'
-#define USERNICK	'N'
-#define NONICK		'n'
-#define NOFOUND		'f'
-#define INUSEN		'i'
-#define INUSECH		'h'
+#define _CHANNEL	'C'
+	#define EXIST		'e'
+	#define INVITEO		'i'
+	#define PASSWORDC	'p'
+	#define LIMIT		'l'
+	#define NOTPART		'n'
+	#define OPERATORC	'o'
+#define _LEN		'L'
+	#define NICKNAMEL	'n'
+	#define USERNAMEL	'u'
+	#define CHANNELL	'c'
+	#define _PARAM		'P'
+#define _NICKNAME	'N'
+	#define NONICK		'n'
+	#define NOFOUND0	'f'
+	#define NOFOUND1	'd'
+	#define INUSEN		'i'
+	#define INUSECH		'h'
+	#define OPERATORN	'o'
+#define _PASSWORD	'W'
+	#define CHECK		'c'
+	#define REQUIRED	'r'
+	#define OPERATOR	'o'
+#define _REGIS		'R'
 
 class Commands : public Parse
 {
@@ -28,7 +39,6 @@ class Commands : public Parse
 		bool _order;
 		bool _multiple;
 
-		void	checkConditions(std::string flags);
 		//* Authentication Commands
 		void	CAP(void);
 		void	PASS(void);
@@ -72,7 +82,14 @@ class Commands : public Parse
 		void	executeCommand( void );
 
 		//* Complementary Functions
-		void 	handleMultiple(std::string comm);
-		void	parseMode(void);
+		void 		handleMultiple(std::string comm);
+		void		parseMode(void);
 		std::string	concArgs(int start);
+
+		//* Conditions Checkers
+		void		checkPassword(char flag);
+		void		checkNickname(char flag);
+		void		checkLen(char flag);
+		void		checkChannel(char flag);
+		void		checkConditions(std::string flags);
 };

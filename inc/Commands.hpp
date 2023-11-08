@@ -31,7 +31,7 @@
 	#define OPERATOR	'o'
 #define _REGIS		'R'
 
-class Commands : public Parse
+class Commands
 {
 	private:
 		std::string 					_cmd;

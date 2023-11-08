@@ -487,11 +487,12 @@ void Commands::PRIVMSG(void)
 	{
 		if(targetch->getName() == "#bot")
 		{
-				std::string botMessage = concArgs(1);
-				botMessage = stripQuotes(botMessage);
-				std::cout << "Bot message: " << botMessage << std::endl;
-				if(botMessage == "1" || botMessage == "facts")
-					_serv->getBot().factBot(_req_client);
+			std::string botMessage = concArgs(1);
+			botMessage = stripQuotes(botMessage);
+			if(botMessage == "1" || botMessage == "facts")
+				_serv->getBot().factBot(_req_client);
+			else if(botMessage == "2" || botMessage == "trivia")
+				_serv->getBot().triviaBot(_req_client);
 		}
 		else
 			targetch->broadcast(*_req_client, concArgs(1));

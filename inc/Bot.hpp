@@ -7,8 +7,10 @@
 class Bot: public Parse
 {
     private:
-        std::vector<std::string> _facts;
-        std::vector<std::string> _trivia;
+        bool                                    _triviaStart;
+        std::vector<std::string>                _triviaQuestions;
+        std::vector<std::vector<std::string> >  _triviaOptions;
+        std::vector<char>                       _triviaAnswers;
 
     public:
         Bot(void);
@@ -16,6 +18,8 @@ class Bot: public Parse
         void BotIntroduction(Client *target);
         std::string getCmdArg(unsigned long i);
         void factBot(Client *target);
+        void intializeTrivia();
+        void triviaBot(Client *target);
         // int getOption();
 };
 

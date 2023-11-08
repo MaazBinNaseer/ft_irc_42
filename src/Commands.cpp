@@ -7,13 +7,22 @@ void Commands::CAP(void)
 	std::string command1 = getCmdArg(0);
 	if (command1 == "LS")
     {
-		std::string message = "CAP * LS :chghost server_time account_tag extended_join invite_notify\r\n";
+		std::string message = "CAP * LS :echo_msg extended_join invite_notify\r\n";
         this->_req_client->_cap_order = true;
         this->_req_client->pushSendBuffer(message);
     }
     if(this->_req_client->_cap_order && command1 == "REQ")
 	{
-		std::string message = "CAP * ACK :" + getCmdArg(1) + "\r\n";
+		std::string strCaps[3] = {"echo_msg", "extended_join", "invite_notify"};
+		std::string message = "CAP * ACK :";
+		for (unsigned long i = 1; !getCmdArg(i).empty(); i++)
+			for (unsigned long j = 0; j < 3; j++)
+				if (getCmdArg(i) == strCaps[j])
+				{
+					this->_req_client->setCaps(j, true);
+					message += getCmdArg(i) + " ";
+				}
+		message += "\r\n";
         this->_req_client->pushSendBuffer(message);
 	}
 
@@ -27,7 +36,7 @@ void Commands::PASS(void)
 	_req_client->setPass(true);
 }
 
-void Commands::PING(void) // TODO CHECK ERRORS FOR THIS COMMAND
+void Commands::PING(void)
 {
 	checkConditions("P1");
 	clock_t startTime = clock();
@@ -37,7 +46,8 @@ void Commands::PING(void) // TODO CHECK ERRORS FOR THIS COMMAND
 	std::ostringstream message;
 	message << std::fixed << std::setprecision(6);
     message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
-    _req_client->sendmsg(GREEN + message.str() + RESET); // ! check if error
+    selfCommand(*_req_client, "PING", GREEN + message.str() + RESET);
+	// _req_client->sendmsg(GREEN + message.str() + RESET);
 }
 
 //* ====== User Assigning Commands
@@ -79,7 +89,7 @@ void Commands::OPER(void)
 	serverMessage(RPL_YOUREOPER, GREEN "You are now an IRC operator" RESET, *targetcl);
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 	{
-		Client *broad = this->_serv->getClientNick(it->second.getNickname()); // ! Consider finding a smoother solution
+		Client *broad = this->_serv->getClientNick(it->second.getNickname());
 		if (broad != targetcl)
 			broadcastallCommand(*broad, *targetcl, this->_cmd, ":" GREEN "is now an IRC operator!" RESET);
 	}
@@ -142,7 +152,7 @@ void Commands::KICK(void)
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(1));
 	if (targetch && targetcl && !targetch->exists(*targetcl))
 		throw CommandError("User Not In Channel", ERR_USERNOTINCHANNEL, targetcl->getNickname() + " is not in " + targetch->getName() + " channel", *_req_client);
-	else if (targetcl)
+	else if (targetcl && targetcl != _req_client)
 	{
 		if (getCmdArg(2) != "" && concArgs(2).size() <= KICKLEN)
 			selfCommand(*targetcl, "KICK", "You are being kicked because " + concArgs(2));
@@ -153,11 +163,11 @@ void Commands::KICK(void)
 
 void Commands::INVITE(void)
 {
-	checkConditions("P2Nf");
+	checkConditions("P2NfCxCa");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	Channel *targetch = this->_serv->getChannel(getCmdArg(1));
 	if (!targetch && this->_serv->getClientNick(getCmdArg(1)))
-		_req_client->sendmsg(RED "Cannot invite User to another User!" RESET "\n"); // ? Would we have # to indicate a channel name
+		_req_client->sendmsg(RED "Cannot invite User to another User!" RESET "\n");
 	else if (!targetch)
 		this->_serv->addChannel(getCmdArg(1), *targetcl);
 	else if (targetch && targetch->isInviteOnly() && !targetch->isOp(*_req_client))

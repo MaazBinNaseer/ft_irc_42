@@ -104,12 +104,19 @@ void Commands::checkLen(char flag)
 void Commands::checkChannel(char flag)
 {
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
+	Channel *targetch2 = this->_serv->getChannel(getCmdArg(1));
 	switch (flag)
 	{
 		case EXIST:
 		{
 			if (!targetch)
 				throw CommandError("Channel Doesn't Exist", ERR_NOSUCHCHANNEL, getCmdArg(0) + " No such channel", *_req_client);
+			break ;
+		}
+		case EXIST2:
+		{
+			if (!targetch2)
+				throw CommandError("Channel Doesn't Exist", ERR_NOSUCHCHANNEL, getCmdArg(1) + " No such channel", *_req_client);
 			break ;
 		}
 		case INVITEO:
@@ -134,6 +141,12 @@ void Commands::checkChannel(char flag)
 		{
 			if (targetch && !targetch->exists(*_req_client))
 				throw CommandError("Channel Incompatibility", ERR_NOTONCHANNEL, targetch->getName() + " You're not on that channel", *_req_client);
+			break ;
+		}
+		case NOTPART2:
+		{
+			if (targetch2 && !targetch2->exists(*_req_client))
+				throw CommandError("Channel Incompatibility", ERR_NOTONCHANNEL, targetch2->getName() + " You're not on that channel", *_req_client);
 			break ;
 		}
 		case OPERATORC:

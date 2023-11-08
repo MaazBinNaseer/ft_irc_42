@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/01 15:56:31 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 14:15:20 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ class Client
 		void						setRemove(bool set);
 		void						setReason(std::string reason);
 		void						pushSendBuffer(std::string string);
+		void						setCaps(unsigned long i, bool state);
 	
 		// *------ Other functions ------
 		void						appendExecBuffer(std::string newbuff, Server *_serv);

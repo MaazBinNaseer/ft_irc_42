@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/02 18:52:13 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 14:16:13 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 t_cap genDefaultCap()
 {
 	t_cap caps;
-	caps.echo_msg = true;
+	caps.echo_msg = false;
 	caps.ext_join = false;
-	caps.inv_notif = true;
+	caps.inv_notif = false;
 	return (caps);
 }
 
@@ -206,6 +206,15 @@ void Client::pushSendBuffer(std::string string)
 	this->_sendBuffer.push_back(string);
 }
 
+void Client::setCaps(unsigned long i, bool state)
+{
+	if (i == 0)
+		this->_caps.echo_msg = state;
+	else if (i == 1)
+		this->_caps.ext_join = state;
+	else if (i == 2)
+		this->_caps.inv_notif = state;
+}
 
 /*----- Other functions -----*/
 

@@ -6,10 +6,12 @@
 
 #define _CHANNEL	'C'
 	#define EXIST		'e'
+	#define EXIST2		'x'
 	#define INVITEO		'i'
 	#define PASSWORDC	'p'
 	#define LIMIT		'l'
 	#define NOTPART		'n'
+	#define NOTPART2	'a'
 	#define OPERATORC	'o'
 #define _LEN		'L'
 	#define NICKNAMEL	'n'

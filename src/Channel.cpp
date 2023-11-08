@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/06 13:10:03 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 14:39:50 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Channel::Channel(std::string n, Client &c) : name(n)
 {
-	this->topic = "[Set a topic]";
+	this->topic = "[Topic not set]";
 	this->password = "";
 	this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
 	this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));

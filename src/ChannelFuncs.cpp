@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/06 19:19:51 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 14:40:30 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ void	Channel::invite(Client *c, Client &invitee)
 		else 
 			newmsg = PURPLE "[" + getName() + "] " GREEN + invitee.getNickname() + ": " YELLOW + "*joined the channel*" + RESET;
 	
+		selfCommand(invitee, "", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
 			if (it->second->getCaps().inv_notif)
 				broadcastallCommand(*it->second, invitee, "JOIN/INVITE", newmsg);

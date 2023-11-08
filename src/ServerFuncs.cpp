@@ -3,29 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 15:47:03 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:48:18 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
 
-void Server::countDown()
+bool Server::countDown()
 {
 	if (this->counter > 0)
 	{
 		std::string append_c = intToString(counter);
-		std::string message = RED "Closing down in ---" + append_c + RESET "\r\n"; 
+		std::string message = RED "Closing down in ---" + append_c + RESET; 
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		{
 			Client *broad = getClientNick(it->second.getNickname());
 			selfCommand(*broad, "EXIT", message);
 		}
 		usleep(1000000);
-			this->counter--;
+		this->counter--;
 	}
+	return (getClients().empty());
+}
+
+void	Server::clientDisconnect(std::string reason, int cfd)
+{
+	logDisconnect(reason, cfd);
+	std::cout << RED "Client disconnected! Socket " << cfd << RESET "\n";
+	this->removeUser(cfd);
 }
 
 void	Server::deliverToClient(Client &client)
@@ -43,11 +51,7 @@ void	Server::deliverToClient(Client &client)
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))
-	{
-		logDisconnect(client.getReason(), client.getSocketFd());
-		std::cout << RED "Client disconnected! Socket " << client.getSocketFd() << RESET "\n";
-		this->removeUser(client.getSocketFd());
-	}
+		clientDisconnect(client.getReason(), client.getSocketFd());
 }
 
 int Server::HandleClients()
@@ -57,24 +61,41 @@ int Server::HandleClients()
 	
 	for (size_t i = 1; i < clientfds.size(); i++)
 	{
-		if (this->clientfds[i].revents & POLLIN)
+		pollfd currentClient = this->clientfds[i];
+		Client *clientListSelect = &this->clients[currentClient.fd];
+		if (currentClient.revents & POLLIN)
 		{
-			valread = recv(this->clientfds[i].fd, buffer, BUFFER_SIZE, 0);
+			valread = recv(currentClient.fd, buffer, BUFFER_SIZE, 0);
 			std::memset(buffer + valread, 0, BUFFER_SIZE - valread);
 			if (valread < 0)
 				throw FailedFunction("Recv");
 			else if (valread == 0)
-			{
-				this->clients[this->clientfds[i].fd].setRemove(true);
-				this->clients[this->clientfds[i].fd].setReason("Used signal to leave");
-			}
+				clientListSelect->setReason("Used signal to leave");
 			else
-				this->clients[this->clientfds[i].fd].appendExecBuffer(buffer, this);
+				clientListSelect->appendExecBuffer(buffer, this);
 		}
-		if (this->clientfds[i].revents & POLLOUT)
-			this->deliverToClient(this->clients[this->clientfds[i].fd]);
+		if (currentClient.revents & POLLHUP)
+			clientDisconnect(clientListSelect->getReason(), clientListSelect->getSocketFd());
+		else if (currentClient.revents & POLLOUT)
+			this->deliverToClient(*clientListSelect);
 	}
 	return (0);
+}
+
+int	Server::appendpollfd(int new_socket)
+{
+	struct pollfd mypoll;
+
+	std::memset(&mypoll, 0, sizeof(mypoll));
+	mypoll.fd = new_socket;
+	if (new_socket == 3)
+		mypoll.events = POLLIN;
+	else if (new_socket >= 3)
+		mypoll.events = POLLIN | POLLOUT;
+	mypoll.revents = 0;
+	this->clientfds.push_back(mypoll);
+
+	return (new_socket);
 }
 
 int	Server::accept_connect( void )
@@ -95,23 +116,6 @@ int	Server::accept_connect( void )
 
 	logConnect(cfd);
 	return (appendpollfd(cfd));
-}
-
-
-int	Server::appendpollfd(int new_socket)
-{
-	struct pollfd mypoll;
-
-	std::memset(&mypoll, 0, sizeof(mypoll));
-	mypoll.fd = new_socket;
-	if (new_socket == 3)
-		mypoll.events = POLLIN;
-	else if (new_socket >= 3)
-		mypoll.events = POLLIN | POLLOUT;
-	mypoll.revents = 0;
-	this->clientfds.push_back(mypoll);
-
-	return (new_socket);
 }
 
 int	Server::assign(char *portstr, char *pass)
@@ -158,12 +162,8 @@ int	Server::bootup(char	*portstr, char *pass)
 			return (1);
 		if (getShutdown())
 		{
-			countDown();
-			if (getClients().empty())
-			{
-				close(this->sfd);
+			if (countDown())
 				break ;
-			}
 		}
 	}
 	return (0);

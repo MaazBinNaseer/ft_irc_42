@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 15:25:23 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:40:42 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,11 +63,12 @@ class Server
 
 
 		// *---- ServerFuncs.cpp ----
-		void		countDown(void);
+		bool		countDown(void);
+		void		clientDisconnect(std::string reason, int cfd);
 		void		deliverToClient(Client &client);
 		int			HandleClients( void );
-		int			accept_connect( void );
 		int			appendpollfd(int new_socket);
+		int			accept_connect( void );
 		int			assign(char *portstr, char *pass);
 		int			bootup(char *portstr, char *pass);
 

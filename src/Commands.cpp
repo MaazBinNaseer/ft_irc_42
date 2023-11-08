@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 16:47:12 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:47:05 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 	if (cmd.empty())
 		return ;
 	this->_cmd = extractWord(cmd);
+	std::transform(this->_cmd.begin(), this->_cmd.end(), this->_cmd.begin(), ::toupper);
 	while (!cmd.empty())
 		this->_cmd_args.push_back(extractWord(cmd));
 	executeCommand();
@@ -157,10 +158,10 @@ void	Commands::executeCommand()
 			}
 		}
 		else
-			serverMessage(ERR_UNKNOWNCOMMAND, this->_cmd + " :Unknown command", *_req_client);
+			serverMessage(ERR_UNKNOWNCOMMAND, RED + this->_cmd + " Unknown command" RESET, *_req_client);
 	}
 	else
-		serverMessage(ERR_NOTREGISTERED, ":need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>", *_req_client);
+		serverMessage(ERR_NOTREGISTERED, RED "Need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>" RESET, *_req_client);
 }
 
 //* ====== Complementary Functions
@@ -173,7 +174,18 @@ void Commands::handleMultiple(std::string comm)
 	while (pos != std::string::npos)
 	{
 		this->_cmd_args[0] = str.substr(0, pos);
-		(this->*_selection[comm])();
+		try 
+		{
+			if (this->_cmd_args[0].empty())
+				throw CommandError("Empty Arguments (double commas)", ERR_UNKNOWNCOMMAND, "Empty argument (double commas)", *_req_client);
+			(this->*_selection[comm])();
+		} 
+		catch(std::exception &e)
+		{
+			std::string error(e.what());
+			serverLog(*_req_client, "", error + " Error Caught\n");
+			std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+		}
 		str = str.substr(pos + 1);
 		pos = str.find_first_of(",");
 	}
@@ -199,11 +211,14 @@ void	Commands::parseMode(void)
 	fill(options, flags, present);
 
 	if (options == "")
-		this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
+		selfCommand(*_req_client, "", RED "Input Channel's Mode!" RESET);
+		// this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
 	else if (options[0] != '-' && options[0] != '+')
-		this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
+		selfCommand(*_req_client, "", RED "Specify direction of mode! (+ or -)" RESET);
+		// this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
 	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
-		this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
+		selfCommand(*_req_client, "", RED "Cannot Use Modes - k,o,l - Together!" RESET);
+		// this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
 	else
 		for (int i = 0; i < 5; i++)
 			if (present[i])

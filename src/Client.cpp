@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 15:32:45 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:43:18 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 t_cap genDefaultCap()
 {
 	t_cap caps;
-	caps.echo_msg = true;
+	caps.echo_msg = false;
 	caps.ext_join = false;
-	caps.inv_notif = true;
+	caps.inv_notif = false;
 	return (caps);
 }
 
@@ -192,14 +192,24 @@ void Client::pushSendBuffer(std::string string)
 	this->_sendBuffer.push_back(string);
 }
 
+void Client::setCaps(unsigned long i, bool state)
+{
+	if (i == 0)
+		this->_caps.echo_msg = state;
+	else if (i == 1)
+		this->_caps.ext_join = state;
+	else if (i == 2)
+		this->_caps.inv_notif = state;
+}
 
 /*----- Other functions -----*/
 
-void	Client::fillInfo(int fd, std::string username, std::string nickname)
+void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 {
-	this->setSocketFd(fd);
-	this->setUsername(username);
-	this->setNickname(nickname);
+	logRecv(newbuff, this->getSocketFd());
+	this->_receiveBuffer += newbuff;
+	while (this->_receiveBuffer.find('\n') != std::string::npos)
+		Commands	extract(this, _serv, getReceiveBuffer());
 }
 
 void	Client::sendmsg(std::string msg)
@@ -207,14 +217,6 @@ void	Client::sendmsg(std::string msg)
 	// * you can send time if client has server_time activated.
 	if (send(getSocketFd(), msg.data(), msg.size(), 0) == -1)
 		throw FailedFunction("Send");
-}
-
-void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
-{
-	logRecv(newbuff, getSocketFd());
-	this->_receiveBuffer += newbuff;
-	while (this->_receiveBuffer.find('\n') != std::string::npos)
-		Commands	extract(this, _serv, getReceiveBuffer());
 }
 
 void	Client::print(std::string color)

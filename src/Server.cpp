@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 16:51:00 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:47:56 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ Server::Server( void )
 {
 	std::ofstream log("Serverlog.txt");
 	log.close();
+	this->sfd = -1;
 	this->operpass = OPERPASS;
 	this->shutdown = false;
 	this->counter  = 3;
@@ -38,6 +39,8 @@ Server &Server::operator=( const Server &f )
 Server::~Server( void )
 {
 	logEnd();
+	if (this->sfd != -1)
+		close(this->sfd);
 	// std::cout << YELLOW "Server Destructor called" RESET "\n";
 	// ! HANDLE CLOSING FD LEAKS
 }
@@ -153,6 +156,7 @@ void	Server::removeUser(int cfd)
 			this->clientfds.erase(this->clientfds.begin() + i--);
 	if (isOp(*getClient(cfd)))
 		this->operators.erase(cfd);
+	serverLog(this->clients[cfd], "", "Has been removed from the server");
 	this->clients.erase(cfd);
 	close(cfd);
 }

@@ -132,8 +132,9 @@ void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std
 
 void selfCommand(Client &acted, std::string cmd, std::string msg)
 {
-	std::string message = ":" + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
-	message += S + cmd + S;
+	std::string message;
+	if (!cmd.empty())
+		message += cmd + S;
 	message += msg + "\r\n";
 	acted.pushSendBuffer(message);
 }
@@ -148,7 +149,7 @@ void targettedCommand(Client &acted, Client &target, std::string cmd, std::strin
 
 void serverMessage(std::string code, std::string message, Client &client)
 {
-	std::string send = ":" + client.getServername() + code + client.getNickname() + S +  ": " + message + "\r\n";
+	std::string send = ":" + client.getServername() + code + client.getNickname() + S +  ":" + message + "\r\n";
 	client.pushSendBuffer(send);
 }
 

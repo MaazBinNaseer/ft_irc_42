@@ -2,7 +2,36 @@
 
 #include "ft_irc.hpp"
 
-class Commands
+//* Condition Check Macros
+
+#define _CHANNEL	'C'
+	#define EXIST		'e'
+	#define EXIST2		'x'
+	#define INVITEO		'i'
+	#define PASSWORDC	'p'
+	#define LIMIT		'l'
+	#define NOTPART		'n'
+	#define NOTPART2	'a'
+	#define OPERATORC	'o'
+#define _LEN		'L'
+	#define NICKNAMEL	'n'
+	#define USERNAMEL	'u'
+	#define CHANNELL	'c'
+	#define _PARAM		'P'
+#define _NICKNAME	'N'
+	#define NONICK		'n'
+	#define NOFOUND0	'f'
+	#define NOFOUND1	'd'
+	#define INUSEN		'i'
+	#define INUSECH		'h'
+	#define OPERATORN	'o'
+#define _PASSWORD	'W'
+	#define CHECK		'c'
+	#define REQUIRED	'r'
+	#define OPERATOR	'o'
+#define _REGIS		'R'
+
+class Commands : public Parse
 {
 	private:
 		std::string 					_cmd;
@@ -15,11 +44,6 @@ class Commands
 
 		bool _order;
 		bool _multiple;
-
-		//* Complementary Functions
-		void 	handleMultiple(std::string comm);
-		void	parseMode(void);
-		std::string	concArgs(int start);
 
 		//* Authentication Commands
 		void	CAP(void);
@@ -41,7 +65,6 @@ class Commands
 		void	MODE(void);
 
 		//* Sending Messages
-		void	MSG(void);
 		void	PRIVMSG(void);
 		void	NOTICE(void); // ! send notices between users and channels
 
@@ -71,4 +94,16 @@ class Commands
 		void	setAttributes( void );
 		bool	toRegister( std::string command );
 		void	executeCommand( void );
+
+		//* Complementary Functions
+		void 		handleMultiple(std::string comm);
+		void		parseMode(void);
+		std::string	concArgs(int start);
+
+		//* Conditions Checkers
+		void		checkPassword(char flag);
+		void		checkNickname(char flag);
+		void		checkLen(char flag);
+		void		checkChannel(char flag);
+		void		checkConditions(std::string flags);
 };

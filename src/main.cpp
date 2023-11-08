@@ -3,14 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 16:51:14 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:47:47 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+
+void signalHandler(int signum)
+{
+	if (signum == SIGINT)
+		std::cout << "SIGINT signal used" << std::endl;
+}
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +26,7 @@ int main(int argc, char *argv[])
 	try
 	{
 		Server	irc;
+		signal(SIGINT, signalHandler);
 		irc.bootup(argv[1], argv[2]);
 	}
 	catch(std::exception &e)

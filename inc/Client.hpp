@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/03 15:32:48 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:39:14 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,9 +77,9 @@ class Client
 		void						setRemove(bool set);
 		void						setReason(std::string reason);
 		void						pushSendBuffer(std::string string);
+		void						setCaps(unsigned long i, bool state);
 	
 		// *------ Other functions ------
-		void						fillInfo(int fd, std::string username, std::string nickname);
 		void						appendExecBuffer(std::string newbuff, Server *_serv);
 		void						sendmsg(std::string msg);
 		void						print(std::string color);

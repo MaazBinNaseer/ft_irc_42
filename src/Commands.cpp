@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:47:05 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 16:35:45 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,9 +109,9 @@ void	Commands::setAttributes()
 {
 	this->_order = false;
 	this->_multiple = false;
-	_selection["CAP"] = &Commands::CAP;				// ? Whats Left ?
+	_selection["CAP"] = &Commands::CAP;
 	_selection["PASS"] = &Commands::PASS;
-	_selection["PING"] = &Commands::PING;			// ? Whats Left ?
+	_selection["PING"] = &Commands::PING;
 	_selection["NICK"] = &Commands::NICK;
 	_selection["USER"] = &Commands::USER;
 	_selection["OPER"] = &Commands::OPER;
@@ -142,9 +142,9 @@ void	Commands::executeCommand()
 	std::map<std::string, actions>::iterator select;
 
 	select = this->_selection.find(this->_cmd);
-	if (toRegister(this->_cmd))
+	if (select != this->_selection.end())
 	{
-		if (select != this->_selection.end())
+		if (toRegister(this->_cmd))
 		{
 			try
 			{
@@ -158,10 +158,10 @@ void	Commands::executeCommand()
 			}
 		}
 		else
-			serverMessage(ERR_UNKNOWNCOMMAND, RED + this->_cmd + " Unknown command" RESET, *_req_client);
+			serverMessage(ERR_NOTREGISTERED, RED "Need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>" RESET, *_req_client);
 	}
 	else
-		serverMessage(ERR_NOTREGISTERED, RED "Need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>" RESET, *_req_client);
+		serverMessage(ERR_UNKNOWNCOMMAND, RED + this->_cmd + " Unknown command" RESET, *_req_client);
 }
 
 //* ====== Complementary Functions

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:48:18 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 16:25:54 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,6 @@ int	Server::assign(char *portstr, char *pass)
 
 int	Server::bootup(char	*portstr, char *pass)
 {
-	logStart();
 	if (assign(portstr, pass))
 		return (1);
 	

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:47:56 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/08 16:26:00 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ Server::Server( void )
 {
 	std::ofstream log("Serverlog.txt");
 	log.close();
+	logStart();
 	this->sfd = -1;
 	this->operpass = OPERPASS;
 	this->shutdown = false;

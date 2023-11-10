@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:39:14 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/10 18:21:16 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class Client
 
     public:
 		bool						_cap_order;
-		Client(unsigned int fd);
+		Client(unsigned int fd, std::string hostname);
 	
         // *----- Orthodox Canonical Form -----
 		Client();

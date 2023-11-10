@@ -130,19 +130,25 @@ void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std
 	recipient.pushSendBuffer(message);
 }
 
+void customMessage(Client &recipient, std::string message)
+{
+	message += "\r\n";
+	recipient.pushSendBuffer(message);
+}
+
 void selfCommand(Client &acted, std::string cmd, std::string msg)
 {
-	std::string message;
+	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
 	if (!cmd.empty())
-		message += cmd + S;
+		message += S + cmd + S;
 	message += msg + "\r\n";
 	acted.pushSendBuffer(message);
 }
 
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg)
 {
-	std::string message = ":" + TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
-	message += S + cmd + S + target.getNickname();
+	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
+	message += S + cmd + S + target.getNickname() + S;
 	message += msg + "\r\n";
 	target.pushSendBuffer(message);
 }
@@ -161,8 +167,8 @@ void welcomeMessage(Client &client, Server &server)
 	serverMessage(RPL_CREATED, "This server was created today", client);
 	serverMessage(RPL_MYINFO, client.getHostname(), client);
 	serverMessage(RPL_ISUPPORT, "SUPPORTED TOKENS", client);
-	std::string	msg = "CHANLIMIT=#:" + std::to_string(CHANLIMIT) + " NICKLEN=" + std::to_string(NICKLEN) + " CHANNELEN=" + std::to_string(CHANNELEN);
-	msg += " USERLEN=" + std::to_string(USERLEN) + " KICKLEN=" + std::to_string(KICKLEN) + ": are supported by the server";
+	std::string	msg = "CHANLIMIT=#:" + intToString(CHANLIMIT) + " NICKLEN=" + intToString(NICKLEN) + " CHANNELEN=" + intToString(CHANNELEN);
+	msg += " USERLEN=" + intToString(USERLEN) + " KICKLEN=" + intToString(KICKLEN) + ": are supported by the server";
 	serverMessage(RPL_ISUPPORT, msg, client);
 	serverMessage(RPL_STATISTICS, "I have " + fdString  + " clients and 1 server", client);
 }

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:40:42 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/10 22:09:10 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Server
 		int								sfd;
 		int								counter;
 		bool							shutdown;
+		std::string						hostip;
 		std::string						joinpass;
 		std::string						operpass;
 		std::vector<pollfd>				clientfds;

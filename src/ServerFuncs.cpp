@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 16:25:54 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/10 22:09:05 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	Server::deliverToClient(Client &client)
 	{
 		deliver = messages.front();
 		messages.pop_front();
-		// std::cout << "SENDING: " << deliver << std::endl;
+		std::cout << "SENDING: " << deliver << std::endl;
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))
@@ -105,12 +105,18 @@ int	Server::accept_connect( void )
 
 	if (!(this->clientfds[0].revents & POLLIN))
 		return (0);
+	
+	struct sockaddr_in	new_client_addr;
+	socklen_t			new_client_addr_size;
 
-	int cfd = accept(this->sfd, NULL, NULL);
+	new_client_addr_size = sizeof(new_client_addr);
+
+	int cfd = accept(this->sfd, (struct sockaddr *)&new_client_addr,
+		&new_client_addr_size);
 	if (cfd == -1)
 		throw FailedFunction("Accept");
-
-	Client	login = Client(cfd);
+	
+	Client	login = Client(cfd, inet_ntoa(new_client_addr.sin_addr));
 	this->clients.insert(std::pair<int, Client>(cfd, login));
 	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
 

@@ -2,7 +2,7 @@
 
 #include "ft_irc.hpp"
 
-#define TRIPLE_INFO(nick, user, host) (nick + "[!" + user + "@" + host + "]")
+#define TRIPLE_INFO(nick, user, host) (":" + nick + "!" + user + "@" + host)
 
 #define S " "
 #define DASH "----------------------------------------\n"
@@ -46,6 +46,7 @@ void serverLog(Client &acted, std::string target, std::string note);
 
 // *----- Messages Sent to Clients -----
 void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg);
+void customMessage(Client &recipient, std::string message);
 void selfCommand(Client &acted, std::string cmd, std::string msg);
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg);
 void serverMessage(std::string code, std::string message, Client &client);

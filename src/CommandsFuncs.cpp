@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:52:28 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/10 23:02:51 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,28 @@ void Commands::CAP(void)
 	std::string command1 = getCmdArg(0);
 	if (command1 == "LS")
     {
-		std::string message = "CAP * LS :echo_msg extended_join invite_notify\r\n";
+		std::string message = "CAP * LS :echo-message extended-join invite-notify\r\n";
         this->_req_client->_cap_order = true;
         this->_req_client->pushSendBuffer(message);
     }
     if(this->_req_client->_cap_order && command1 == "REQ")
 	{
-		std::string strCaps[3] = {"echo_msg", "extended_join", "invite_notify"};
+		std::string strCaps[3] = {"echo-message", "extended-join", "invite-notify"};
 		std::string message = "CAP * ACK :";
-		for (unsigned long i = 1; !getCmdArg(i).empty(); i++)
+		for (unsigned long i = 0; !getCmdArg(i).empty(); i++)
+		{
+			std::string cap = getCmdArg(i);
 			for (unsigned long j = 0; j < 3; j++)
-				if (getCmdArg(i) == strCaps[j])
+			{
+				if (cap.at(0) == ':')
+					cap.erase(0, 1);
+				if (cap == strCaps[j])
 				{
 					this->_req_client->setCaps(j, true);
-					message += getCmdArg(i) + " ";
+					message += cap + " ";
 				}
+			}
+		}
 		message += "\r\n";
         this->_req_client->pushSendBuffer(message);
 	}
@@ -51,14 +58,15 @@ void Commands::PASS(void)
 void Commands::PING(void)
 {
 	checkConditions("P1");
-	clock_t startTime = clock();
-	_req_client->sendmsg(GREEN "PONG " + getCmdArg(0) + ": " RESET);
-	clock_t endTime = clock();
-	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
-	std::ostringstream message;
-	message << std::fixed << std::setprecision(6);
-    message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
-    selfCommand(*_req_client, "PING", GREEN + message.str() + RESET);
+	// clock_t startTime = clock();
+	customMessage(*_req_client, "PONG :" + getCmdArg(0));
+	// _req_client->sendmsg(GREEN "PONG " + getCmdArg(0) + ": " RESET);
+	// clock_t endTime = clock();
+	// double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
+	// std::ostringstream message;
+	// message << std::fixed << std::setprecision(6);
+    // message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
+    // selfCommand(*_req_client, "PING", GREEN + message.str() + RESET);
 	// _req_client->sendmsg(GREEN + message.str() + RESET);
 }
 
@@ -83,8 +91,9 @@ void Commands::USER(void)
 	}
 	else
 		throw CommandError("No Colon For Real Name", ERR_NEEDMOREPARAMS, "USER needs ':' for Realname", *_req_client);
-	this->_req_client->setUsername(getCmdArg(0));
-	this->_req_client->setHostname(getCmdArg(1));
+	this->_req_client->setUsername("~" + getCmdArg(0));
+	if (this->_req_client->getHostname().empty())
+		this->_req_client->setHostname(getCmdArg(1));
 	this->_req_client->setServername(getCmdArg(2));
 	this->_req_client->setRegistered(true);
 	logRegister(*_req_client);
@@ -205,6 +214,9 @@ void Commands::TOPIC(void)
 
 void Commands::MODE(void)
 {
+	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
+	if (targetcl)
+		return ;
 	checkConditions("P2CeCo");
 	parseMode();
 }
@@ -226,9 +238,14 @@ void Commands::PRIVMSG(void)
 		throw CommandError("Channel Incompatibility", ERR_CANNOTSENDTOCHAN, "Join channel '" + targetch->getName() + "' to send messages", *_req_client);
 	else if (targetcl)
 	{
-		targettedCommand(*_req_client, *targetcl, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
-		if (!this->_multiple && this->_req_client->getCaps().echo_msg)
-			selfCommand(*_req_client, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
+		if (getCmdArg(2) == "SEND")
+			targettedCommand(*_req_client, *targetcl, "PRIVMSG", concArgs(1));
+		else
+		{
+			targettedCommand(*_req_client, *targetcl, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
+			if (!this->_multiple && this->_req_client->getCaps().echo_msg)
+				selfCommand(*_req_client, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
+		}
 		return ;
 	}
 	checkConditions("NfCe");

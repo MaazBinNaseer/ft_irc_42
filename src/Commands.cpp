@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 16:35:45 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/10 16:22:27 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 	if (cmd.empty())
 		return ;
 	this->_cmd = extractWord(cmd);
-	std::transform(this->_cmd.begin(), this->_cmd.end(), this->_cmd.begin(), ::toupper);
+	// std::transform(this->_cmd.begin(), this->_cmd.end(), this->_cmd.begin(), ::toupper);
 	while (!cmd.empty())
 		this->_cmd_args.push_back(extractWord(cmd));
 	executeCommand();

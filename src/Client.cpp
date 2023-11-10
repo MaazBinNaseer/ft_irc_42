@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:43:18 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/10 22:10:33 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ Client::Client()
 	this->_caps = genDefaultCap();
 }
 
-Client::Client(unsigned int fd): _socket_fd(fd)
+Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _hostname(hostname)
 {
 	_pass = false;
 	_registered = false;
@@ -41,7 +41,11 @@ Client::Client( const Client &f )
 	{
 		this->_socket_fd = f._socket_fd;
 		this->_username = f._username;
+		this->_hostname = f._hostname;
 		this->_nickname = f._nickname;
+		this->_pass = f._pass;
+		this->_registered = f._registered;
+		this->_cap_order = f._cap_order;
 		this->_caps = f.getCaps();
 	}
 }
@@ -52,7 +56,11 @@ Client & Client::operator=(Client const & rhs)
 	{
 		this->_socket_fd = rhs._socket_fd;
 		this->_username = rhs._username;
+		this->_hostname = rhs._hostname;
 		this->_nickname = rhs._nickname;
+		this->_pass = rhs._pass;
+		this->_registered = rhs._registered;
+		this->_cap_order = rhs._cap_order;
 		this->_caps = rhs.getCaps();
 	}
 	return (*this);
@@ -60,7 +68,10 @@ Client & Client::operator=(Client const & rhs)
 
 Client::~Client() 
 {
-
+	_pass = false;
+	_registered = false;
+	_cap_order = false;
+	this->_caps = genDefaultCap();
 }
 
 /*----- Attribute getters -----*/

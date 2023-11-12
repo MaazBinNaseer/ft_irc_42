@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/10 22:09:18 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 22:02:40 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ Server::~Server( void )
 	if (this->sfd != -1)
 		close(this->sfd);
 	// std::cout << YELLOW "Server Destructor called" RESET "\n";
-	// ! HANDLE CLOSING FD LEAKS
 }
 
 int	Server::getFdSize(void)
@@ -83,6 +82,15 @@ Client	*Server::getClientNick(std::string nick)
 	std::map<int, Client>::iterator it;
 	for (it = this->clients.begin(); it != this->clients.end(); it++)
 		if (it->second.getNickname() == nick)
+			return (&it->second);
+	return (NULL);
+}
+
+Client	*Server::getClientFd(int fd)
+{
+	std::map<int, Client>::iterator it;
+	for (it = this->clients.begin(); it != this->clients.end(); it++)
+		if (it->second.getSocketFd() == fd)
 			return (&it->second);
 	return (NULL);
 }

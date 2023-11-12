@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/10 22:09:10 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 22:02:27 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ class Server
 		int								sfd;
 		int								counter;
 		bool							shutdown;
-		std::string						hostip;
 		std::string						joinpass;
 		std::string						operpass;
 		std::vector<pollfd>				clientfds;
@@ -43,6 +42,7 @@ class Server
 		std::string						getOperPass(void) const;
 		Client							*getClient(int cfd);
 		Client							*getClientNick(std::string nick);
+		Client							*getClientFd(int fd);
 		Client							*getClientUser(std::string user);
 		std::map<int, Client>			&getClients(void);
 		Channel							*getChannel(std::string name);
@@ -59,7 +59,6 @@ class Server
 		void	addOperator(Client *potop);
 		void	addChannel(std::string name, Client &c);
 		void	removeChannel(std::string name);
-		void	print(void);
 		void	decrementCounter(void);
 
 

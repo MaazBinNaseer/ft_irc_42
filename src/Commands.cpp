@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 14:53:50 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 22:26:44 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,15 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 		return ;
 	std::string cmd = buff.substr(0, pos + 1);
 	buff = buff.substr(pos + 1);
-	trim(cmd);
-	std::cout << PURPLE << cmd << RESET << "\n"; // ! DEBUGGING
+	this->trim(cmd);
+	// * std::cout << PURPLE << cmd << RESET << "\n";
 	if (cmd.empty())
 		return ;
-	this->_cmd = extractWord(cmd);
-	capitalize(this->_cmd);
+	this->_cmd = this->extractWord(cmd);
+	this->capitalize(this->_cmd);
 	while (!cmd.empty())
-		this->_cmd_args.push_back(extractWord(cmd));
-	executeCommand();
+		this->_cmd_args.push_back(this->extractWord(cmd));
+	this->executeCommand();
 }
 
 Commands::~Commands()

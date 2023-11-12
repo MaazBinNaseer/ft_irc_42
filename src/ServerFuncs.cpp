@@ -6,11 +6,12 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/10 22:09:05 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 22:37:57 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+#include <sys/poll.h>
 
 bool Server::countDown()
 {
@@ -19,10 +20,7 @@ bool Server::countDown()
 		std::string append_c = intToString(counter);
 		std::string message = RED "Closing down in ---" + append_c + RESET; 
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		{
-			Client *broad = getClientNick(it->second.getNickname());
-			selfCommand(*broad, "EXIT", message);
-		}
+			selfCommand(it->second, "EXIT", message);
 		usleep(1000000);
 		this->counter--;
 	}
@@ -47,7 +45,7 @@ void	Server::deliverToClient(Client &client)
 	{
 		deliver = messages.front();
 		messages.pop_front();
-		std::cout << "SENDING: " << deliver << std::endl;
+		// std::cout << "SENDING: " << deliver << std::endl;
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))
@@ -75,7 +73,7 @@ int Server::HandleClients()
 				clientListSelect->appendExecBuffer(buffer, this);
 		}
 		if (currentClient.revents & POLLHUP)
-			clientDisconnect(clientListSelect->getReason(), clientListSelect->getSocketFd());
+			this->clientDisconnect(clientListSelect->getReason(), clientListSelect->getSocketFd());
 		else if (currentClient.revents & POLLOUT)
 			this->deliverToClient(*clientListSelect);
 	}
@@ -101,7 +99,7 @@ int	Server::appendpollfd(int new_socket)
 int	Server::accept_connect( void )
 {
 	if (poll(this->clientfds.data(), this->clientfds.size(), 10) == -1)
-		throw FailedFunction("Poll");
+		throw std::exception();
 
 	if (!(this->clientfds[0].revents & POLLIN))
 		return (0);
@@ -159,17 +157,15 @@ int	Server::bootup(char	*portstr, char *pass)
 	
 	if (listen(this->sfd, 3))
 		throw FailedFunction("Listen");
+	
 
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
 	while (true)
 	{
 		if (accept_connect() == -1 || HandleClients() == -1)
 			return (1);
-		if (getShutdown())
-		{
-			if (countDown())
+		if (getShutdown() && countDown())
 				break ;
-		}
 	}
 	return (0);
 }

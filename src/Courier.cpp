@@ -25,7 +25,6 @@ const char * CommandError::what() const throw()
 }
 
 // *----- Log Commands -----
-// ! Incase of debugging
 
 void logStart()
 {

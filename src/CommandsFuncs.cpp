@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/10 23:02:51 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 22:39:48 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,15 +105,12 @@ void Commands::OPER(void)
 	checkConditions("P2NfWo");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	this->_serv->addOperator(targetcl);
-	std::map<int, Client> clients = this->_serv->getClients();
+	std::map<int, Client> &clients = this->_serv->getClients();
 	serverLog(*_req_client, targetcl->getNickname(), "Turned target into an operator");
 	serverMessage(RPL_YOUREOPER, GREEN "You are now an IRC operator" RESET, *targetcl);
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-	{
-		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		if (broad != targetcl)
-			broadcastallCommand(*broad, *targetcl, this->_cmd, ":" GREEN "is now an IRC operator!" RESET);
-	}
+		if (it->second.getSocketFd() != targetcl->getSocketFd())
+			broadcastallCommand(it->second, *targetcl, this->_cmd, ":" GREEN "is now an IRC operator!" RESET);
 }
 
 void Commands::QUIT(void)
@@ -315,11 +312,8 @@ void Commands::KILL(void)
 void Commands::EXIT(void)
 {
 	checkConditions("No");
-	std::map<int, Client> clients = this->_serv->getClients();
+	std::map<int, Client> &clients = this->_serv->getClients();
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-	{
-		Client *broad = this->_serv->getClientNick(it->second.getNickname());
-		selfCommand(*broad, "EXIT",  YELLOW "Server is shutting down" RESET);
-	}
+		selfCommand(it->second, "EXIT",  YELLOW "Server is shutting down" RESET);
 	this->_serv->setShutDown(true);
 }

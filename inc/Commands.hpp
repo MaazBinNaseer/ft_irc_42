@@ -45,42 +45,43 @@ class Commands
 		bool _order;
 		bool _multiple;
 
-		//* Authentication Commands
+		// * ----- CommandsFuncs.cpp -----
+		// * ----- Authentication Commands -----
 		void	CAP(void);
 		void	PASS(void);
-		void	PING(void); // ! Ping pong to check connection
+		void	PING(void);
 
-		//* User Assigning Commands
+		// * ----- User Assigning Commands -----
 		void	NICK(void);
 		void	USER(void);
-		void	OPER(void);// ! give operator priveleges
-		void	QUIT(void);// ! user quits the server
+		void	OPER(void);
+		void	QUIT(void);
 
-		//* Channel Related Commands
+		// * ----- Channel Related Commands -----
 		void	JOIN(void);
-		void	PART(void);// ! remove users from channels
+		void	PART(void);
 		void	KICK(void);
 		void	INVITE(void);
 		void	TOPIC(void);
 		void	MODE(void);
 
-		//* Sending Messages
+		// * ----- Sending Messages -----
 		void	PRIVMSG(void);
-		void	NOTICE(void); // ! send notices between users and channels
+		void	NOTICE(void);
 
-		//* User Based Queries
-		void	WHOIS(void); // ! get information about a user
+		//* ----- User Based Queries -----
+		void	WHOIS(void);
 
-		//* Operator Messages
-		void	KILL(void); // ! disconnect users from the server
+		//* ----- Operator Messages -----
+		void	KILL(void);
 		void 	EXIT(void);
 
-		// *----- Parser -----
+		// * ----- Parser -----
 		void		trim(std::string &buffer);
 		std::string	extractWord(std::string &buffer);
 
 	public:
-		//* Canonical Orthodox Form
+		// * ----- Canonical Orthodox Form -----
 		Commands();
 		Commands(Client *req_client, Server *srvptr);
 		Commands(Client *req_client, Server *srvptr, std::string &buff);
@@ -90,18 +91,18 @@ class Commands
 		std::string getCmd(void);
 		std::string	getCmdArg(unsigned long i);
 
-		//* Command Execution Setup
+		//* ----- Command Execution Setup -----
 		void	setAttributes( void );
 		bool	toRegister( std::string command );
 		void	executeCommand( void );
 
-		//* Complementary Functions
+		// * ----- Complementary Functions -----
 		void 		handleMultiple(std::string comm);
 		void		parseMode(void);
 		std::string	concArgs(int start);
 		void		capitalize(std::string &cmd);
 
-		//* Conditions Checkers
+		// * ----- Conditions Checkers (CommandsConditions.cpp) -----
 		void		checkPassword(char flag);
 		void		checkNickname(char flag);
 		void		checkLen(char flag);

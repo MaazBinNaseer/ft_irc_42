@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/10 22:10:33 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 19:26:51 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,15 @@ Client::Client()
 
 Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _hostname(hostname)
 {
+	_servername = "";
+	_username = "";
+	_nickname = "";
+	_realname = "";
 	_pass = false;
 	_registered = false;
+	_remove = false;
+	_reason = "";
+	_receiveBuffer = "";
 	_cap_order = false;
 	this->_caps = genDefaultCap();
 }
@@ -45,6 +52,9 @@ Client::Client( const Client &f )
 		this->_nickname = f._nickname;
 		this->_pass = f._pass;
 		this->_registered = f._registered;
+		this->_remove = f._remove;
+		this->_reason = f._reason;
+		this->_receiveBuffer = f._receiveBuffer;
 		this->_cap_order = f._cap_order;
 		this->_caps = f.getCaps();
 	}

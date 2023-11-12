@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 14:39:50 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 17:00:14 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ Channel::Channel(std::string n, Client &c) : name(n)
 	std::cout << YELLOW "Channel " << n << " created!" RESET "\n";
 }
 
-Channel::Channel( void ) : name("Default") // ! NEVER CALL DEFAULT
+Channel::Channel( void ) : name("Default")
 {
 	this->topic = "[Set a topic]";
 	this->password = "";

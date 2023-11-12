@@ -99,6 +99,7 @@ class Commands
 		void 		handleMultiple(std::string comm);
 		void		parseMode(void);
 		std::string	concArgs(int start);
+		void		capitalize(std::string &cmd);
 
 		//* Conditions Checkers
 		void		checkPassword(char flag);

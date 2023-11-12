@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/10 16:22:27 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/12 14:53:50 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 	if (cmd.empty())
 		return ;
 	this->_cmd = extractWord(cmd);
-	// std::transform(this->_cmd.begin(), this->_cmd.end(), this->_cmd.begin(), ::toupper);
+	capitalize(this->_cmd);
 	while (!cmd.empty())
 		this->_cmd_args.push_back(extractWord(cmd));
 	executeCommand();
@@ -233,4 +233,13 @@ std::string Commands::concArgs(int start)
 	if (!str.empty() && str[str.size() - 1] == ' ')
         str.erase(str.size() - 1, 1);
 	return (str);
+}
+
+void Commands::capitalize(std::string &cmd)
+{
+	for (unsigned long i = 0; i < cmd.size(); i++)
+	{
+		if (cmd[i] >= 'a' && cmd[i] <= 'z')
+			cmd[i] -= 32;	
+	}
 }

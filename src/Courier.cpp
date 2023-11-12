@@ -163,10 +163,10 @@ void welcomeMessage(Client &client, Server &server)
 {
 	std::string fdString = intToString(server.getFdSize() - 1);
 	serverMessage(RPL_WELCOME, "Welcome to the Network, you are known as " + TRIPLE_INFO(client.getNickname(), client.getUsername(), client.getHostname()), client);
-	serverMessage(RPL_YOURHOST, "Your host is " + client.getHostname(), client);
+	serverMessage(RPL_YOURHOST, "Your host is Chirp_Association, running version 1.0", client);
 	serverMessage(RPL_CREATED, "This server was created today", client);
-	serverMessage(RPL_MYINFO, client.getHostname(), client);
-	serverMessage(RPL_ISUPPORT, "SUPPORTED TOKENS", client);
+	serverMessage(RPL_MYINFO, client.getServername() + " Chirp_Association version 1.0 N/A itkol", client);
+	serverMessage(RPL_ISUPPORT, "SUPPORTED TOKENS:", client);
 	std::string	msg = "CHANLIMIT=#:" + intToString(CHANLIMIT) + " NICKLEN=" + intToString(NICKLEN) + " CHANNELEN=" + intToString(CHANNELEN);
 	msg += " USERLEN=" + intToString(USERLEN) + " KICKLEN=" + intToString(KICKLEN) + ": are supported by the server";
 	serverMessage(RPL_ISUPPORT, msg, client);

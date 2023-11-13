@@ -75,7 +75,7 @@ void Bot::factBot(Client *target)
             "The Moon Has Moonquakes: Similar to earthquakes on Earth, the moon experiences moonquakes that are caused by tidal stresses, meteorite impacts, and thermal expansion.",
             "Chickens Can Remember Over 100 Faces: Chickens have impressive memory and recognition skills, allowing them to remember and distinguish between over 100 different animals and humans."
     };
-        int factIndex = rand() % 10;
+        int factIndex = rand() % 15;
         target->sendmsg(YELLOW + info[factIndex] + "\n" + RESET);
 }
 
@@ -100,7 +100,7 @@ void Bot::BotIntroduction(Client *target_client)
 
     target_client->sendmsg(botArt);
     target_client->sendmsg(YELLOW "Welcome to the bot server\n" RESET);
-    target_client->sendmsg(GREEN "Please select the bot of you choicde.\n 1.Fact Bot\n 2.Trivia Bot\n" RESET);
+    target_client->sendmsg(GREEN "Please select the bot of you choicde.\n 1.Fact Bot\n 2.Trivia Bot (Update Required)\n" RESET);
 }
 
  std::string Bot::getCmdArg(unsigned long i)

@@ -492,7 +492,10 @@ void Commands::PRIVMSG(void)
 			if(botMessage == "1" || botMessage == "facts")
 				_serv->getBot().factBot(_req_client);
 			else if(botMessage == "2" || botMessage == "trivia")
+			{
 				_serv->getBot().triviaBot(_req_client);
+				std::cout << _serv->getBot().getCmdArg(1);
+			}
 		}
 		else
 			targetch->broadcast(*_req_client, concArgs(1));

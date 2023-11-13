@@ -56,10 +56,8 @@ void Bot::factBot(Client *target)
 {
     srand(static_cast<unsigned int>(time(NULL)));
 
-    target->sendmsg(YELLOW "I am the Fact Bot. My job is to give facts at every 30 seconds interval\n " RESET);
-    for(size_t i = 0; i < 10; ++i)
-        {
-            std::string info[] = {
+    target->sendmsg(GREEN "Here is a random fact\n" RESET);
+    std::string info[] = {
             "Fact 1: The heart of a shrimp is located in its head.",
             "Fact 2: A snail can sleep for three years.",
             "Fact 3: The fingerprints of a koala are virtually indistinguishable from those of humans.",
@@ -69,12 +67,16 @@ void Bot::factBot(Client *target)
             "Fact 7: An ostrich's eye is bigger than its brain.",
             "Fact 8: Most lipstick contains fish scales.",
             "Fact 9: Like fingerprints, everyone's tongue print is different.",
-            "Fact 10: An octopus has three hearts."
-        };
+            "Fact 10: An octopus has three hearts.",
+            "Studies have shown that cows become stressed when separated from their best friends, indicating complex emotional relationships.",
+            "A Group of Crows is Called a Murder: This term for a group of crows dates back to medieval times and is thought to derive from the ominous associations with crows and death.",
+            "Humans Share 50% of Their DNA with Bananas: This surprising genetic similarity is a testament to the common ancestry of all living organisms.",
+            "The World's Oldest Known “Your Mom” Joke is 3,500 Years Old: Discovered in a Babylonian tablet from 1500 B.C., it is believed to be the oldest surviving joke of its kind.",
+            "The Moon Has Moonquakes: Similar to earthquakes on Earth, the moon experiences moonquakes that are caused by tidal stresses, meteorite impacts, and thermal expansion.",
+            "Chickens Can Remember Over 100 Faces: Chickens have impressive memory and recognition skills, allowing them to remember and distinguish between over 100 different animals and humans."
+    };
         int factIndex = rand() % 10;
-        target->sendmsg(info[factIndex] + "\n");
-        sleep(20);
-    }
+        target->sendmsg(YELLOW + info[factIndex] + "\n" + RESET);
 }
 
 

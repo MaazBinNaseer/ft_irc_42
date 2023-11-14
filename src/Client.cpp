@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 15:32:10 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 19:05:26 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,9 @@ Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _hostname
 	_reason = "";
 	_receiveBuffer = "";
 	_cap_order = false;
+	_factindex = 0;
+	_triviaMode = false;
+	_triviaindex = 0;
 	this->_caps = genDefaultCap();
 }
 
@@ -56,6 +59,9 @@ Client::Client( const Client &f )
 		this->_reason = f._reason;
 		this->_receiveBuffer = f._receiveBuffer;
 		this->_cap_order = f._cap_order;
+		this->_factindex = f._factindex;
+		this->_triviaMode = f._triviaMode;
+		this->_triviaindex = f._triviaindex;
 		this->_caps = f.getCaps();
 	}
 }
@@ -74,6 +80,9 @@ Client & Client::operator=(Client const & rhs)
 		this->_reason = rhs._reason;
 		this->_receiveBuffer = rhs._receiveBuffer;
 		this->_cap_order = rhs._cap_order;
+		this->_factindex = rhs._factindex;
+		this->_triviaMode = rhs._triviaMode;
+		this->_triviaindex = rhs._triviaindex;
 		this->_caps = rhs.getCaps();
 	}
 	return (*this);
@@ -151,9 +160,29 @@ std::deque<std::string>	&Client::getSendBuffer(void)
 	return (this->_sendBuffer);
 }
 
-t_cap	Client::getCaps(void) const
+t_cap Client::getCaps(void) const
 {
 	return (this->_caps);
+}
+
+unsigned int Client::getFactIndex(void) const
+{
+	return (this->_factindex);
+}
+
+bool Client::getTriviaMode(void) const
+{
+	return (this->_triviaMode);
+}
+
+unsigned int Client::getTriviaIndex(void) const
+{
+	return (this->_triviaindex);
+}
+
+std::string Client::getTriviaAnswer(void) const
+{
+	return (this->_triviaAnswer);
 }
 
 // *----- Attribute setters -----
@@ -226,7 +255,33 @@ void Client::setCaps(unsigned long i, bool state)
 		this->_caps.inv_notif = state;
 }
 
-/*----- Other functions -----*/
+void Client::setFactIndex(unsigned int index)
+{
+	if (index <= 15)
+		this->_factindex = index;
+	else
+		this->_factindex = 0;
+}
+
+void Client::setTriviaMode(bool status)
+{
+	this->_triviaMode = status;
+}
+
+void Client::setTriviaIndex(unsigned int index)
+{
+	if (index <= 1)
+		this->_triviaindex = index;
+	else
+		this->_triviaindex = 0;
+}
+
+void Client::setTriviaAnswer(std::string answer)
+{
+	this->_triviaAnswer = answer;
+}
+
+// *----- Other functions -----
 
 void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 {

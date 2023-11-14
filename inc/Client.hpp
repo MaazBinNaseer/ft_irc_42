@@ -6,14 +6,13 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 15:31:59 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 19:04:29 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "ft_irc.hpp"
-#include <string>
 
 typedef struct s_cap
 {
@@ -38,6 +37,10 @@ class Client
 		std::string					_receiveBuffer;
 		std::deque<std::string> 	_sendBuffer;
 		t_cap						_caps;
+		unsigned int				_factindex;
+		bool						_triviaMode;
+		unsigned int				_triviaindex;
+		std::string					_triviaAnswer;
 
     public:
 		bool						_cap_order;
@@ -64,6 +67,10 @@ class Client
 		std::string					&getReceiveBuffer(void);
 		std::deque<std::string>		&getSendBuffer(void);
 		t_cap						getCaps(void) const ;
+		unsigned int				getFactIndex(void) const;
+		bool						getTriviaMode(void) const;
+		unsigned int				getTriviaIndex(void) const;
+		std::string					getTriviaAnswer(void) const;
 
 		// *------ Attribute setters ------
 		void						setSocketFd(int fd);
@@ -78,6 +85,10 @@ class Client
 		void						setReason(std::string reason);
 		void						pushSendBuffer(std::string string);
 		void						setCaps(unsigned long i, bool state);
+		void						setFactIndex(unsigned int index);
+		void						setTriviaMode(bool status);
+		void						setTriviaIndex(unsigned int index);
+		void						setTriviaAnswer(std::string answer);
 	
 		// *------ Other functions ------
 		void						appendExecBuffer(std::string newbuff, Server *_serv);

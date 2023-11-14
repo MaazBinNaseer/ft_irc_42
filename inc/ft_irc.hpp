@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 15:39:41 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 17:37:04 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,13 @@
 #define OPERPASS "heeheeMJ"
 
 class Channel;
+class Bot;
 class Client;
 class Commands;
 class Server;
 
 #include "Channel.hpp"
+#include "Bot.hpp"
 #include "Client.hpp"
 #include "Codes.hpp"
 #include "Commands.hpp"

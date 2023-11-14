@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 16:02:02 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 16:18:12 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,13 @@ class Channel {
 		bool					inviteonly;
 		bool					trestrict;
 		int						userlimit;
-
+		bool					isBotChannel;
+	
 	public:
 		// *----- Canonical Orthodox Form -----
 		Channel( void );
 		Channel(std::string n, Client &c);
+		Channel(std::string n, bool isBotchannel);
 		Channel( const Channel &f );
 		Channel &operator=( const Channel &f );
 		~Channel( void );

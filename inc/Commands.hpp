@@ -13,6 +13,7 @@
 	#define NOTPART		'n'
 	#define NOTPART2	'a'
 	#define OPERATORC	'o'
+#define _HASHTAG	'H'
 #define _LEN		'L'
 	#define NICKNAMEL	'n'
 	#define USERNAMEL	'u'
@@ -92,16 +93,16 @@ class Commands
 		std::string	getCmdArg(unsigned long i);
 
 		// *----- Command Execution Setup -----
-		void	setAttributes( void );
-		bool	toRegister( std::string command );
-		void	executeCommand( void );
+		void		setAttributes( void );
+		bool		toRegister(std::string command );
+		void		executeCommand( void );
 
 		// *----- Complementary Functions -----
 		void 		handleMultiple(std::string comm);
 		void		fill(std::string options, char flags[5], bool present[5]);
 		void		parseMode(void);
 		std::string	concArgs(int start);
-		void		capitalize(std::string &cmd);
+		std::string stripQuotes(const std::string& input);
 
 		// *----- Conditions Checkers (CommandsConditions.cpp) -----
 		void		checkPassword(char flag);

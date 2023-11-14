@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 15:58:33 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 17:41:55 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,18 @@ Channel::Channel(std::string n, Client &c) : name(n)
 	this->userlimit = -1;
 
 	std::cout << YELLOW "Channel " << n << " created!" RESET "\n";
+}
+
+Channel::Channel(std::string n, bool isBotchannel) :  name(n), isBotChannel(isBotchannel) 
+{
+	if(isBotChannel)
+	{
+		this->topic = "This is a bot channel, enter PRIVMSG #bot <number> to call a specific bot";
+		this->password = "";
+		this->inviteonly = false;
+		this->trestrict = false;
+		this->userlimit = 100;
+	}
 }
 
 Channel::Channel( const Channel &f ) : name(f.getName())

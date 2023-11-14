@@ -62,4 +62,5 @@ void serverMessage(std::string code, std::string message, Client &client);
 void welcomeMessage(Client &client, Server &server);
 
 // *----- Helper Function ---------
-std::string intToString(int value);
+std::string		intToString(int value);
+void			capitalize(std::string &cmd);

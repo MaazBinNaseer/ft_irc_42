@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 15:41:26 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 19:21:40 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 	if (cmd.empty())
 		return ;
 	this->_cmd = this->extractWord(cmd);
-	this->capitalize(this->_cmd);
+	capitalize(this->_cmd);
 	while (!cmd.empty())
 		this->_cmd_args.push_back(this->extractWord(cmd));
 	this->executeCommand();
@@ -235,11 +235,14 @@ std::string Commands::concArgs(int start)
 	return (str);
 }
 
-void Commands::capitalize(std::string &cmd)
+std::string Commands::stripQuotes(const std::string& input)
 {
-	for (unsigned long i = 0; i < cmd.size(); i++)
-	{
-		if (cmd[i] >= 'a' && cmd[i] <= 'z')
-			cmd[i] -= 32;	
-	}
+ 	std::string result;
+    // Start from the first character if it's not a quote, otherwise from the second
+    size_t start = input[0] == '"' ? 1 : 0;
+    // End at the last character if it's not a quote, otherwise one before the last
+    size_t end = input[input.size() - 1] == '"' ? input.size() - 1 : input.size();
+    // Assign the substring without the quotes
+    result.assign(input.begin() + start, input.begin() + end);
+    return result;
 }

@@ -171,6 +171,13 @@ void Commands::checkConditions(std::string flags)
 				checkChannel(flags[++i]);
 				break ;
 			}
+			case _HASHTAG:
+			{
+				unsigned long num = flags[++i] - '0';
+				if (getCmdArg(num).at(0) != '#')
+					throw CommandError("No Hashtagged Channel Name", ERR_BADCHANMASK, getCmdArg(num) + " does not contain a hashtag '#'", *_req_client);
+				break ;
+			}
 			case _LEN:
 			{
 				checkLen(flags[++i]);

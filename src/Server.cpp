@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 22:02:40 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 17:31:55 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Server::Server( void )
 	this->operpass = OPERPASS;
 	this->shutdown = false;
 	this->counter  = 3;
+	createBotChannel();
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
 }
 
@@ -133,6 +134,11 @@ std::map<std::string, Channel>	&Server::getChannels()
 	return (this->channels);
 }
 
+Bot& Server::getBot()
+{
+	return (botInstance);
+}
+
 bool	Server::isUser(Client &c)
 {
 	return (this->clients.find(c.getSocketFd()) != this->clients.end());
@@ -196,4 +202,13 @@ void	Server::removeChannel(std::string name)
 void	Server::decrementCounter()
 {
 	this->counter--;
+}
+
+void Server::createBotChannel()
+{
+	if(this->channels.find("#bot") == this->channels.end())
+	{
+		Channel bot = Channel("#bot", true);
+		this->channels.insert(std::pair<std::string, Channel>("#bot", bot));
+	}
 }

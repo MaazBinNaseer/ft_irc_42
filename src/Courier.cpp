@@ -146,7 +146,7 @@ void selfCommand(Client &acted, std::string cmd, std::string msg)
 	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
 	if (!cmd.empty())
 		message += S + cmd + S;
-	message += msg + "\r\n";
+	message += S + msg + "\r\n";
 	acted.pushSendBuffer(message);
 }
 
@@ -183,4 +183,13 @@ std::string intToString(int value)
     std::stringstream ss;
     ss << value;
     return ss.str();
+}
+
+void capitalize(std::string &cmd)
+{
+	for (unsigned long i = 0; i < cmd.size(); i++)
+	{
+		if (cmd[i] >= 'a' && cmd[i] <= 'z')
+			cmd[i] -= 32;	
+	}
 }

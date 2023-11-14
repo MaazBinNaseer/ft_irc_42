@@ -77,6 +77,7 @@
 //* ===== JOIN =====
 #define ERR_INVITEONLYCHAN		" 473 "
 #define ERR_BANNEDFROMCHAN		" 474 "
+#define ERR_BADCHANMASK			" 476 "
 //* ===== IRC Operator =====
 #define ERR_NOPRIVILEGES		" 481 "
 //* ===== Channel Operator =====

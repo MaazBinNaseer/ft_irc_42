@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 15:54:59 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 16:29:29 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Server
 		std::map<int, Client> 			clients;
 		std::map<int, Client *> 		operators;
 		std::map<std::string, Channel>	channels;
+		Bot								botInstance;
 
 	public:
 		// *----- Orthodox Canonical Form -----
@@ -48,6 +49,7 @@ class Server
 		Channel							*getChannel(std::string name);
 		std::map<std::string, Channel*>	getChannels(Client *c);
 		std::map<std::string, Channel>	&getChannels(void);
+		Bot								&getBot();
 		
 		// *----- Attribute Setters -----
 		bool	isUser(Client &c);
@@ -60,6 +62,7 @@ class Server
 		void	addChannel(std::string name, Client &c);
 		void	removeChannel(std::string name);
 		void	decrementCounter(void);
+		void	createBotChannel();
 
 
 		// *---- Server Functions (ServerFuncs.cpp) ----

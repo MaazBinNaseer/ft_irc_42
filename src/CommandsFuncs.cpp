@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 22:39:48 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 19:18:53 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,10 +132,14 @@ void Commands::JOIN(void)
 		checkConditions("P1");
 		handleMultiple("JOIN");
 	}
-	checkConditions("CiCpClNiLc");
+	checkConditions("H0CiCpClNiLc");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (targetch)
+	{
+		if (targetch->getName() == "#bot")
+			_serv->getBot().BotIntroduction(_req_client);
 		targetch->invite(NULL, *_req_client);
+	}
 	else
 	{
 		checkConditions("Nh");
@@ -152,9 +156,9 @@ void Commands::PART(void)
 		checkConditions("P1");
 		handleMultiple("PART");
 	}
-	checkConditions("CeCn");
+	checkConditions("H0CeCn");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (targetch->kick(NULL, *this->_req_client))
+	if (targetch->kick(NULL, *this->_req_client) && targetch->getName() != "#bot")
 		this->_serv->removeChannel(getCmdArg(0));
 }
 
@@ -165,7 +169,7 @@ void Commands::KICK(void)
 		checkConditions("P2");
 		handleMultiple("KICK");
 	}
-	checkConditions("CeCoNd");
+	checkConditions("H0CeCoNd");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(1));
 	if (targetch && targetcl && !targetch->exists(*targetcl))
@@ -181,11 +185,11 @@ void Commands::KICK(void)
 
 void Commands::INVITE(void)
 {
-	checkConditions("P2NfCxCa");
+	checkConditions("H1P2NfCxCa");
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	Channel *targetch = this->_serv->getChannel(getCmdArg(1));
 	if (!targetch && this->_serv->getClientNick(getCmdArg(1)))
-		_req_client->sendmsg(RED "Cannot invite User to another User!" RESET "\n");
+		customMessage(*_req_client, RED "Cannot invite User to another User!" RESET "\n");
 	else if (!targetch)
 		this->_serv->addChannel(getCmdArg(1), *targetcl);
 	else if (targetch && targetch->isInviteOnly() && !targetch->isOp(*_req_client))
@@ -196,7 +200,7 @@ void Commands::INVITE(void)
 
 void Commands::TOPIC(void)
 {
-	checkConditions("P1CeCn");
+	checkConditions("H0P1CeCn");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (getCmdArg(1) == "")
 		selfCommand(*_req_client, "TOPIC" , PURPLE "[" + getCmdArg(0) + "] " GREEN "TOPIC= " YELLOW + targetch->getTopic() + RESET);
@@ -230,7 +234,20 @@ void Commands::PRIVMSG(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (targetch && targetch->exists(*this->_req_client))
-		targetch->broadcast(*_req_client, "PRIVMSG", concArgs(1));
+	{
+		if(targetch->getName() == "#bot")
+		{
+				std::string botMessage = getCmdArg(1);
+				botMessage = stripQuotes(botMessage);
+				if(botMessage == "1")
+					_serv->getBot().factBot(_req_client);
+				else if(botMessage == "2")
+					_serv->getBot().triviaBot(_req_client, getCmdArg(2));
+		}
+		else
+			targetch->broadcast(*_req_client, "PRIVMSG", concArgs(1));
+		return ;
+	}
 	else if (targetch)
 		throw CommandError("Channel Incompatibility", ERR_CANNOTSENDTOCHAN, "Join channel '" + targetch->getName() + "' to send messages", *_req_client);
 	else if (targetcl)
@@ -245,7 +262,7 @@ void Commands::PRIVMSG(void)
 		}
 		return ;
 	}
-	checkConditions("NfCe");
+	checkConditions("H0");
 }
 
 void Commands::NOTICE(void)
@@ -263,7 +280,7 @@ void Commands::WHOIS(void)
 		checkConditions("P1");
 		handleMultiple("WHOIS");
 	}
-	checkConditions("Nf");
+	checkConditions("H0Nf");
 	std::map<std::string, Channel> &channels = this->_serv->getChannels();
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	// if (getCmdArg(0) == "")

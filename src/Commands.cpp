@@ -6,13 +6,13 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 22:26:44 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 15:41:26 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
 
-//* ====== Canonical Orthodox Form
+// *----- Constructors/Destructors -----
 
 Commands::Commands()
 {
@@ -103,7 +103,7 @@ std::string	Commands::extractWord(std::string &buffer)
 	return (ret);
 }
 
-//* ====== Command Execution Setup
+// *----- Command Execution Setup -----
 
 void	Commands::setAttributes()
 {
@@ -164,7 +164,7 @@ void	Commands::executeCommand()
 		serverMessage(ERR_UNKNOWNCOMMAND, RED + this->_cmd + " Unknown command" RESET, *_req_client);
 }
 
-//* ====== Complementary Functions
+// *----- Complementary Functions -----
 
 void Commands::handleMultiple(std::string comm)
 {
@@ -194,7 +194,7 @@ void Commands::handleMultiple(std::string comm)
 	return ;
 }
 
-void	fill(std::string options, char flags[5], bool present[5])
+void	Commands::fill(std::string options, char flags[5], bool present[5])
 {
 	for (unsigned long i = 1; i < options.size(); i++)
 		for (int j = 0; j < 5; j++)
@@ -208,7 +208,7 @@ void	Commands::parseMode(void)
 	std::string options = getCmdArg(1);
 	char	flags[6] = "itkol";
 	bool	present[5] = {false, false, false, false, false};
-	fill(options, flags, present);
+	this->fill(options, flags, present);
 
 	if (options == "")
 		selfCommand(*_req_client, "", RED "Input Channel's Mode!" RESET);

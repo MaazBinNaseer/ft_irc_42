@@ -6,11 +6,22 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 17:00:14 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 15:58:33 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+
+// *----- Canonical Orthodox Form -----
+
+Channel::Channel( void ) : name("Default")
+{
+	this->topic = "[Set a topic]";
+	this->password = "";
+	this->inviteonly = false;
+	this->trestrict = false;
+	this->userlimit = -1;
+}
 
 Channel::Channel(std::string n, Client &c) : name(n)
 {
@@ -23,15 +34,6 @@ Channel::Channel(std::string n, Client &c) : name(n)
 	this->userlimit = -1;
 
 	std::cout << YELLOW "Channel " << n << " created!" RESET "\n";
-}
-
-Channel::Channel( void ) : name("Default")
-{
-	this->topic = "[Set a topic]";
-	this->password = "";
-	this->inviteonly = false;
-	this->trestrict = false;
-	this->userlimit = -1;
 }
 
 Channel::Channel( const Channel &f ) : name(f.getName())
@@ -60,6 +62,8 @@ Channel::~Channel( void )
 {
 
 }
+
+// *----- Attribute Getters -----
 
 std::string	Channel::getName( void ) const
 {
@@ -101,13 +105,6 @@ int	Channel::getSize( void )
 	return (users.size());
 }
 
-void	Channel::setTopic(Client *c, std::string t)
-{
-	this->topic = t;
-	if (c)
-		broadcast(*c, "TOPIC", " *changed the topic*");
-}
-
 Client	*Channel::getClientNick(std::string nick)
 {
 	std::map<int, Client *>::iterator it;
@@ -116,3 +113,13 @@ Client	*Channel::getClientNick(std::string nick)
 			return (it->second);
 	return (NULL);
 }
+
+// *----- Attribute Setters -----
+
+void	Channel::setTopic(Client *c, std::string t)
+{
+	this->topic = t;
+	if (c)
+		broadcast(*c, "TOPIC", " *changed the topic*");
+}
+

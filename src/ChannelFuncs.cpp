@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/08 14:40:30 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 16:01:17 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,12 @@ void	Channel::invite(Client *c, Client &invitee)
 		std::string newmsg;
 		if (c)
 			newmsg = PURPLE "[" + getName() + "] " GREEN + c->getNickname() + ": " YELLOW + "*invited " + invitee.getNickname() + " to the channel*" + RESET;
-		else 
+		else
+		{
 			newmsg = PURPLE "[" + getName() + "] " GREEN + invitee.getNickname() + ": " YELLOW + "*joined the channel*" + RESET;
+			if (invitee.getCaps().ext_join)
+				newmsg += " :" + invitee.getRealname();
+		}
 	
 		selfCommand(invitee, "", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
@@ -190,5 +194,3 @@ void	Channel::print(void)
 		it->second->print(RED);
 	std::cout << CYAN "SIZE \"" << getSize() << "\"\n" RESET "\n";
 }
-
-// void	Channel::botfuncs();

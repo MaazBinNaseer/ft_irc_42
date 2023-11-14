@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ft_irc.hpp"
+#include <exception>
 
 #define TRIPLE_INFO(nick, user, host) (":" + nick + "!" + user + "@" + host)
 
@@ -20,6 +21,14 @@ class FailedFunction: public std::exception
 	FailedFunction(std::string function);
 	const char * what() const throw();
 	
+};
+
+class SignalTrigger: public std::exception
+{
+	private:
+
+	public:
+	const char * what() const throw();
 };
 
 class CommandError: public std::exception

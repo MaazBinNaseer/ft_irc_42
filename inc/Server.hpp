@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 22:02:27 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 15:54:59 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class Server
 		Server &operator=( const Server &f );
 		~Server( void );
 
-		// *----- Attribute getters -----
+		// *----- Attribute Getters -----
 		int								getFdSize(void);
 		int								getCounter(void);
 		bool							getShutdown(void);
@@ -49,7 +49,7 @@ class Server
 		std::map<std::string, Channel*>	getChannels(Client *c);
 		std::map<std::string, Channel>	&getChannels(void);
 		
-		// *----- Attribute setters -----
+		// *----- Attribute Setters -----
 		bool	isUser(Client &c);
 		bool	isOp(Client &c);
 		void	setShutDown(bool set);
@@ -62,7 +62,7 @@ class Server
 		void	decrementCounter(void);
 
 
-		// *---- ServerFuncs.cpp ----
+		// *---- Server Functions (ServerFuncs.cpp) ----
 		bool		countDown(void);
 		void		clientDisconnect(std::string reason, int cfd);
 		void		deliverToClient(Client &client);

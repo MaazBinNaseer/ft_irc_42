@@ -1,8 +1,8 @@
 #pragma once
 
-//* --------------------------
-//* ----- Reply Messages -----
-//* --------------------------
+//*--------------------------
+//*----- Reply Messages -----
+//*--------------------------
 //* ===== Registeration =====
 #define	RPL_WELCOME				" 001 "
 #define	RPL_YOURHOST			" 002 "
@@ -37,9 +37,9 @@
 //* ===== OPER =====
 #define	RPL_YOUREOPER			" 381 "
 
-//* --------------------------
-//* ----- Error Messages -----
-//* --------------------------
+//*--------------------------
+//*----- Error Messages -----
+//*--------------------------
 #define ERR_UNKNOWNERROR		" 400 "
 //* ===== NICK =====
 #define	ERR_NOSUCHNICK			" 401 "

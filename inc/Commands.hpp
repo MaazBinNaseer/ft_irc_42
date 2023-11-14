@@ -2,7 +2,7 @@
 
 #include "ft_irc.hpp"
 
-//* Condition Check Macros
+// *----- Condition Check Macros -----
 
 #define _CHANNEL	'C'
 	#define EXIST		'e'
@@ -17,7 +17,7 @@
 	#define NICKNAMEL	'n'
 	#define USERNAMEL	'u'
 	#define CHANNELL	'c'
-	#define _PARAM		'P'
+#define _PARAM		'P'
 #define _NICKNAME	'N'
 	#define NONICK		'n'
 	#define NOFOUND0	'f'
@@ -45,19 +45,19 @@ class Commands
 		bool _order;
 		bool _multiple;
 
-		// * ----- CommandsFuncs.cpp -----
-		// * ----- Authentication Commands -----
+		// *----- Commands' Functions (CommandsFuncs.cpp) -----
+		// *----- Authentication Commands -----
 		void	CAP(void);
 		void	PASS(void);
 		void	PING(void);
 
-		// * ----- User Assigning Commands -----
+		// *----- User Assigning Commands -----
 		void	NICK(void);
 		void	USER(void);
 		void	OPER(void);
 		void	QUIT(void);
 
-		// * ----- Channel Related Commands -----
+		// *----- Channel Related Commands -----
 		void	JOIN(void);
 		void	PART(void);
 		void	KICK(void);
@@ -65,44 +65,45 @@ class Commands
 		void	TOPIC(void);
 		void	MODE(void);
 
-		// * ----- Sending Messages -----
+		// *----- Sending Messages -----
 		void	PRIVMSG(void);
 		void	NOTICE(void);
 
-		//* ----- User Based Queries -----
+		// *----- User Based Queries -----
 		void	WHOIS(void);
 
-		//* ----- Operator Messages -----
+		// *----- Operator Messages -----
 		void	KILL(void);
 		void 	EXIT(void);
 
-		// * ----- Parser -----
+		// *----- Parser -----
 		void		trim(std::string &buffer);
 		std::string	extractWord(std::string &buffer);
 
 	public:
-		// * ----- Canonical Orthodox Form -----
+		// *----- Constructors/Destructors -----
 		Commands();
 		Commands(Client *req_client, Server *srvptr);
 		Commands(Client *req_client, Server *srvptr, std::string &buff);
 		~Commands();
 
-		// *----- Attribute getters and printers -----
+		// *----- Attribute Getters and Printers -----
 		std::string getCmd(void);
 		std::string	getCmdArg(unsigned long i);
 
-		//* ----- Command Execution Setup -----
+		// *----- Command Execution Setup -----
 		void	setAttributes( void );
 		bool	toRegister( std::string command );
 		void	executeCommand( void );
 
-		// * ----- Complementary Functions -----
+		// *----- Complementary Functions -----
 		void 		handleMultiple(std::string comm);
+		void		fill(std::string options, char flags[5], bool present[5]);
 		void		parseMode(void);
 		std::string	concArgs(int start);
 		void		capitalize(std::string &cmd);
 
-		// * ----- Conditions Checkers (CommandsConditions.cpp) -----
+		// *----- Conditions Checkers (CommandsConditions.cpp) -----
 		void		checkPassword(char flag);
 		void		checkNickname(char flag);
 		void		checkLen(char flag);

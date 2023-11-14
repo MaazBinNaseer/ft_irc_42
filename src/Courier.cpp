@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <exception>
 
 FailedFunction::FailedFunction(std::string function)
 {
@@ -11,6 +12,11 @@ FailedFunction::FailedFunction(std::string function)
 const char * FailedFunction::what() const throw()
 {
 	return ("Function Failure");
+}
+
+const char * SignalTrigger::what() const throw()
+{
+	return ("Signal");
 }
 
 CommandError::CommandError(const char *type, std::string code, std::string message, Client &client)

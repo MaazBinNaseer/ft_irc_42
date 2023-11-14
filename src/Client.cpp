@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 19:26:51 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 15:32:10 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,9 @@ Client & Client::operator=(Client const & rhs)
 		this->_nickname = rhs._nickname;
 		this->_pass = rhs._pass;
 		this->_registered = rhs._registered;
+		this->_remove = rhs._remove;
+		this->_reason = rhs._reason;
+		this->_receiveBuffer = rhs._receiveBuffer;
 		this->_cap_order = rhs._cap_order;
 		this->_caps = rhs.getCaps();
 	}
@@ -84,7 +87,7 @@ Client::~Client()
 	this->_caps = genDefaultCap();
 }
 
-/*----- Attribute getters -----*/
+// *----- Attribute getters -----
 
 int Client::getSocketFd() const
 {
@@ -153,7 +156,7 @@ t_cap	Client::getCaps(void) const
 	return (this->_caps);
 }
 
-/*----- Attribute setters -----*/
+// *----- Attribute setters -----
 
 void Client::setSocketFd(int fd)
 {

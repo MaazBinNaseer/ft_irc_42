@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 22:37:57 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/13 17:17:07 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,10 @@ int Server::HandleClients()
 			if (valread < 0)
 				throw FailedFunction("Recv");
 			else if (valread == 0)
+			{
+				clientListSelect->setRemove(true);
 				clientListSelect->setReason("Used signal to leave");
+			}
 			else
 				clientListSelect->appendExecBuffer(buffer, this);
 		}
@@ -99,7 +102,7 @@ int	Server::appendpollfd(int new_socket)
 int	Server::accept_connect( void )
 {
 	if (poll(this->clientfds.data(), this->clientfds.size(), 10) == -1)
-		throw std::exception();
+		throw SignalTrigger();
 
 	if (!(this->clientfds[0].revents & POLLIN))
 		return (0);
@@ -158,7 +161,7 @@ int	Server::bootup(char	*portstr, char *pass)
 	if (listen(this->sfd, 3))
 		throw FailedFunction("Listen");
 	
-
+	
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
 	while (true)
 	{

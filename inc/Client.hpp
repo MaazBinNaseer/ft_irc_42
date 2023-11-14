@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:29:30 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/12 19:26:54 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 15:31:59 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,11 @@ class Client
 
     public:
 		bool						_cap_order;
-		Client(unsigned int fd, std::string hostname);
 	
         // *----- Orthodox Canonical Form -----
+		t_cap getDefaultCap();
 		Client();
+		Client(unsigned int fd, std::string hostname);
 		Client( const Client &f );
 		Client & operator=(Client const & rhs);
         ~Client();
@@ -63,7 +64,6 @@ class Client
 		std::string					&getReceiveBuffer(void);
 		std::deque<std::string>		&getSendBuffer(void);
 		t_cap						getCaps(void) const ;
-		int							getClientSize(int fd);
 
 		// *------ Attribute setters ------
 		void						setSocketFd(int fd);

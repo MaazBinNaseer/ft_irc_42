@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 18:07:22 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/16 19:14:22 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,12 +281,6 @@ void Commands::WHOIS(void)
 	checkConditions("Nf");
 	std::map<std::string, Channel> &channels = this->_serv->getChannels();
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
-	// if (getCmdArg(0) == "")
-	// 	_req_client->sendmsg(RED "Enter NickName of Query!" RESET "\n");
-	// else if (!targetcl)
-	// 	_req_client->sendmsg(RED "User not Found!" RESET "\n");
-	// else
-	// {
 	selfCommand(*_req_client, "WHOIS", YELLOW "_____________________________________" RESET);
 	selfCommand(*_req_client, "WHOIS", GREEN "Username: " + targetcl->getUsername() + RESET);
 	selfCommand(*_req_client, "WHOIS", GREEN "Hostname: " + targetcl->getHostname() + RESET);
@@ -297,17 +291,6 @@ void Commands::WHOIS(void)
 		if (it->second.exists(*targetcl))
 			selfCommand(*_req_client, "WHOIS", PURPLE + it->first + RESET);
 	selfCommand(*_req_client, "WHOIS", YELLOW "_____________________________________" RESET);
-		// _req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
-		// _req_client->sendmsg(GREEN "Username: " + targetcl->getUsername() + RESET "\n");
-		// _req_client->sendmsg(GREEN "Hostname: " + targetcl->getHostname() + RESET "\n");
-		// _req_client->sendmsg(GREEN "Nickname: " + targetcl->getNickname() + RESET "\n");
-		// _req_client->sendmsg(GREEN "Realname: " + targetcl->getRealname() + RESET "\n");
-		// _req_client->sendmsg(CYAN "Channels: " RESET "\n");
-		// for (std::map<std::string, Channel>::iterator it=channels.begin(); it != channels.end(); it++)
-		// 	if (it->second.exists(*targetcl))
-		// 		_req_client->sendmsg(PURPLE + it->first + RESET "\n");
-		// _req_client->sendmsg(YELLOW "_____________________________________" RESET "\n");
-	// }
 }
 
 void Commands::KILL(void)
@@ -316,13 +299,11 @@ void Commands::KILL(void)
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (getCmdArg(1) != "")
 		targettedCommand(*_req_client, *targetcl, "KILL", PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET);
-		// targetcl->sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET + "\n");
 	targetcl->setRemove(true);
 	targetcl->setReason("Removed using KILL command");
 	std::map<int, Client> &clients = this->_serv->getClients();
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		selfCommand(it->second, "KILL", PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET);
-		// it->second.sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET "\n");
 }
 
 void Commands::EXIT(void)

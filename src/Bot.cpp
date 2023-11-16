@@ -3,21 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   Bot.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 16:15:11 by amalbrei          #+#    #+#             */
-/*   Updated: 2023/11/14 19:22:55 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:21:06 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
 
+Bot::Bot(void)
+{
 
-Bot:: Bot(void)
-{}
+}
 
 Bot::~Bot(void)
-{}
+{
+
+}
 
 void Bot::intializeTrivia(unsigned int index)
 {

@@ -13,34 +13,28 @@
 class FailedFunction: public std::exception
 {
 	private:
-	
-	const char *	_msg;
+		const char *	_msg;
 	
 	public:
-	
-	FailedFunction(std::string function);
-	const char * what() const throw();
+		FailedFunction(std::string function);
+		const char * what() const throw();
 	
 };
 
 class SignalTrigger: public std::exception
 {
-	private:
-
 	public:
-	const char * what() const throw();
+		const char * what() const throw();
 };
 
 class CommandError: public std::exception
 {
 	private:
-
-	const char * type_of_error;
+		const char * type_of_error;
 
 	public:
-
-	CommandError(const char *type, std::string code, std::string message, Client &client);
-	const char * what() const throw();
+		CommandError(const char *type, std::string code, std::string message, Client &client);
+		const char * what() const throw();
 };
 
 // *----- Log Commands -----

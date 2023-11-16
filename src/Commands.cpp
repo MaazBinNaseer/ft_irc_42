@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 15:13:11 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:13:19 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,32 +136,28 @@ bool	Commands::toRegister(std::string command)
 	return (true);
 }
 
-
 void	Commands::executeCommand()
 {
 	std::map<std::string, actions>::iterator select;
 
 	select = this->_selection.find(this->_cmd);
-	if (select != this->_selection.end())
-	{
-		if (toRegister(this->_cmd))
-		{
-			try
-			{
-				(this->*select->second)();
-			}
-			catch(std::exception &e)
-			{
-				std::string error(e.what());
-				serverLog(*_req_client, "", error + " Error Caught\n");
-				std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
-			}
-		}
-		else
-			serverMessage(ERR_NOTREGISTERED, RED "Need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>" RESET, *_req_client);
-	}
-	else
+	if (select == this->_selection.end())
 		serverMessage(ERR_UNKNOWNCOMMAND, RED + this->_cmd + " Unknown command" RESET, *_req_client);
+	else if (!toRegister(this->_cmd))
+		serverMessage(ERR_NOTREGISTERED, RED "Need to register first using PASS <password>, NICK <nickname> then USER <username> <hostname> <servername> <realname>" RESET, *_req_client);
+	else
+	{
+		try
+		{
+			(this->*select->second)();
+		}
+		catch(std::exception &e)
+		{
+			std::string error(e.what());
+			serverLog(*_req_client, "", error + " Error Caught\n");
+			std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+		}
+	}
 }
 
 // *----- Complementary Functions -----
@@ -212,13 +208,10 @@ void	Commands::parseMode(void)
 
 	if (options == "")
 		selfCommand(*_req_client, "", RED "Input Channel's Mode!" RESET);
-		// this->_req_client->sendmsg(RED "Input Channel's Mode!" RESET "\n");
 	else if (options[0] != '-' && options[0] != '+')
 		selfCommand(*_req_client, "", RED "Specify direction of mode! (+ or -)" RESET);
-		// this->_req_client->sendmsg(RED "Specify direction of mode! (+ or -)" RESET "\n");
 	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
 		selfCommand(*_req_client, "", RED "Cannot Use Modes - k,o,l - Together!" RESET);
-		// this->_req_client->sendmsg(RED "Cannot Use Modes - k,o,l - Together!" RESET "\n");
 	else
 		for (int i = 0; i < 5; i++)
 			if (present[i])

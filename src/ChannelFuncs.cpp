@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFuncs.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 15:48:12 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:20:18 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void	Channel::broadcast(Client &c, std::string cmd, std::string msg)
 	for (it = users.begin(); it != users.end(); it++)
 		if (c.getSocketFd() != it->second->getSocketFd() || c.getCaps().echo_msg)
 			broadcastallCommand(*it->second, c, cmd, newmsg);
-			// it->second->sendmsg(newmsg);
 }
 
 void	Channel::broadcastOps(Client *c, std::string msg)
@@ -44,7 +43,6 @@ void	Channel::broadcastOps(Client *c, std::string msg)
 	std::map<int, Client *>::iterator it;
 	for (it = ops.begin(); it != ops.end(); it++)
 		selfCommand(*it->second, "", newmsg);
-		// it->second->sendmsg(newmsg);
 }
 
 int	Channel::kick(Client *c, Client &kickee)
@@ -59,7 +57,6 @@ int	Channel::kick(Client *c, Client &kickee)
 	else
 		broadcast(kickee, "KICK/PART", "*left the channel*");
 	selfCommand(kickee, "KICK/PART", PURPLE "You are no longer part of channel '" + getName() + "'!" RESET);
-	// kickee.sendmsg(PURPLE "You are no longer part of channel '" + getName() + "'!" RESET "\n");
 	serverLog(kickee, this->getName(), "Has left the target channel");
 	if (this->ops.size() == 0 && getSize() != 0)
 		handleO(c, true, this->users.begin()->second->getNickname());
@@ -72,10 +69,8 @@ void	Channel::invite(Client *c, Client &invitee)
 		return ;
 	if (c && userlimit >= 0 && userlimit <= (int) users.size())
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Invite!", *c);
-		// c->sendmsg(RED "Cannot invite '" + invitee.getNickname() + "' to a Full Channel!" RESET "\n");
 	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
-		// invitee.sendmsg(RED "Channel is Full! Cannot Join!" RESET "\n");
 	else
 	{
 		this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
@@ -95,7 +90,6 @@ void	Channel::invite(Client *c, Client &invitee)
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
 			if (it->second->getCaps().inv_notif)
 				broadcastallCommand(*it->second, invitee, "JOIN/INVITE", newmsg);
-				// it->second->sendmsg(newmsg);
 	}
 }
 
@@ -105,10 +99,8 @@ void	Channel::handleO(Client *c, bool sign, std::string parameter)
 
 	if (parameter == "")
 		selfCommand(*c, "", RED "Input User to Edit Channel Operator Privilege!" RESET);
-		// c->sendmsg(RED "Input User to Edit Channel Operator Privilege!" RESET "\n");
 	else if (!potop)
 		selfCommand(*c, "", RED "User does not exist in this Channel!" RESET);
-		// c->sendmsg(RED "User does not exist in this Channel!" RESET "\n");
 	else
 	{
 		if (sign == true && !isOp(*potop))
@@ -130,20 +122,17 @@ void	Channel::handleL(Client *c, bool sign, std::string parameter)
 		this->userlimit = -1;
 	else if (parameter == "")
 		selfCommand(*c, "", RED "Input User Limit!" RESET);
-		// c->sendmsg(RED "Input User Limit!" RESET "\n");
 	else
 	{
 		try {
-			int	limit = atoi(parameter.c_str()); // TODO CHECK IF STRING VALID FIRST
+			int	limit = atoi(parameter.c_str());
 			if (limit < (int) this->users.size())
 				selfCommand(*c, "", RED "Channel Size is Greater than Suggested Limited!" RESET);
-				// c->sendmsg(RED "Channel Size is Greater than Suggested Limited!" RESET "\n");
 			else
 				this->userlimit = limit;
 		} catch(std::exception &e) {
 			(void) e;
 			selfCommand(*c, "", RED "Send an Appropriate Number!" RESET);
-			// c->sendmsg(RED "Send an Appropriate Number!" RESET "\n");
 		}
 	}
 }

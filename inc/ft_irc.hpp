@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 17:37:04 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:16:08 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,15 @@
 #include <sstream>
 #include <fstream>
 #include <cstring>
+#include <iomanip>
+#include <csignal>
 #include <string>
 #include <vector>
 #include <deque>
 #include <map>
-#include <iomanip>
-#include <csignal>
 
 #include <sys/socket.h>
+#include <sys/signal.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>

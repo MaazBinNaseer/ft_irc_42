@@ -6,22 +6,11 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 17:49:29 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/16 19:16:39 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
-#include <sys/signal.h>
-
-void signalHandler(int signum)
-{
-	if (signum == SIGINT)
-	{}
-	if (signum == SIGTSTP)
-	{}
-	if (signum == SIGQUIT)
-	{}
-}
 
 int main(int argc, char *argv[])
 {
@@ -31,9 +20,6 @@ int main(int argc, char *argv[])
 	try
 	{
 		Server	irc;
-		signal(SIGINT, signalHandler);
-		signal(SIGTSTP, signalHandler);
-		signal(SIGQUIT, signalHandler);
 		return (irc.bootup(argv[1], argv[2]));
 	}
 	catch(std::exception &e)

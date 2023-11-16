@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <exception>
 
 FailedFunction::FailedFunction(std::string function)
 {

@@ -6,7 +6,6 @@ SRCS = main.cpp Server.cpp ServerFuncs.cpp \
 		Commands.cpp CommandsFuncs.cpp CommandsConditions.cpp\
 		Client.cpp Courier.cpp Bot.cpp\
 		
-
 OBJDIR = obj
 OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
 

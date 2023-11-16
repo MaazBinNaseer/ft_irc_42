@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 19:05:26 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:26:31 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,23 +47,22 @@ Client::Client(unsigned int fd, std::string hostname): _socket_fd(fd), _hostname
 
 Client::Client( const Client &f )
 {
-	if (this != &f)
-	{
-		this->_socket_fd = f._socket_fd;
-		this->_username = f._username;
-		this->_hostname = f._hostname;
-		this->_nickname = f._nickname;
-		this->_pass = f._pass;
-		this->_registered = f._registered;
-		this->_remove = f._remove;
-		this->_reason = f._reason;
-		this->_receiveBuffer = f._receiveBuffer;
-		this->_cap_order = f._cap_order;
-		this->_factindex = f._factindex;
-		this->_triviaMode = f._triviaMode;
-		this->_triviaindex = f._triviaindex;
-		this->_caps = f.getCaps();
-	}
+	if (this == &f)
+		return ;
+	this->_socket_fd = f._socket_fd;
+	this->_username = f._username;
+	this->_hostname = f._hostname;
+	this->_nickname = f._nickname;
+	this->_pass = f._pass;
+	this->_registered = f._registered;
+	this->_remove = f._remove;
+	this->_reason = f._reason;
+	this->_receiveBuffer = f._receiveBuffer;
+	this->_cap_order = f._cap_order;
+	this->_factindex = f._factindex;
+	this->_triviaMode = f._triviaMode;
+	this->_triviaindex = f._triviaindex;
+	this->_caps = f.getCaps();
 }
 
 Client & Client::operator=(Client const & rhs)
@@ -270,10 +269,7 @@ void Client::setTriviaMode(bool status)
 
 void Client::setTriviaIndex(unsigned int index)
 {
-	if (index <= 1)
-		this->_triviaindex = index;
-	else
-		this->_triviaindex = 0;
+	this->_triviaindex = (index <= 1) ? (index) : (0);
 }
 
 void Client::setTriviaAnswer(std::string answer)
@@ -293,7 +289,6 @@ void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 
 void	Client::sendmsg(std::string msg)
 {
-	// * you can send time if client has server_time activated.
 	if (send(getSocketFd(), msg.data(), msg.size(), 0) == -1)
 		throw FailedFunction("Send");
 }

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 17:31:55 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/15 17:12:04 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,6 +196,7 @@ void	Server::addChannel(std::string name, Client &c)
 
 void	Server::removeChannel(std::string name)
 {
+	std::cout << YELLOW "Channel " + name + " removed!\n" + RESET; 
 	this->channels.erase(name);
 }
 

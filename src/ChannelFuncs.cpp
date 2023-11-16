@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 16:01:17 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 15:48:12 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ bool Channel::isOp(Client c)
 
 void	Channel::broadcast(Client &c, std::string cmd, std::string msg)
 {
-	std::string newmsg = PURPLE "[" + getName() + "] " GREEN + c.getNickname() + ": " YELLOW + msg + RESET;
+	std::string newmsg =  this->getName() + " " GREEN + msg + RESET;
 
 	std::map<int, Client *>::iterator it;
 	for (it = users.begin(); it != users.end(); it++)

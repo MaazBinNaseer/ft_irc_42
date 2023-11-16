@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 16:10:01 by amalbrei          #+#    #+#             */
-/*   Updated: 2023/11/14 19:02:25 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/14 20:14:46 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Bot
     public:
         Bot(void);
         ~Bot(void);
+
         void BotIntroduction(Client *target);
         std::string getCmdArg(unsigned long i);
         void factBot(Client *target);

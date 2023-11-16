@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/13 17:17:07 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 15:12:01 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	Server::deliverToClient(Client &client)
 	{
 		deliver = messages.front();
 		messages.pop_front();
-		// std::cout << "SENDING: " << deliver << std::endl;
+		std::cout << "SENDING: " << deliver << std::endl;
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))

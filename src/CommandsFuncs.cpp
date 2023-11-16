@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 19:18:53 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:14:44 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,15 @@ void Commands::PASS(void)
 void Commands::PING(void)
 {
 	checkConditions("P1");
-	// clock_t startTime = clock();
+	clock_t startTime = clock();
 	customMessage(*_req_client, "PONG :" + getCmdArg(0));
 	// _req_client->sendmsg(GREEN "PONG " + getCmdArg(0) + ": " RESET);
-	// clock_t endTime = clock();
-	// double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
-	// std::ostringstream message;
-	// message << std::fixed << std::setprecision(6);
-    // message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
+	clock_t endTime = clock();
+	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
+	std::ostringstream message;
+	message << std::fixed << std::setprecision(6);
+    message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
+	customMessage(*_req_client, message.str());
     // selfCommand(*_req_client, "PING", GREEN + message.str() + RESET);
 	// _req_client->sendmsg(GREEN + message.str() + RESET);
 }
@@ -256,9 +257,9 @@ void Commands::PRIVMSG(void)
 			targettedCommand(*_req_client, *targetcl, "PRIVMSG", concArgs(1));
 		else
 		{
-			targettedCommand(*_req_client, *targetcl, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
+			targettedCommand(*_req_client, *targetcl, "PRIVMSG", GREEN + _req_client->getNickname() + ":" YELLOW + concArgs(1) + RESET);
 			if (!this->_multiple && this->_req_client->getCaps().echo_msg)
-				selfCommand(*_req_client, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + " :" YELLOW + concArgs(1) + RESET);
+				selfCommand(*_req_client, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + ":" YELLOW + concArgs(1) + RESET);
 		}
 		return ;
 	}
@@ -280,7 +281,7 @@ void Commands::WHOIS(void)
 		checkConditions("P1");
 		handleMultiple("WHOIS");
 	}
-	checkConditions("H0Nf");
+	checkConditions("Nf");
 	std::map<std::string, Channel> &channels = this->_serv->getChannels();
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	// if (getCmdArg(0) == "")
@@ -319,7 +320,8 @@ void Commands::KILL(void)
 	if (getCmdArg(1) != "")
 		targettedCommand(*_req_client, *targetcl, "KILL", PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET);
 		// targetcl->sendmsg(PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW + "has kicked you because: " CYAN + concArgs(1) + RESET + "\n");
-	this->_serv->removeUser(targetcl->getSocketFd());
+	targetcl->setRemove(true);
+	targetcl->setReason("Removed using KILL command");
 	std::map<int, Client> &clients = this->_serv->getClients();
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		selfCommand(it->second, "KILL", PURPLE "["+ this->_req_client->getNickname() + "] " YELLOW "has removed " RED + getCmdArg(0) + "!" RESET);

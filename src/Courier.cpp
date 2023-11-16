@@ -129,7 +129,7 @@ void serverLog(Client &acted, std::string target, std::string note)
 
 void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg)
 {
-	std::string message = ":" + TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());
+	std::string message = TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());
 	message += S + cmd + S;
 	message += msg + "\r\n";
 	recipient.pushSendBuffer(message);

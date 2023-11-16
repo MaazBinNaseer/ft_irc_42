@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 15:12:01 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:49:43 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,12 @@ int	Server::assign(char *portstr, char *pass)
 	return (0);
 }
 
+void	signalhandler(int signal)
+{
+	if (signal)
+		std::cout << "\r";
+}
+
 int	Server::bootup(char	*portstr, char *pass)
 {
 	if (assign(portstr, pass))
@@ -161,14 +167,12 @@ int	Server::bootup(char	*portstr, char *pass)
 	if (listen(this->sfd, 3))
 		throw FailedFunction("Listen");
 	
-	
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";
+	signal(SIGINT,  signalhandler);
+	signal(SIGQUIT, signalhandler);
+	signal(SIGTSTP, signalhandler);
 	while (true)
-	{
-		if (accept_connect() == -1 || HandleClients() == -1)
-			return (1);
-		if (getShutdown() && countDown())
-				break ;
-	}
+		if (accept_connect() == -1 || HandleClients() == -1 || (getShutdown() && countDown()))
+			return (1 - getShutdown());
 	return (0);
 }

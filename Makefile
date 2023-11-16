@@ -21,7 +21,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	c++ -Wall -Wextra -Werror -g3 -std=c++98 -c $< -o $@
 
 $(NAME): $(OBJS)
-	c++ -Wall -Wextra -Werror -std=c++98  -fsanitize=address $(OBJS) -o $(NAME)
+	c++ -Wall -Wextra -Werror -std=c++98 $(OBJS) -o $(NAME)
 	printf "\x1B[32m$(NAME) ready\x1B[0m\n";
 
 clean:
@@ -39,5 +39,8 @@ gpush:
 
 irssi:
 	docker run -it --rm --name irssi --network host irssi
+
+val:
+	valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 4242 a
 
 re: fclean all

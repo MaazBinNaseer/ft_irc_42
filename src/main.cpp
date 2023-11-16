@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/13 17:16:18 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:49:29 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	{
 		std::string exit = e.what();
 		if (exit == "Signal")
-			return (std::cout << RED "Exiting due to a signal" RESET << std::endl, 0);
+			return (std::cout << CYAN "Signal Terminated! Goodbye!" RESET "\n", 0);
 		return (std::cerr << RED "Server stopped due to: " << e.what() << RESET << std::endl, 1);
 	}
 }

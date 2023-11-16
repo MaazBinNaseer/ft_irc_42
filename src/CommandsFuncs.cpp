@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 17:14:44 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/16 18:07:22 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,12 @@ void Commands::PING(void)
 	checkConditions("P1");
 	clock_t startTime = clock();
 	customMessage(*_req_client, "PONG :" + getCmdArg(0));
-	// _req_client->sendmsg(GREEN "PONG " + getCmdArg(0) + ": " RESET);
 	clock_t endTime = clock();
-	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC;
+	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC * 1000000;
 	std::ostringstream message;
 	message << std::fixed << std::setprecision(6);
-    message << "Time taken to process PING and send PONG: " << elapsedTime << " seconds\r\n";
+    message << "Time taken to process PING and send PONG: " << elapsedTime << " microseconds";
 	customMessage(*_req_client, message.str());
-    // selfCommand(*_req_client, "PING", GREEN + message.str() + RESET);
-	// _req_client->sendmsg(GREEN + message.str() + RESET);
 }
 
 //* ====== User Assigning Commands

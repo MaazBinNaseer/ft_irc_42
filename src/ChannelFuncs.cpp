@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFuncs.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 19:20:18 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/17 18:13:44 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	Channel::kick(Client *c, Client &kickee)
 	return (getSize() == 0);
 }
 
-void	Channel::invite(Client *c, Client &invitee)
+void	Channel::invite(Client *c, Client &invitee, std::string command)
 {
 	if (exists(invitee))
 		return ;
@@ -78,18 +78,18 @@ void	Channel::invite(Client *c, Client &invitee)
 		
 		std::string newmsg;
 		if (c)
-			newmsg = PURPLE "[" + getName() + "] " GREEN + c->getNickname() + ": " YELLOW + "*invited " + invitee.getNickname() + " to the channel*" + RESET;
+			newmsg = getName() + " :" YELLOW + "*invited " + invitee.getNickname() + " to the channel*" + RESET;
 		else
 		{
-			newmsg = PURPLE "[" + getName() + "] " GREEN + invitee.getNickname() + ": " YELLOW + "*joined the channel*" + RESET;
+			newmsg = getName() + " :" YELLOW + "*joined the channel*" + RESET;
 			if (invitee.getCaps().ext_join)
 				newmsg += " :" + invitee.getRealname();
 		}
 	
-		selfCommand(invitee, "", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
+		messageCommand(invitee, this->getName(), "TOPIC", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
 			if (it->second->getCaps().inv_notif)
-				broadcastallCommand(*it->second, invitee, "JOIN/INVITE", newmsg);
+				broadcastallCommand(*it->second, invitee, command, newmsg);
 	}
 }
 

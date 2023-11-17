@@ -51,6 +51,7 @@ void serverLog(Client &acted, std::string target, std::string note);
 void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg);
 void customMessage(Client &recipient, std::string message);
 void selfCommand(Client &acted, std::string cmd, std::string msg);
+void messageCommand(Client &acted, std::string target, std::string cmd, std::string msg);
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg);
 void serverMessage(std::string code, std::string message, Client &client);
 void welcomeMessage(Client &client, Server &server);

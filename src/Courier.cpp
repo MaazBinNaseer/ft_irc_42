@@ -129,8 +129,8 @@ void serverLog(Client &acted, std::string target, std::string note)
 void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg)
 {
 	std::string message = TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());
-	message += S + cmd + S;
-	message += msg + "\r\n";
+	message += S + cmd;
+	message += S + msg + "\r\n";
 	recipient.pushSendBuffer(message);
 }
 
@@ -144,7 +144,21 @@ void selfCommand(Client &acted, std::string cmd, std::string msg)
 {
 	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
 	if (!cmd.empty())
-		message += S + cmd + S;
+		message += S + cmd;
+	if (msg.at(0) != ':')
+		msg = ":" + msg;
+	message += S + msg + "\r\n";
+	acted.pushSendBuffer(message);
+}
+
+void messageCommand(Client &acted, std::string target, std::string cmd, std::string msg)
+{
+	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
+	if (!cmd.empty())
+		message += S + cmd;
+	message += S + target;
+	if (msg.at(0) != ':')
+		msg = ":" + msg;
 	message += S + msg + "\r\n";
 	acted.pushSendBuffer(message);
 }
@@ -152,8 +166,10 @@ void selfCommand(Client &acted, std::string cmd, std::string msg)
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg)
 {
 	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
-	message += S + cmd + S + target.getNickname() + S;
-	message += msg + "\r\n";
+	message += S + cmd + S + target.getNickname();
+	if (msg.at(0) != ':')
+		msg = ":" + msg;
+	message += S + msg + "\r\n";
 	target.pushSendBuffer(message);
 }
 

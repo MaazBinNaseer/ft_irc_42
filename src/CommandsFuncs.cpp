@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 19:14:22 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/17 18:28:26 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void Commands::PING(void)
 	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC * 1000000;
 	std::ostringstream message;
 	message << std::fixed << std::setprecision(6);
-    message << "Time taken to process PING and send PONG: " << elapsedTime << " microseconds";
+    message << GREEN "Time taken to process PING and send PONG: " << elapsedTime << " microseconds" RESET;
 	customMessage(*_req_client, message.str());
 }
 
@@ -73,9 +73,9 @@ void Commands::PING(void)
 void Commands::NICK(void)
 {
 	checkConditions("WrP1LnNiNh");
-	this->_req_client->setNickname(getCmdArg(0));
 	if (_req_client->getReceiveBuffer().empty())
-		selfCommand(*_req_client, "NICK", GREEN "Nickname set!" RESET);
+		selfCommand(*_req_client, "NICK " + getCmdArg(0), GREEN "Nickname set!" RESET);
+	this->_req_client->setNickname(getCmdArg(0));
 }
 
 void Commands::USER(void)
@@ -136,12 +136,12 @@ void Commands::JOIN(void)
 	{
 		if (targetch->getName() == "#bot")
 			_serv->getBot().BotIntroduction(_req_client);
-		targetch->invite(NULL, *_req_client);
+		targetch->invite(NULL, *_req_client, "JOIN");
 	}
 	else
 	{
 		checkConditions("Nh");
-		selfCommand(*_req_client, "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
+		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
@@ -193,7 +193,7 @@ void Commands::INVITE(void)
 	else if (targetch && targetch->isInviteOnly() && !targetch->isOp(*_req_client))
 		selfCommand(*_req_client, "INVITE", "Only Channel Operators can invite to channel '" + getCmdArg(1) + "'!");
 	else
-		targetch->invite(this->_req_client, *targetcl);
+		targetch->invite(this->_req_client, *targetcl, "INVITE");
 }
 
 void Commands::TOPIC(void)

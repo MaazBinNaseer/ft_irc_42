@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 19:27:40 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/17 18:10:35 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,6 @@ void	Channel::setTopic(Client *c, std::string t)
 {
 	this->topic = t;
 	if (c)
-		broadcast(*c, "TOPIC", " *changed the topic*");
+		broadcast(*c, "TOPIC", t);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:46:17 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 19:16:39 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 15:32:56 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	{
 		std::string exit = e.what();
 		if (exit == "Signal")
-			return (std::cout << CYAN "Signal Terminated! Goodbye!" RESET "\n", 0);
+			return (std::cout << "\r" CYAN "Signal Terminated! Goodbye!" RESET "\n", 0);
 		return (std::cerr << RED "Server stopped due to: " << e.what() << RESET << std::endl, 1);
 	}
 }

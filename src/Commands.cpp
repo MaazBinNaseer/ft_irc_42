@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 14:22:41 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:09:12 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 	std::string cmd = buff.substr(0, pos + 1);
 	buff = buff.substr(pos + 1);
 	this->trim(cmd);
-	std::cout << PURPLE << cmd << RESET << "\n";
+	if (DEBUG == 1 || DEBUG == 3)
+		std::cout << PURPLE << cmd << RESET << "\n";
 	if (cmd.empty())
 		return ;
 	this->_cmd = this->extractWord(cmd);

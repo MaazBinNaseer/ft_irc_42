@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_irc.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/17 21:05:29 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 15:07:18 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,12 @@
 
 #define MINPORT 1024
 #define MAXPORT 65535
+
+#define DEBUG 0
+// 0 - SUBMISSION STATE
+// 1 - DISPLAY INPUTS ONLY
+// 2 - DISPLAY OUTPUTS ONLY
+// 3 - DISPLAY ALL
 
 #define BUFFER_SIZE 2048
 

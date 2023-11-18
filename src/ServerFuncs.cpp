@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 17:49:43 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 15:41:50 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@ void	Server::deliverToClient(Client &client)
 	{
 		deliver = messages.front();
 		messages.pop_front();
-		std::cout << "SENDING: " << deliver << std::endl;
+		if (DEBUG == 2 || DEBUG == 3)
+			std::cout << YELLOW "SENDING: " RESET << deliver << "\n";
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))
@@ -156,7 +157,7 @@ int	Server::assign(char *portstr, char *pass)
 void	signalhandler(int signal)
 {
 	if (signal)
-		std::cout << "\r";
+		std::cout << "\r" YELLOW "Clients Must Leave!   \b\b" RESET << std::flush;
 }
 
 int	Server::bootup(char	*portstr, char *pass)

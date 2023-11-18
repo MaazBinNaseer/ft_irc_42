@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFuncs.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 18:49:12 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 19:25:10 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,6 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
 	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
 	serverLog(invitee, this->getName(), "Has been added to the target channel");
-	messageCommand(invitee, this->getName(), "JOIN", "");
 	
 	std::string newmsg;
 	if (c)

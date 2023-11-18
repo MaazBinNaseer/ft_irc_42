@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 19:01:28 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 19:29:00 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,6 @@ void Commands::JOIN(void)
 		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 		selfCommand(*_req_client, "PRIVMSG " + getCmdArg(0), YELLOW "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET);
-		// serverMessage(RPL_NOTOPIC, GREEN "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET, *_req_client);
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }

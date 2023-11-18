@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Bot.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 16:15:11 by amalbrei          #+#    #+#             */
-/*   Updated: 2023/11/16 19:21:06 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 19:10:20 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,18 @@ void Bot::triviaBot(Client *target, std::string answer)
 {
 	if (!target->getTriviaMode())
 	{
-		customMessage(*target, GREEN "Welcome to triviia Bot\n" RESET);
+		selfCommand(*target, "PRIVMSG #bot ", GREEN "Welcome to Trivia Bot\n" RESET);
     	intializeTrivia(target->getTriviaIndex());
 		target->setTriviaIndex(target->getTriviaIndex() + 1);
-		customMessage(*target, "Trivia Time! Answer the following question:\n");
-		customMessage(*target, this->_triviaQuestion.front());
+		selfCommand(*target, "PRIVMSG #bot ", YELLOW "Trivia Time! Answer the following question:" RESET);
+		selfCommand(*target, "PRIVMSG #bot ", YELLOW + this->_triviaQuestion.front() + RESET);
 		this->_triviaQuestion.clear();
 		for (std::vector<std::string>::iterator it = this->_triviaOptions.begin(); it != this->_triviaOptions.end(); it++)
-			customMessage(*target, *it);
+			selfCommand(*target, "PRIVMSG #bot ", YELLOW + *it + RESET);
 		this->_triviaOptions.clear();
 		target->setTriviaAnswer(this->_triviaAnswer.front());
 		this->_triviaAnswer.clear();
-		customMessage(*target, "\nPlease respond with the correct letter" GREEN " (e.g: PRIVMSG #bot 2 <answer(as a letter)>)" RESET);
+		selfCommand(*target, "PRIVMSG #bot ", YELLOW "Please respond with the correct letter" GREEN " (e.g: PRIVMSG #bot 2 <answer(as a letter)>)" RESET);
 		target->setTriviaMode(true);
 	}
 	else if (target->getTriviaMode())
@@ -72,19 +72,19 @@ void Bot::triviaBot(Client *target, std::string answer)
 		if (answer.size() == 1)
 		{
 			if (answer == target->getTriviaAnswer())
-				customMessage(*target, GREEN "CORRECT Answer! Well done (y)" RESET);
+				selfCommand(*target, "PRIVMSG #bot ", GREEN "CORRECT Answer! Well done (y)" RESET);
 			else
-				customMessage(*target, BLUE "Wrong Answer.... Better luck next time :)" RESET);
+				selfCommand(*target, "PRIVMSG #bot ", CYAN "Wrong Answer.... Better luck next time :)" RESET);
 			target->setTriviaMode(false);
 		}
 		else
-			customMessage(*target, RED "Answer sent in wrong format, only type in a single letter!" RESET);
+			selfCommand(*target, "PRIVMSG #bot ", RED "Answer sent in wrong format, only type in a single letter!" RESET);
 	}
 }
 
 void Bot::factBot(Client *target)
 {
-	customMessage(*target, GREEN "Here is a random fact\n" RESET);
+	selfCommand(*target, "PRIVMSG #bot ", GREEN "Here is a random fact" RESET);
 	std::string info[] = {
     "The heart of a shrimp is located in its head.",
     "A snail can sleep for three years.",
@@ -103,7 +103,7 @@ void Bot::factBot(Client *target)
     "The Moon Has Moonquakes: Similar to earthquakes on Earth, the moon experiences moonquakes that are caused by tidal stresses, meteorite impacts, and thermal expansion.",
     "Chickens Can Remember Over 100 Faces: Chickens have impressive memory and recognition skills, allowing them to remember and distinguish between over 100 different animals and humans."
     };
-	customMessage(*target, YELLOW + info[target->getFactIndex()] + "\n" + RESET);
+	selfCommand(*target, "PRIVMSG #bot ", YELLOW + info[target->getFactIndex()] + RESET);
 	target->setFactIndex(target->getFactIndex() + 1);
 }
 
@@ -126,7 +126,13 @@ void Bot::BotIntroduction(Client *target_client)
     "   _<\\/>_       _<\\/>_ \n"
     "  /_====_\\     /_====_\\\n";
 
-    customMessage(*target_client, botArt);
-    customMessage(*target_client, YELLOW "Welcome to the bot server" RESET);
-    customMessage(*target_client, GREEN "Please select the bot of you choice.\n 1.Fact Bot\n 2.Trivia Bot" RESET);
+	while (!botArt.empty())
+	{
+		selfCommand(*target_client, "PRIVMSG #bot ", botArt.substr(0, botArt.find('\n')));
+		botArt.erase(0, botArt.find('\n') + 1);
+	}
+    selfCommand(*target_client, "PRIVMSG #bot ", YELLOW "Welcome to the bot server" RESET);
+    selfCommand(*target_client, "PRIVMSG #bot ", GREEN "Please select the bot of you choice" RESET);
+    selfCommand(*target_client, "PRIVMSG #bot ", GREEN "1.Fact Bot" RESET);
+    selfCommand(*target_client, "PRIVMSG #bot ", GREEN "2.Trivia Bot" RESET);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFuncs.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 14:33:40 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 18:49:12 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,26 +71,26 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Invite!", *c);
 	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
+	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
+	serverLog(invitee, this->getName(), "Has been added to the target channel");
+	messageCommand(invitee, this->getName(), "JOIN", "");
+	
+	std::string newmsg;
+	if (c)
+	{
+		newmsg = YELLOW "*invited " + invitee.getNickname() + " to the channel*" + RESET;
+	}
 	else
 	{
-		this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
-		serverLog(invitee, this->getName(), "Has been added to the target channel");
-		
-		std::string newmsg;
-		if (c)
-			newmsg = YELLOW "*invited " + invitee.getNickname() + " to the channel*" + RESET;
-		else
-		{
-			newmsg = YELLOW "*joined the channel*" RESET;
-			if (invitee.getCaps().ext_join)
-				newmsg += " :" + invitee.getRealname();
-		}
-	
-		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
-			if (it->second->getCaps().inv_notif)
-				broadcastallCommand(*it->second, invitee, command + S + getName(), newmsg);
-		messageCommand(invitee, this->getName(), "PRIVMSG", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
+		newmsg = YELLOW "*joined the channel*" RESET;
+		if (invitee.getCaps().ext_join)
+			newmsg += " :" + invitee.getRealname();
 	}
+
+	for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
+		if (it->second->getCaps().inv_notif)
+			broadcastallCommand(*it->second, invitee, command + S + getName(), newmsg);
+	messageCommand(invitee, this->getName(), "PRIVMSG", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 }
 
 void	Channel::handleO(Client *c, bool sign, std::string parameter)
@@ -144,8 +144,8 @@ void	Channel::mode(Client *c, bool sign, char mode, std::string parameter)
 		this->inviteonly = sign;
 		std::string mes = "channel is";
 		if (!sign)
-			mes + " no longer ";
-		mes + "invite-only";
+			mes += " no longer ";
+		mes += "invite-only";
 		broadcastOps(c, mes);
 	}
 	else if (mode == 't')
@@ -153,8 +153,8 @@ void	Channel::mode(Client *c, bool sign, char mode, std::string parameter)
 		this->trestrict = sign;
 		std::string mes = "channel is";
 		if (!sign)
-			mes + " no longer ";
-		mes + "topic-restricted";
+			mes += " no longer ";
+		mes += "topic-restricted";
 		broadcastOps(c, mes);
 	}
 	else if (mode == 'k' && !sign)

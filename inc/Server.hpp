@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/14 16:29:29 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 17:44:56 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,5 @@ class Server
 		int			assign(char *portstr, char *pass);
 		int			bootup(char *portstr, char *pass);
 
+		void	print();
 };

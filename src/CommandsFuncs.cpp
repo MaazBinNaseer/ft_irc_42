@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 14:37:23 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 17:44:49 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,7 +245,7 @@ void Commands::PRIVMSG(void)
 					_serv->getBot().triviaBot(_req_client, getCmdArg(2));
 		}
 		else
-			targetch->broadcast(*_req_client, "PRIVMSG", concArgs(1));
+			targetch->broadcast(*_req_client, "PRIVMSG", YELLOW + concArgs(1) + RESET);
 		return ;
 	}
 	else if (targetch)
@@ -256,9 +256,9 @@ void Commands::PRIVMSG(void)
 			targettedCommand(*_req_client, *targetcl, "PRIVMSG", concArgs(1));
 		else
 		{
-			targettedCommand(*_req_client, *targetcl, "PRIVMSG", GREEN + _req_client->getNickname() + ":" YELLOW + concArgs(1) + RESET);
+			targettedCommand(*_req_client, *targetcl, "PRIVMSG", YELLOW + concArgs(1) + RESET);
 			if (!this->_multiple && this->_req_client->getCaps().echo_msg)
-				selfCommand(*_req_client, "PRIVMSG", PURPLE "[PRIV] " GREEN + _req_client->getNickname() + ":" YELLOW + concArgs(1) + RESET);
+				selfCommand(*_req_client, "PRIVMSG " + targetcl->getNickname(), PURPLE + concArgs(1) + RESET);
 		}
 		return ;
 	}
@@ -275,6 +275,8 @@ void Commands::NOTICE(void)
 
 void Commands::WHOIS(void)
 {
+	this->_serv->print();
+
 	if (!this->_multiple)
 	{
 		checkConditions("P1");

@@ -6,12 +6,11 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 15:41:50 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 17:47:05 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
-#include <sys/poll.h>
 
 bool Server::countDown()
 {
@@ -176,4 +175,18 @@ int	Server::bootup(char	*portstr, char *pass)
 		if (accept_connect() == -1 || HandleClients() == -1 || (getShutdown() && countDown()))
 			return (1 - getShutdown());
 	return (0);
+}
+
+void	Server::print()
+{
+	std::cout << "Printing std::vector<pollfd>:\n";
+    for (std::vector<pollfd>::const_iterator it = clientfds.begin(); it != clientfds.end(); ++it)
+	{
+        const pollfd& item = *it;
+        std::cout << "fd: " << item.fd << ", events: " << item.events << ", revents: " << item.revents << "\n";
+    }
+
+    std::cout << "Printing std::map<int, Client>:\n";
+    for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it) 
+		it->second.print(CYAN);
 }

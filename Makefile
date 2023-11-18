@@ -38,7 +38,14 @@ gpush:
 
 irssi:
 	docker run -it --rm --name irssi --network host irssi
-	# /connect host.docker.internal 4242 a
+
+irssi2:
+	docker run -it --rm --name irssi2 --network host irssi
+
+irssi3:
+	docker run -it --rm --name irssi3 --network host irssi
+
+# /connect host.docker.internal 4242 a
 
 val:
 	valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 4242 a

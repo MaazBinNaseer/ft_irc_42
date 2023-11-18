@@ -1,0 +1,5 @@
+INVITE needs to pull up new window
+- fix code sent to be in the right format
+- use JOIN to trigger window
+
+MODE needs to send updates on channel window

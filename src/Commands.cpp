@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 19:13:19 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 13:45:25 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ std::string	Commands::extractWord(std::string &buffer)
 		buffer.erase(pos, 1);
 	std::string ret = buffer.substr(0, pos);
 	buffer.erase(0, pos);
+	if (_req_client->getRegistered() && ret.at(0) == ':')
+		ret.erase(0, 1);
 	return (ret);
 }
 
@@ -156,6 +158,11 @@ void	Commands::executeCommand()
 			std::string error(e.what());
 			serverLog(*_req_client, "", error + " Error Caught\n");
 			std::cout << RED << e.what() << " Error Caught" << RESET << std::endl;
+			if (!_req_client->getRegistered())
+			{
+				_req_client->setRemove(true);
+				_req_client->setReason("Failure On Registeration");
+			}
 		}
 	}
 }

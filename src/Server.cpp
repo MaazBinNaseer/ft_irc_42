@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/15 17:12:04 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:26:42 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void	Server::removeUser(int cfd)
 		return ;
 	for (std::map<std::string, Channel>::iterator it = this->channels.begin(); it != this->channels.end(); it++)
 		if (it->second.exists(*getClient(cfd)))
-			it->second.kick(NULL, *getClient(cfd));
+			it->second.kick(NULL, *getClient(cfd), "");
 	for (size_t i = 0; i < this->clientfds.size(); i++)
 		if (this->clientfds[i].fd == cfd)
 			this->clientfds.erase(this->clientfds.begin() + i--);

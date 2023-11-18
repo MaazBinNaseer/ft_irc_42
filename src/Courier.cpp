@@ -130,6 +130,8 @@ void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std
 {
 	std::string message = TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());
 	message += S + cmd;
+	if (msg.at(0) != ':')
+		msg = ":" + msg;
 	message += S + msg + "\r\n";
 	recipient.pushSendBuffer(message);
 }

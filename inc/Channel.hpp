@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/17 18:01:53 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:23:42 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Channel {
 		void	broadcast(Client &c, std::string cmd, std::string msg);
 		void	broadcastOps(Client *c, std::string msg);
 		
-		int		kick(Client *c, Client &kickee); // if last client removed delete this channel
+		int		kick(Client *c, Client &kickee, std::string command); // if last client removed delete this channel
 		void	invite(Client *c, Client &invitee, std::string command);
 
 		void	handleO(Client *c, bool sign, std::string parameter);

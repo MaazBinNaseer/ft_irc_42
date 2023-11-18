@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 19:01:40 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/17 18:10:35 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/17 18:56:01 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 
 Channel::Channel( void ) : name("Default")
 {
-	this->topic = "[Set a topic]";
+	this->topic = "";
 	this->password = "";
 	this->inviteonly = false;
 	this->trestrict = false;
@@ -25,7 +25,7 @@ Channel::Channel( void ) : name("Default")
 
 Channel::Channel(std::string n, Client &c) : name(n)
 {
-	this->topic = "[Topic not set]";
+	this->topic = "";
 	this->password = "";
 	this->users.insert(std::pair<int, Client *>(c.getSocketFd(), &c));
 	this->ops.insert(std::pair<int, Client *>(c.getSocketFd(), &c));

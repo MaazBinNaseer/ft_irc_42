@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/17 18:13:44 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:24:10 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	Channel::broadcastOps(Client *c, std::string msg)
 		selfCommand(*it->second, "", newmsg);
 }
 
-int	Channel::kick(Client *c, Client &kickee)
+int	Channel::kick(Client *c, Client &kickee, std::string command)
 {
 	if (!exists(kickee))
 		return (0);
@@ -53,10 +53,10 @@ int	Channel::kick(Client *c, Client &kickee)
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
 	if (c && c->getSocketFd() != kickee.getSocketFd())
-		broadcast(*c, "KICK/PART", "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
+		broadcast(*c, command, "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
 	else
-		broadcast(kickee, "KICK/PART", "*left the channel*");
-	selfCommand(kickee, "KICK/PART", PURPLE "You are no longer part of channel '" + getName() + "'!" RESET);
+		broadcast(kickee, command, "*left the channel*");
+	selfCommand(kickee, command, PURPLE "You are no longer part of channel '" + getName() + "'!" RESET);
 	serverLog(kickee, this->getName(), "Has left the target channel");
 	if (this->ops.size() == 0 && getSize() != 0)
 		handleO(c, true, this->users.begin()->second->getNickname());
@@ -86,10 +86,10 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 				newmsg += " :" + invitee.getRealname();
 		}
 	
-		messageCommand(invitee, this->getName(), "TOPIC", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
 			if (it->second->getCaps().inv_notif)
 				broadcastallCommand(*it->second, invitee, command, newmsg);
+		messageCommand(invitee, this->getName(), "PRIVMSG", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 	}
 }
 

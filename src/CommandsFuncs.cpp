@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/17 18:28:26 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 13:24:59 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,7 @@ void Commands::PING(void)
 void Commands::NICK(void)
 {
 	checkConditions("WrP1LnNiNh");
-	if (_req_client->getReceiveBuffer().empty())
-		selfCommand(*_req_client, "NICK " + getCmdArg(0), GREEN "Nickname set!" RESET);
+	selfCommand(*_req_client, "NICK " + getCmdArg(0), GREEN "Nickname set!" RESET);
 	this->_req_client->setNickname(getCmdArg(0));
 }
 
@@ -108,7 +107,7 @@ void Commands::OPER(void)
 	serverMessage(RPL_YOUREOPER, GREEN "You are now an IRC operator" RESET, *targetcl);
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
 		if (it->second.getSocketFd() != targetcl->getSocketFd())
-			broadcastallCommand(it->second, *targetcl, this->_cmd, ":" GREEN "is now an IRC operator!" RESET);
+			broadcastallCommand(it->second, *targetcl, this->_cmd, ":" GREEN + targetcl->getNickname() + " is now an IRC operator!" RESET);
 }
 
 void Commands::QUIT(void)
@@ -143,6 +142,7 @@ void Commands::JOIN(void)
 		checkConditions("Nh");
 		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
+		serverMessage(RPL_NOTOPIC, GREEN "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET, *_req_client);
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
@@ -156,8 +156,13 @@ void Commands::PART(void)
 	}
 	checkConditions("H0CeCn");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (targetch->kick(NULL, *this->_req_client) && targetch->getName() != "#bot")
+	if (targetch->kick(NULL, *this->_req_client, "PART") && targetch->getName() != "#bot")
 		this->_serv->removeChannel(getCmdArg(0));
+	selfCommand(*_req_client, "PART " + getCmdArg(0), GREEN "You have left: " + getCmdArg(0) + RESET);
+	std::map<int, Client> &clients = this->_serv->getClients();
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		if (it->second.getSocketFd() != _req_client->getSocketFd())
+			broadcastallCommand(it->second, *_req_client, this->_cmd, ":" GREEN + _req_client->getNickname() + " has left the channel" RESET);
 }
 
 void Commands::KICK(void)
@@ -177,7 +182,7 @@ void Commands::KICK(void)
 		if (getCmdArg(2) != "" && concArgs(2).size() <= KICKLEN)
 			selfCommand(*targetcl, "KICK", "You are being kicked because " + concArgs(2));
 		serverLog(*_req_client, targetcl->getNickname(), "Has kicked the target user");
-		targetch->kick(this->_req_client, *targetcl);
+		targetch->kick(this->_req_client, *targetcl, "KICK");
 	}
 }
 
@@ -207,7 +212,7 @@ void Commands::TOPIC(void)
 	else
 	{
 		targetch->setTopic(this->_req_client, concArgs(1));
-		selfCommand(*_req_client, "TOPIC", GREEN "You have set the topic: " + concArgs(1) + RESET);
+		selfCommand(*_req_client, "TOPIC " + targetch->getName(), GREEN + concArgs(1) + RESET);
 	}
 }
 

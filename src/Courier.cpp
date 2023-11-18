@@ -79,7 +79,7 @@ void logSend(std::deque<std::string> messages, int fd)
 	log << ">>>SENDING>>> (to " << fd << "): \n";
 	while(!messages.empty())
 	{
-		log << messages.front() << " ";
+		log << messages.front() << S;
 		messages.pop_front();
 	}
 	log << std::endl;

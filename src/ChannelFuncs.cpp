@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 13:24:10 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 14:33:40 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ bool Channel::isOp(Client c)
 
 void	Channel::broadcast(Client &c, std::string cmd, std::string msg)
 {
-	std::string newmsg =  this->getName() + " " GREEN + msg + RESET;
+	std::string newmsg = msg;
 
 	std::map<int, Client *>::iterator it;
 	for (it = users.begin(); it != users.end(); it++)
 		if (c.getSocketFd() != it->second->getSocketFd() || c.getCaps().echo_msg)
-			broadcastallCommand(*it->second, c, cmd, newmsg);
+			broadcastallCommand(*it->second, c, cmd + S + this->getName(), newmsg);
 }
 
 void	Channel::broadcastOps(Client *c, std::string msg)
@@ -55,12 +55,12 @@ int	Channel::kick(Client *c, Client &kickee, std::string command)
 	if (c && c->getSocketFd() != kickee.getSocketFd())
 		broadcast(*c, command, "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
 	else
-		broadcast(kickee, command, "*left the channel*");
-	selfCommand(kickee, command, PURPLE "You are no longer part of channel '" + getName() + "'!" RESET);
+		broadcast(kickee, command, PURPLE "*Using PART*" RESET);
+	selfCommand(kickee, command + S + this->getName(), PURPLE "You are no longer part of channel '" + getName() + "'!" RESET);
 	serverLog(kickee, this->getName(), "Has left the target channel");
 	if (this->ops.size() == 0 && getSize() != 0)
 		handleO(c, true, this->users.begin()->second->getNickname());
-	return (getSize() == 0);
+	return (this->getSize() == 0);
 }
 
 void	Channel::invite(Client *c, Client &invitee, std::string command)
@@ -78,17 +78,17 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 		
 		std::string newmsg;
 		if (c)
-			newmsg = getName() + " :" YELLOW + "*invited " + invitee.getNickname() + " to the channel*" + RESET;
+			newmsg = YELLOW "*invited " + invitee.getNickname() + " to the channel*" + RESET;
 		else
 		{
-			newmsg = getName() + " :" YELLOW + "*joined the channel*" + RESET;
+			newmsg = YELLOW "*joined the channel*" RESET;
 			if (invitee.getCaps().ext_join)
 				newmsg += " :" + invitee.getRealname();
 		}
 	
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
 			if (it->second->getCaps().inv_notif)
-				broadcastallCommand(*it->second, invitee, command, newmsg);
+				broadcastallCommand(*it->second, invitee, command + S + getName(), newmsg);
 		messageCommand(invitee, this->getName(), "PRIVMSG", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 	}
 }

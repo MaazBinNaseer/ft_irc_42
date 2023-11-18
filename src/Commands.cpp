@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 13:45:25 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 14:22:41 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,7 +229,7 @@ std::string Commands::concArgs(int start)
 {
 	std::string str = "";
 	for (std::vector<std::string>::iterator it = _cmd_args.begin() + start; it != _cmd_args.end(); it++)
-		str += *(it) + " ";
+		str += *(it) + S;
 	if (!str.empty() && str[str.size() - 1] == ' ')
         str.erase(str.size() - 1, 1);
 	return (str);

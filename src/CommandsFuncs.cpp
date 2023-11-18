@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 13:24:59 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/18 14:37:23 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,8 @@ void Commands::JOIN(void)
 		checkConditions("Nh");
 		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
-		serverMessage(RPL_NOTOPIC, GREEN "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET, *_req_client);
+		selfCommand(*_req_client, "PRIVMSG " + getCmdArg(0), YELLOW "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET);
+		// serverMessage(RPL_NOTOPIC, GREEN "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET, *_req_client);
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
@@ -158,11 +159,7 @@ void Commands::PART(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (targetch->kick(NULL, *this->_req_client, "PART") && targetch->getName() != "#bot")
 		this->_serv->removeChannel(getCmdArg(0));
-	selfCommand(*_req_client, "PART " + getCmdArg(0), GREEN "You have left: " + getCmdArg(0) + RESET);
-	std::map<int, Client> &clients = this->_serv->getClients();
-	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
-		if (it->second.getSocketFd() != _req_client->getSocketFd())
-			broadcastallCommand(it->second, *_req_client, this->_cmd, ":" GREEN + _req_client->getNickname() + " has left the channel" RESET);
+	selfCommand(*_req_client, "PART " + getCmdArg(0), PURPLE "*Using PART*" RESET);
 }
 
 void Commands::KICK(void)

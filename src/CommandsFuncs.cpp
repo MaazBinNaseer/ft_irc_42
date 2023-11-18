@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 17:44:49 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/18 19:01:28 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,7 +275,8 @@ void Commands::NOTICE(void)
 
 void Commands::WHOIS(void)
 {
-	this->_serv->print();
+	if (DEBUG == 3)
+		this->_serv->print();
 
 	if (!this->_multiple)
 	{

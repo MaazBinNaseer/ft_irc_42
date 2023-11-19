@@ -111,6 +111,12 @@ bool	Channel::hasTopicRestrictions( void ) const
 	return (this->trestrict);
 }
 
+bool Channel::isEmpty() const
+{
+	return this->users.empty();
+
+}
+
 int	Channel::getSize( void )
 {
 	return (users.size());

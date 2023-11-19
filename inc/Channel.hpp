@@ -42,6 +42,7 @@ class Channel {
 		std::map<int, Client *> getUsers( void ) const ;
 		std::map<int, Client *> getOps( void ) const ;
 		bool					isInviteOnly( void ) const ;
+		bool					isEmpty() const;
 		bool					hasTopicRestrictions( void ) const;
 		int						getSize( void );
 		Client					*getClientNick(std::string nick);

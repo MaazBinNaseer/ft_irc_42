@@ -118,6 +118,35 @@ void Commands::QUIT(void)
 		selfCommand(*_req_client, this->_cmd, concArgs(0));
 	_req_client->setRemove(true);
 	_req_client->setReason(concArgs(0));
+	
+    // Adjusting to the actual return type of getChannels()
+    std::map<std::string, Channel> channels = _serv->getChannels();
+
+    // Iterate over all channels.
+    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); )
+    {
+        Channel &channel = it->second;
+		
+        // Use NULL instead of nullptr for compatibility with C++98.
+        if (channel.kick(NULL, *_req_client, "QUIT"))
+        {
+            // Check if the channel is now empty and remove it if necessary.
+            if (channel.isEmpty())
+            {
+                _serv->removeChannel(it->first); // Remove the channel using its name.
+                channels.erase(it++); // Increment iterator safely.
+            }
+            else
+            {
+                ++it; // Just advance the iterator.
+            }
+        }
+        else
+        {
+            ++it; // Just advance the iterator.
+        }
+    }
+	selfCommand(*_req_client, "QUIT " + concArgs(0), PURPLE "*Using QUIT*" RESET);
 }
 
 //* ====== Channe Related Commands

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFuncs.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 19:25:10 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/19 19:32:30 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,24 @@ void	Channel::broadcastOps(Client *c, std::string msg)
 		selfCommand(*it->second, "", newmsg);
 }
 
+// void selfCommand(Client &acted, std::string cmd, std::string msg)
+// {
+// 	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
+// 	if (!cmd.empty())
+// 		message += S + cmd;
+// 	if (msg.at(0) != ':')
+// 		msg = ":" + msg;
+// 	message += S + msg + "\r\n";
+// 	acted.pushSendBuffer(message);
+// }
+
 int	Channel::kick(Client *c, Client &kickee, std::string command)
 {
 	if (!exists(kickee))
 		return (0);
+	// if (c)
+	// 	selfCommand(kickee, "PART " + this->getName(), "");
+	// TODO IMPLEMENT PSEUDO PART HERE
 	this->users.erase(kickee.getSocketFd());
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
@@ -56,7 +70,7 @@ int	Channel::kick(Client *c, Client &kickee, std::string command)
 		broadcast(*c, command, "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
 	else
 		broadcast(kickee, command, PURPLE "*Using PART*" RESET);
-	selfCommand(kickee, command + S + this->getName(), PURPLE "You are no longer part of channel '" + getName() + "'!" RESET);
+	selfCommand(kickee, command + S + this->getName(), PURPLE + kickee.getNickname() + RESET);
 	serverLog(kickee, this->getName(), "Has left the target channel");
 	if (this->ops.size() == 0 && getSize() != 0)
 		handleO(c, true, this->users.begin()->second->getNickname());
@@ -72,6 +86,11 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
 	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
+	
+	// TODO IMPLEMENT PSEUDO JOIN HERE
+	// if (c)
+	// 	selfCommand(invitee, "JOIN " + this->getName(), "pull up window");
+	
 	serverLog(invitee, this->getName(), "Has been added to the target channel");
 	
 	std::string newmsg;

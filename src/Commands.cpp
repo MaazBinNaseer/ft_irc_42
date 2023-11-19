@@ -6,7 +6,7 @@
 /*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 15:09:12 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/19 19:36:46 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,6 +214,7 @@ void	Commands::parseMode(void)
 	bool	present[5] = {false, false, false, false, false};
 	this->fill(options, flags, present);
 
+	// TODO IMPLEMENT PSEUDO PRIVMSG SO MODE GETS SENT TO CHANNEL WINDOW
 	if (options == "")
 		selfCommand(*_req_client, "", RED "Input Channel's Mode!" RESET);
 	else if (options[0] != '-' && options[0] != '+')

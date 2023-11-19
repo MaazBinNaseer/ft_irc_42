@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 19:29:00 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/19 19:01:48 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ void Commands::CAP(void)
 {
 	std::string command1 = getCmdArg(0);
 	if (command1 == "LS")
-    {
+	{
 		std::string message = "CAP * LS :echo-message extended-join invite-notify\r\n";
-        this->_req_client->_cap_order = true;
-        this->_req_client->pushSendBuffer(message);
-    }
-    if(this->_req_client->_cap_order && command1 == "REQ")
+		this->_req_client->_cap_order = true;
+		this->_req_client->pushSendBuffer(message);
+	}
+	if(this->_req_client->_cap_order && command1 == "REQ")
 	{
 		std::string strCaps[3] = {"echo-message", "extended-join", "invite-notify"};
 		std::string message = "CAP * ACK :";
@@ -42,7 +42,7 @@ void Commands::CAP(void)
 			}
 		}
 		message += "\r\n";
-        this->_req_client->pushSendBuffer(message);
+		this->_req_client->pushSendBuffer(message);
 	}
 
 }
@@ -64,7 +64,7 @@ void Commands::PING(void)
 	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC * 1000000;
 	std::ostringstream message;
 	message << std::fixed << std::setprecision(6);
-    message << GREEN "Time taken to process PING and send PONG: " << elapsedTime << " microseconds" RESET;
+	message << GREEN "Time taken to process PING and send PONG: " << elapsedTime << " microseconds" RESET;
 	customMessage(*_req_client, message.str());
 }
 
@@ -119,33 +119,21 @@ void Commands::QUIT(void)
 	_req_client->setRemove(true);
 	_req_client->setReason(concArgs(0));
 	
-    // Adjusting to the actual return type of getChannels()
-    std::map<std::string, Channel> channels = _serv->getChannels();
+	// Adjusting to the actual return type of getChannels()
+	std::map<std::string, Channel> channels = _serv->getChannels();
 
-    // Iterate over all channels.
-    for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); )
-    {
-        Channel &channel = it->second;
+	// Iterate over all channels.
+	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
+	{
+		Channel &channel = it->second;
 		
-        // Use NULL instead of nullptr for compatibility with C++98.
-        if (channel.kick(NULL, *_req_client, "QUIT"))
-        {
-            // Check if the channel is now empty and remove it if necessary.
-            if (channel.isEmpty())
-            {
-                _serv->removeChannel(it->first); // Remove the channel using its name.
-                channels.erase(it++); // Increment iterator safely.
-            }
-            else
-            {
-                ++it; // Just advance the iterator.
-            }
-        }
-        else
-        {
-            ++it; // Just advance the iterator.
-        }
-    }
+		// Use NULL instead of nullptr for compatibility with C++98.
+		if (channel.kick(NULL, *_req_client, "QUIT") && channel.isEmpty())
+		{
+			_serv->removeChannel(it->first); // Remove the channel using its name.
+			channels.erase(it);
+		}
+	}
 	selfCommand(*_req_client, "QUIT " + concArgs(0), PURPLE "*Using QUIT*" RESET);
 }
 

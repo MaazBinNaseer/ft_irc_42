@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 14:20:39 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/20 22:20:50 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,14 @@ void Commands::PASS(void)
 void Commands::PING(void)
 {
 	checkConditions("P1");
-	clock_t startTime = clock();
+	// clock_t startTime = clock();
 	customMessage(*_req_client, "PONG :" + getCmdArg(0));
-	clock_t endTime = clock();
-	double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC * 1000000;
-	std::ostringstream message;
-	message << std::fixed << std::setprecision(6);
-	message << GREEN "Time taken to process PING and send PONG: " << elapsedTime << " microseconds" RESET;
-	customMessage(*_req_client, message.str());
+	// clock_t endTime = clock();
+	// double elapsedTime = static_cast<double>(endTime - startTime) / CLOCKS_PER_SEC * 1000000;
+	// std::ostringstream message;
+	// message << std::fixed << std::setprecision(6);
+	// message << GREEN "Time taken to process PING and send PONG: " << elapsedTime << " microseconds" RESET;
+	// customMessage(*_req_client, message.str());
 }
 
 //* ====== User Assigning Commands
@@ -118,13 +118,11 @@ void Commands::QUIT(void)
 		selfCommand(*_req_client, this->_cmd, "leaving");
 	else
 		selfCommand(*_req_client, this->_cmd, concArgs(0));
-	_req_client->setRemove(true);
-	_req_client->setReason(concArgs(0));
 	
 	for (std::map<std::string, Channel>::iterator it = _serv->getChannels().begin(); it != _serv->getChannels().end(); it++)
 	{
 		it->second.broadcast(*_req_client, "QUIT", "Quit: " + concArgs(0));
-		if (it->second.kick(NULL, *this->_req_client, "PART") && it->second.getName() != "#bot")
+		if (it->second.kick(this->_req_client, *this->_req_client, "PART") && it->second.getName() != "#bot")
 		{
 			std::string name = it->first;
 			it--;
@@ -132,6 +130,8 @@ void Commands::QUIT(void)
 		}
 	}
 	selfCommand(*_req_client, "QUIT " + concArgs(0), PURPLE "*Using QUIT*" RESET);
+	_req_client->setRemove(true);
+	_req_client->setReason(concArgs(0));
 }
 
 //* ====== Channe Related Commands
@@ -157,7 +157,7 @@ void Commands::JOIN(void)
 		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 		selfCommand(*_req_client, "PRIVMSG " + getCmdArg(0), YELLOW "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET);
-		selfCommand(*_req_client, "332" S + _req_client->getNickname() + S + targetch->getName() , targetch->getTopic());
+		selfCommand(*_req_client, "332" S + _req_client->getNickname() + S + getCmdArg(0) , "[Set a topic]");
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
@@ -207,7 +207,7 @@ void Commands::INVITE(void)
 	else if (!targetch)
 		this->_serv->addChannel(getCmdArg(1), *targetcl);
 	else if (targetch && targetch->isInviteOnly() && !targetch->isOp(*_req_client))
-		selfCommand(*_req_client, "INVITE", "Only Channel Operators can invite to channel '" + getCmdArg(1) + "'!");
+		selfCommand(*_req_client, "PRIVMSG " + _req_client->getNickname(), "Only Channel Operators can invite to channel '" + getCmdArg(1) + "'!");
 	else
 		targetch->invite(this->_req_client, *targetcl, "INVITE");
 }
@@ -219,7 +219,10 @@ void Commands::TOPIC(void)
 	if (getCmdArg(1) == "")
 		selfCommand(*_req_client, "TOPIC" , PURPLE "[" + getCmdArg(0) + "] " GREEN "TOPIC= " YELLOW + targetch->getTopic() + RESET);
 	else if (targetch->hasTopicRestrictions() && !targetch->isOp(*this->_req_client))
+	{
+		selfCommand(*_req_client, "PRIVMSG" S + targetch->getName(), RED "Setting Topic restricted to Channel Operators" RESET);
 		throw CommandError("Operator Privilege Needed", ERR_CHANOPRIVSNEEDED, "Setting Topic restricted to Channel Operators", *_req_client);
+	}
 	else
 	{
 		targetch->setTopic(this->_req_client, concArgs(1));
@@ -232,7 +235,7 @@ void Commands::MODE(void)
 	Client	*targetcl = this->_serv->getClientNick(getCmdArg(0));
 	if (targetcl)
 		return ;
-	checkConditions("P2CeCo");
+	checkConditions("CeCo");
 	parseMode();
 }
 

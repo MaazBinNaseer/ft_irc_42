@@ -178,7 +178,7 @@ void messageCommand(Client &acted, std::string target, std::string cmd, std::str
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg)
 {
 	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
-	message += S + cmd + S + target.getNickname();
+	message += S + cmd;
 	if (msg.at(0) != ':')
 		msg = ":" + msg;
 	message += S + msg + "\r\n";

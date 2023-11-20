@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 14:34:04 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 13:23:42 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/20 20:09:36 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ class Channel {
 		int		kick(Client *c, Client &kickee, std::string command); // if last client removed delete this channel
 		void	invite(Client *c, Client &invitee, std::string command);
 
-		void	handleO(Client *c, bool sign, std::string parameter);
-		void	handleL(Client *c, bool sign, std::string parameter);
+		void	handleO(Client *c, bool sign, std::string parameter, std::string modes);
+		void	handleL(Client *c, bool sign, std::string parameter, std::string modes);
 		void	mode(Client *c, bool sign, char mode, std::string parameter);
 
 		void	print(void);

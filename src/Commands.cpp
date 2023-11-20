@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 13:05:25 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:46:37 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,11 +216,11 @@ void	Commands::parseMode(void)
 
 	// TODO IMPLEMENT PSEUDO PRIVMSG SO MODE GETS SENT TO CHANNEL WINDOW
 	if (options == "")
-		selfCommand(*_req_client, "", RED "Input Channel's Mode!" RESET);
+		selfCommand(*_req_client, "PRIVMSG" S + targetch->getName(), RED "Input Channel's Mode!" RESET);
 	else if (options[0] != '-' && options[0] != '+')
-		selfCommand(*_req_client, "", RED "Specify direction of mode! (+ or -)" RESET);
+		selfCommand(*_req_client, "PRIVMSG" S + targetch->getName(), RED "Specify direction of mode! (+ or -)" RESET);
 	else if ((present[2] && present[3]) || (present[3] && present[4]) || (present[2] && present[4]))
-		selfCommand(*_req_client, "", RED "Cannot Use Modes - k,o,l - Together!" RESET);
+		selfCommand(*_req_client, "PRIVMSG" S + targetch->getName(), RED "Cannot Use Modes - k,o,l - Together!" RESET);
 	else
 		for (int i = 0; i < 5; i++)
 			if (present[i])

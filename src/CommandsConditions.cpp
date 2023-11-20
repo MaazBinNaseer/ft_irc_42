@@ -122,13 +122,19 @@ void Commands::checkChannel(char flag)
 		case INVITEO:
 		{
 			if (targetch && targetch->isInviteOnly())
+			{
+				selfCommand(*_req_client, "473" S + _req_client->getNickname() + S + targetch->getName(), "Channel is Invite-Only");
 				throw CommandError("Invite Only", ERR_INVITEONLYCHAN, targetch->getName() + " Cannot join channel (+i)", *_req_client);
+			}
 			break ;
 		}
 		case PASSWORDC:
 		{
 			if (targetch && targetch->getPassword() != "" && targetch->getPassword() != getCmdArg(1))
+			{
+				selfCommand(*_req_client, "475" S + _req_client->getNickname() + S + targetch->getName(), "Channel Password Incorrect");
 				throw CommandError("Wrong Password", ERR_PASSWDMISMATCH, getCmdArg(1) + " Password Incorrect", *_req_client);
+			}
 			break ;
 		}
 		case LIMIT:
@@ -152,7 +158,10 @@ void Commands::checkChannel(char flag)
 		case OPERATORC:
 		{
 			if (targetch && !targetch->isOp(*_req_client))
+			{
+				selfCommand(*_req_client, "PRIVMSG" S + targetch->getName(), RED "You're not a channel operator" RESET);
 				throw CommandError("Operator Privilege Required", ERR_CHANOPRIVSNEEDED, targetch->getName() + " You're not the channel operator", *_req_client);
+			}
 			break ;
 		}
 		default:

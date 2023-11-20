@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 14:17:05 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/20 22:17:00 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,16 @@ void	Channel::broadcast(Client &c, std::string cmd, std::string msg)
 void	Channel::broadcastOps(Client *c, std::string msg)
 {
 	std::string newmsg;
-	if (c)
-		newmsg = PURPLE "[" + getName() + "] " GREEN + c->getNickname() + ": " YELLOW + msg + RESET;
-	else
-		newmsg = PURPLE "[" + getName() + "] " YELLOW + msg + RESET;
+
+	newmsg = msg;
+	// if (c)
+	// 	newmsg = PURPLE "[" + getName() + "] " GREEN + c->getNickname() + ": " YELLOW + msg + RESET;
+	// else
+	// 	newmsg = PURPLE "[" + getName() + "] " YELLOW + msg + RESET;
 
 	std::map<int, Client *>::iterator it;
 	for (it = ops.begin(); it != ops.end(); it++)
-		selfCommand(*it->second, "", newmsg);
+		broadcastallCommand(*it->second, *c, "MODE" S + this->getName() + S + newmsg, ":");
 }
 
 int	Channel::kick(Client *c, Client &kickee, std::string command)
@@ -48,6 +50,8 @@ int	Channel::kick(Client *c, Client &kickee, std::string command)
 	if (!exists(kickee))
 		return (0);
 	this->users.erase(kickee.getSocketFd());
+	if (this->ops.size() - 1 == 0 && this->getSize() != 0)
+		handleO(c, true, this->users.begin()->second->getNickname(), "+");
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
 	serverLog(kickee, this->getName(), "Has been removed to the target channel");
@@ -56,6 +60,7 @@ int	Channel::kick(Client *c, Client &kickee, std::string command)
 	if (c && c->getSocketFd() != kickee.getSocketFd())
 	{
 		newmsg = "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*";
+		selfCommand(kickee, "", CYAN "*You have been kicked from " + this->getName() +  "*" RESET);
 		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
 			broadcastTripleCommand(*it->second, *c, command + S + getName() + S + kickee.getNickname(), newmsg);
 	}
@@ -65,8 +70,6 @@ int	Channel::kick(Client *c, Client &kickee, std::string command)
 	broadcast(kickee, "PART", newmsg);
 	
 	selfCommand(kickee, "PART" S + this->getName(), newmsg);
-	if (this->ops.size() == 0 && getSize() != 0)
-		handleO(c, true, this->users.begin()->second->getNickname());
 	return (this->getSize() == 0);
 }
 
@@ -77,7 +80,10 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 	if (c && userlimit >= 0 && userlimit <= (int) users.size())
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Invite!", *c);
 	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
+	{
+		selfCommand(invitee, "471" S + this->getName(), "Channel is Full! Cannot Join!");
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
+	}
 	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
 	serverLog(invitee, this->getName(), "Has been added to the target channel");
 	
@@ -94,89 +100,99 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 		newmsg += " :" + invitee.getRealname();
 	broadcast(invitee, "JOIN", newmsg);
 
-	selfCommand(invitee, "JOIN" S + invitee.getNickname() + S + this->getName(), newmsg);
+	selfCommand(invitee, "JOIN" S + this->getName(), newmsg);
 	messageCommand(invitee, this->getName(), "PRIVMSG", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
 	selfCommand(invitee, "332" S + invitee.getNickname() + S + this->getName() , this->getTopic());
 }
 
-void	Channel::handleO(Client *c, bool sign, std::string parameter)
+void	Channel::handleO(Client *c, bool sign, std::string parameter, std::string modes)
 {
 	Client	*potop = getClientNick(parameter);
 
 	if (parameter == "")
-		selfCommand(*c, "", RED "Input User to Edit Channel Operator Privilege!" RESET);
+		selfCommand(*c, "PRIVMSG" S + this->getName(), RED "Input User to Edit Channel Operator Privilege!" RESET);
 	else if (!potop)
-		selfCommand(*c, "", RED "User does not exist in this Channel!" RESET);
+		selfCommand(*c, "PRIVMSG" S + this->getName(), RED "User does not exist in this Channel!" RESET);
 	else
 	{
+		modes += "o" S + parameter; 
 		if (sign == true && !isOp(*potop))
 		{
 			this->ops.insert(std::pair<int, Client *>(potop->getSocketFd(), potop));
-			broadcastOps(c, "*made '" + parameter + "' a channel operator*");
+			targettedCommand(*c, *potop, "PRIVMSG" S + this->getName(), "*Gave you operator privileges*");
+			broadcastOps(c, modes);
 		}
 		else if (sign == false && isOp(*potop))
 		{
+			broadcastOps(c, modes);
 			this->ops.erase(potop->getSocketFd());
-			broadcastOps(c, "*removed '" + parameter + "'s operator privileges*");
+			targettedCommand(*c, *potop, "PRIVMSG" S + this->getName(), "*Took you operator privileges*");
 		}
 	}
 }
 
-void	Channel::handleL(Client *c, bool sign, std::string parameter)
+void	Channel::handleL(Client *c, bool sign, std::string parameter, std::string modes)
 {
 	if (!sign)
 		this->userlimit = -1;
 	else if (parameter == "")
-		selfCommand(*c, "", RED "Input User Limit!" RESET);
+		selfCommand(*c, "PRIVMSG" S + this->getName(), RED "Input User Limit!" RESET);
 	else
 	{
 		try {
 			int	limit = atoi(parameter.c_str());
 			if (limit < (int) this->users.size())
-				selfCommand(*c, "", RED "Channel Size is Greater than Suggested Limited!" RESET);
+				selfCommand(*c, "PRIVMSG" S + this->getName(), RED "Channel Size is Greater than Suggested Limited!" RESET);
 			else
+			{
 				this->userlimit = limit;
+				modes += "l " + intToString(limit);
+				broadcastOps(c, modes);
+			}
 		} catch(std::exception &e) {
 			(void) e;
-			selfCommand(*c, "", RED "Send an Appropriate Number!" RESET);
+			selfCommand(*c, "PRIVMSG" S + this->getName(), RED "Send an Appropriate Number!" RESET);
 		}
 	}
 }
 
 void	Channel::mode(Client *c, bool sign, char mode, std::string parameter)
 {
+	std::string modes = "-";
+	if (sign)
+		modes = "+";
 	if (mode == 'i')
 	{
 		this->inviteonly = sign;
-		std::string mes = "channel is";
-		if (!sign)
-			mes += " no longer ";
-		mes += "invite-only";
-		broadcastOps(c, mes);
+		modes += "i";
+		broadcastOps(c, modes);
 	}
 	else if (mode == 't')
 	{
 		this->trestrict = sign;
-		std::string mes = "channel is";
-		if (!sign)
-			mes += " no longer ";
-		mes += "topic-restricted";
-		broadcastOps(c, mes);
+		modes += "t";
+		// std::string mes = "channel is";
+		// if (!sign)
+		// 	mes += " no longer ";
+		// mes += "topic-restricted";
+		broadcastOps(c, modes);
 	}
 	else if (mode == 'k' && !sign)
 	{
 		this->password = "";
-		broadcastOps(c, "*has removed the password*");
+		modes += "k";
+		broadcastOps(c, modes);
 	}
 	else if (mode == 'k' && parameter != "")
 	{
 		this->password = parameter;
-		broadcastOps(c, "*has changed the password*");
+		modes += "k " + parameter;
+		broadcastOps(c, modes);
 	}
 	else if (mode == 'o')
-		handleO(c, sign, parameter);
+		handleO(c, sign, parameter, modes);
 	else if (mode == 'l')
-		handleL(c, sign, parameter);		
+		handleL(c, sign, parameter, modes);		
 }
 
 void	Channel::print(void)

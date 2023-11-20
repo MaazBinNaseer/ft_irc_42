@@ -48,6 +48,7 @@ void logEnd(void);
 void serverLog(Client &acted, std::string target, std::string note);
 
 // *----- Messages Sent to Clients -----
+void broadcastTripleCommand(Client &recipient, Client &actor, std::string cmd, std::string msg);
 void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg);
 void customMessage(Client &recipient, std::string message);
 void selfCommand(Client &acted, std::string cmd, std::string msg);

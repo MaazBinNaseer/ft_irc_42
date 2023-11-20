@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/18 17:47:05 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/20 12:47:20 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	Server::deliverToClient(Client &client)
 		deliver = messages.front();
 		messages.pop_front();
 		if (DEBUG == 2 || DEBUG == 3)
-			std::cout << YELLOW "SENDING: " RESET << deliver << "\n";
+			std::cout << YELLOW "SENDING (to " + client.getNickname() + "): " RESET << deliver << "\n";
 		client.sendmsg(deliver);
 	}
 	if (client.getRemove() || (getShutdown() && this->counter == 0))

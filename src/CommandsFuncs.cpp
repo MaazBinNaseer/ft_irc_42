@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/19 19:01:48 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/20 14:20:39 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,8 @@ void Commands::PING(void)
 void Commands::NICK(void)
 {
 	checkConditions("WrP1LnNiNh");
+	if (getCmdArg(0).at(0) == '#')
+		throw CommandError("Forbidden Nickname", ERR_UNKNOWNERROR, "Nickname not allowed (starts with '#')", *_req_client);
 	selfCommand(*_req_client, "NICK " + getCmdArg(0), GREEN "Nickname set!" RESET);
 	this->_req_client->setNickname(getCmdArg(0));
 }
@@ -119,19 +121,14 @@ void Commands::QUIT(void)
 	_req_client->setRemove(true);
 	_req_client->setReason(concArgs(0));
 	
-	// Adjusting to the actual return type of getChannels()
-	std::map<std::string, Channel> channels = _serv->getChannels();
-
-	// Iterate over all channels.
-	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
+	for (std::map<std::string, Channel>::iterator it = _serv->getChannels().begin(); it != _serv->getChannels().end(); it++)
 	{
-		Channel &channel = it->second;
-		
-		// Use NULL instead of nullptr for compatibility with C++98.
-		if (channel.kick(NULL, *_req_client, "QUIT") && channel.isEmpty())
+		it->second.broadcast(*_req_client, "QUIT", "Quit: " + concArgs(0));
+		if (it->second.kick(NULL, *this->_req_client, "PART") && it->second.getName() != "#bot")
 		{
-			_serv->removeChannel(it->first); // Remove the channel using its name.
-			channels.erase(it);
+			std::string name = it->first;
+			it--;
+			_serv->removeChannel(name);
 		}
 	}
 	selfCommand(*_req_client, "QUIT " + concArgs(0), PURPLE "*Using QUIT*" RESET);
@@ -160,6 +157,7 @@ void Commands::JOIN(void)
 		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 		selfCommand(*_req_client, "PRIVMSG " + getCmdArg(0), YELLOW "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET);
+		selfCommand(*_req_client, "332" S + _req_client->getNickname() + S + targetch->getName() , targetch->getTopic());
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
@@ -284,7 +282,6 @@ void Commands::PRIVMSG(void)
 void Commands::NOTICE(void)
 {
 	PRIVMSG();
-	// ! DIFFERENCE: automatic replies must never be sent in response
 }
 
 //* ====== User Based Queries

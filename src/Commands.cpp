@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/19 19:36:46 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/20 13:05:25 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ Commands::Commands(Client *req_client, Server *srvptr, std::string &buff) : _req
 	buff = buff.substr(pos + 1);
 	this->trim(cmd);
 	if (DEBUG == 1 || DEBUG == 3)
-		std::cout << PURPLE << cmd << RESET << "\n";
+		std::cout << "(From " + _req_client->getNickname() + "): " << PURPLE << cmd << RESET << "\n";
 	if (cmd.empty())
 		return ;
 	this->_cmd = this->extractWord(cmd);

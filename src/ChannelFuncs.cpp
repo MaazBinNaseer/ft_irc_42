@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ChannelFuncs.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/19 19:32:30 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/20 14:17:05 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,10 @@ bool Channel::isOp(Client c)
 
 void	Channel::broadcast(Client &c, std::string cmd, std::string msg)
 {
-	std::string newmsg = msg;
-
 	std::map<int, Client *>::iterator it;
 	for (it = users.begin(); it != users.end(); it++)
 		if (c.getSocketFd() != it->second->getSocketFd() || c.getCaps().echo_msg)
-			broadcastallCommand(*it->second, c, cmd + S + this->getName(), newmsg);
+			broadcastallCommand(*it->second, c, cmd + S + this->getName(), msg);
 }
 
 void	Channel::broadcastOps(Client *c, std::string msg)
@@ -45,33 +43,28 @@ void	Channel::broadcastOps(Client *c, std::string msg)
 		selfCommand(*it->second, "", newmsg);
 }
 
-// void selfCommand(Client &acted, std::string cmd, std::string msg)
-// {
-// 	std::string message = TRIPLE_INFO(acted.getNickname(), acted.getUsername(), acted.getHostname());
-// 	if (!cmd.empty())
-// 		message += S + cmd;
-// 	if (msg.at(0) != ':')
-// 		msg = ":" + msg;
-// 	message += S + msg + "\r\n";
-// 	acted.pushSendBuffer(message);
-// }
-
 int	Channel::kick(Client *c, Client &kickee, std::string command)
 {
 	if (!exists(kickee))
 		return (0);
-	// if (c)
-	// 	selfCommand(kickee, "PART " + this->getName(), "");
-	// TODO IMPLEMENT PSEUDO PART HERE
 	this->users.erase(kickee.getSocketFd());
 	if (this->ops.find(kickee.getSocketFd()) != this->ops.end())
 		this->ops.erase(kickee.getSocketFd());
+	serverLog(kickee, this->getName(), "Has been removed to the target channel");
+	
+	std::string newmsg;
 	if (c && c->getSocketFd() != kickee.getSocketFd())
-		broadcast(*c, command, "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*");
-	else
-		broadcast(kickee, command, PURPLE "*Using PART*" RESET);
-	selfCommand(kickee, command + S + this->getName(), PURPLE + kickee.getNickname() + RESET);
-	serverLog(kickee, this->getName(), "Has left the target channel");
+	{
+		newmsg = "*kicked " RED "'" + kickee.getNickname() + "'" YELLOW " out of the channel*";
+		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
+			broadcastTripleCommand(*it->second, *c, command + S + getName() + S + kickee.getNickname(), newmsg);
+	}
+	newmsg = PURPLE "*left the channel*" RESET;
+	if (kickee.getCaps().ext_join)
+		newmsg += " :" + kickee.getRealname();
+	broadcast(kickee, "PART", newmsg);
+	
+	selfCommand(kickee, "PART" S + this->getName(), newmsg);
 	if (this->ops.size() == 0 && getSize() != 0)
 		handleO(c, true, this->users.begin()->second->getNickname());
 	return (this->getSize() == 0);
@@ -86,29 +79,24 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
 	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));
-	
-	// TODO IMPLEMENT PSEUDO JOIN HERE
-	// if (c)
-	// 	selfCommand(invitee, "JOIN " + this->getName(), "pull up window");
-	
 	serverLog(invitee, this->getName(), "Has been added to the target channel");
 	
 	std::string newmsg;
 	if (c)
 	{
 		newmsg = YELLOW "*invited " + invitee.getNickname() + " to the channel*" + RESET;
+		for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
+			if (it->second->getCaps().inv_notif)
+				broadcastTripleCommand(*it->second, *c, command + S + invitee.getNickname() + S + getName(), newmsg);
 	}
-	else
-	{
-		newmsg = YELLOW "*joined the channel*" RESET;
-		if (invitee.getCaps().ext_join)
-			newmsg += " :" + invitee.getRealname();
-	}
+	newmsg = YELLOW "*joined the channel*" RESET;
+	if (invitee.getCaps().ext_join)
+		newmsg += " :" + invitee.getRealname();
+	broadcast(invitee, "JOIN", newmsg);
 
-	for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); it++)
-		if (it->second->getCaps().inv_notif)
-			broadcastallCommand(*it->second, invitee, command + S + getName(), newmsg);
+	selfCommand(invitee, "JOIN" S + invitee.getNickname() + S + this->getName(), newmsg);
 	messageCommand(invitee, this->getName(), "PRIVMSG", GREEN "Welcome to \"" + this->getName() + "\", topic of the channel: " YELLOW + this->topic + RESET);
+	selfCommand(invitee, "332" S + invitee.getNickname() + S + this->getName() , this->getTopic());
 }
 
 void	Channel::handleO(Client *c, bool sign, std::string parameter)

@@ -126,6 +126,16 @@ void serverLog(Client &acted, std::string target, std::string note)
 
 // *----- Messages Sent to Clients -----
 
+void broadcastTripleCommand(Client &recipient, Client &actor, std::string cmd, std::string msg)
+{
+	std::string message = TRIPLE_INFO(actor.getNickname(), actor.getUsername(), actor.getHostname());
+	message += S + cmd;
+	if (msg.at(0) != ':')
+		msg = ":" + msg;
+	message += S + msg + "\r\n";
+	recipient.pushSendBuffer(message);
+}
+
 void broadcastallCommand(Client &recipient, Client &target, std::string cmd, std::string msg)
 {
 	std::string message = TRIPLE_INFO(target.getNickname(), target.getUsername(), target.getHostname());

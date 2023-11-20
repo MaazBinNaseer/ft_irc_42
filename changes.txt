@@ -3,3 +3,5 @@ INVITE needs to pull up new window
 - use JOIN to trigger window
 
 MODE needs to send updates on channel window
+
+QUIT does not delete channels when last client leaves

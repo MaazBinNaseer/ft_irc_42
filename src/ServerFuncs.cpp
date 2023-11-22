@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 12:47:20 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/21 16:21:03 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void	Server::deliverToClient(Client &client)
 			std::cout << YELLOW "SENDING (to " + client.getNickname() + "): " RESET << deliver << "\n";
 		client.sendmsg(deliver);
 	}
-	if (client.getRemove() || (getShutdown() && this->counter == 0))
+	if (client.getRemove() || (this->getShutdown() && this->counter == 0))
 		clientDisconnect(client.getReason(), client.getSocketFd());
 }
 

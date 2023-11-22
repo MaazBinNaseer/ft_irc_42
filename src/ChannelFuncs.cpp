@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 22:17:00 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/22 13:45:55 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void	Channel::invite(Client *c, Client &invitee, std::string command)
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Invite!", *c);
 	else if (!c && userlimit >= 0 && userlimit <= (int) users.size())
 	{
-		selfCommand(invitee, "471" S + this->getName(), "Channel is Full! Cannot Join!");
+		selfCommand(invitee, "471" S + invitee.getNickname() + S + this->getName(), "Channel is Full! Cannot Join!");
 		throw CommandError("Channel Full", ERR_CHANNELISFULL, "Channel is Full! Cannot Join!", invitee);
 	}
 	this->users.insert(std::pair<int, Client *>(invitee.getSocketFd(), &invitee));

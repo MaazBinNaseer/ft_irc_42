@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 22:20:50 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/22 13:47:22 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,13 +115,12 @@ void Commands::OPER(void)
 void Commands::QUIT(void)
 {
 	if (this->_cmd_args.size() == 0)
-		selfCommand(*_req_client, this->_cmd, "leaving");
+		selfCommand(*_req_client, this->_cmd, PURPLE "leaving" RESET);
 	else
-		selfCommand(*_req_client, this->_cmd, concArgs(0));
+		selfCommand(*_req_client, this->_cmd, PURPLE + concArgs(0) + RESET);
 	
 	for (std::map<std::string, Channel>::iterator it = _serv->getChannels().begin(); it != _serv->getChannels().end(); it++)
 	{
-		it->second.broadcast(*_req_client, "QUIT", "Quit: " + concArgs(0));
 		if (it->second.kick(this->_req_client, *this->_req_client, "PART") && it->second.getName() != "#bot")
 		{
 			std::string name = it->first;
@@ -129,7 +128,10 @@ void Commands::QUIT(void)
 			_serv->removeChannel(name);
 		}
 	}
-	selfCommand(*_req_client, "QUIT " + concArgs(0), PURPLE "*Using QUIT*" RESET);
+	std::map<int, Client> &clients = this->_serv->getClients();
+	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+		broadcastallCommand(it->second, *_req_client, this->_cmd, PURPLE "Quit: " + concArgs(0) + RESET);
+	selfCommand(*_req_client, this->_cmd, PURPLE "*Using QUIT*" RESET);
 	_req_client->setRemove(true);
 	_req_client->setReason(concArgs(0));
 }
@@ -147,9 +149,9 @@ void Commands::JOIN(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (targetch)
 	{
+		targetch->invite(NULL, *_req_client, "JOIN");
 		if (targetch->getName() == "#bot")
 			_serv->getBot().BotIntroduction(_req_client);
-		targetch->invite(NULL, *_req_client, "JOIN");
 	}
 	else
 	{
@@ -204,12 +206,14 @@ void Commands::INVITE(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(1));
 	if (!targetch && this->_serv->getClientNick(getCmdArg(1)))
 		customMessage(*_req_client, RED "Cannot invite User to another User!" RESET "\n");
-	else if (!targetch)
-		this->_serv->addChannel(getCmdArg(1), *targetcl);
 	else if (targetch && targetch->isInviteOnly() && !targetch->isOp(*_req_client))
 		selfCommand(*_req_client, "PRIVMSG " + _req_client->getNickname(), "Only Channel Operators can invite to channel '" + getCmdArg(1) + "'!");
 	else
+	{
 		targetch->invite(this->_req_client, *targetcl, "INVITE");
+		if (targetch->getName() == "#bot")
+			_serv->getBot().BotIntroduction(targetcl);
+	}
 }
 
 void Commands::TOPIC(void)
@@ -332,6 +336,9 @@ void Commands::EXIT(void)
 	checkConditions("No");
 	std::map<int, Client> &clients = this->_serv->getClients();
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)
+	{
+		selfCommand(it->second, "SQUIT", PURPLE "Server shutting down" RESET);
 		selfCommand(it->second, "EXIT",  YELLOW "Server is shutting down" RESET);
+	}
 	this->_serv->setShutDown(true);
 }

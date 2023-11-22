@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 16:15:11 by amalbrei          #+#    #+#             */
-/*   Updated: 2023/11/18 19:10:20 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/22 13:16:00 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void Bot::BotIntroduction(Client *target_client)
 		botArt.erase(0, botArt.find('\n') + 1);
 	}
     selfCommand(*target_client, "PRIVMSG #bot ", YELLOW "Welcome to the bot server" RESET);
-    selfCommand(*target_client, "PRIVMSG #bot ", GREEN "Please select the bot of you choice" RESET);
+    selfCommand(*target_client, "PRIVMSG #bot ", GREEN "Please select the bot of your choice" RESET);
     selfCommand(*target_client, "PRIVMSG #bot ", GREEN "1.Fact Bot" RESET);
     selfCommand(*target_client, "PRIVMSG #bot ", GREEN "2.Trivia Bot" RESET);
 }

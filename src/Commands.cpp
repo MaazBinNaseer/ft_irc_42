@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:36:27 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/20 19:46:37 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/22 13:34:19 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void	Commands::setAttributes()
 	_selection["TOPIC"] = &Commands::TOPIC;
 	_selection["MODE"] = &Commands::MODE;
 	_selection["PRIVMSG"] = &Commands::PRIVMSG;
-	_selection["NOTICE"] = &Commands::NOTICE;		// ! AUTO MSGS HANDLE???
+	_selection["NOTICE"] = &Commands::NOTICE;
 	_selection["WHOIS"] = &Commands::WHOIS;
 	_selection["KILL"] = &Commands::KILL;
 	_selection["EXIT"] = &Commands::EXIT;
@@ -214,7 +214,6 @@ void	Commands::parseMode(void)
 	bool	present[5] = {false, false, false, false, false};
 	this->fill(options, flags, present);
 
-	// TODO IMPLEMENT PSEUDO PRIVMSG SO MODE GETS SENT TO CHANNEL WINDOW
 	if (options == "")
 		selfCommand(*_req_client, "PRIVMSG" S + targetch->getName(), RED "Input Channel's Mode!" RESET);
 	else if (options[0] != '-' && options[0] != '+')

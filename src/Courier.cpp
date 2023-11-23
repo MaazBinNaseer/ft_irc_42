@@ -191,6 +191,21 @@ void serverMessage(std::string code, std::string message, Client &client)
 	client.pushSendBuffer(send);
 }
 
+std::string messageOfTheDay()
+{
+	std::string message[] = {
+		"You can't rely on how you look to sustain you, what sustains us, what is fundamentally beautiful is compassion; for yourself and your those around you.", 
+		"Opportunity is missed by most people because it is dressed in overalls and looks like work."
+		};
+	int size = sizeof(message) / sizeof(message[0]);
+    srand(time(NULL));  // Initialize the random seed once
+
+    // Generate a random index and return the message
+    int randomIndex = rand() % size;
+    return (message[randomIndex]);
+}
+
+
 void welcomeMessage(Client &client, Server &server)
 {
 	std::string fdString = intToString(server.getFdSize() - 1);
@@ -203,6 +218,9 @@ void welcomeMessage(Client &client, Server &server)
 	msg += " USERLEN=" + intToString(USERLEN) + " KICKLEN=" + intToString(KICKLEN) + ": are supported by the server";
 	serverMessage(RPL_ISUPPORT, msg, client);
 	serverMessage(RPL_STATISTICS, "I have " + fdString  + " clients and 1 server", client);
+	// ------------------------------------------------------------------------------------------------------------------------------
+	std::string MOTD = GREEN "Message of the Day: " + messageOfTheDay();
+	serverMessage(RPL_WELCOME, MOTD + RESET, client);
 }
 
 std::string intToString(int value) 

@@ -157,7 +157,7 @@ void Commands::JOIN(void)
 		messageCommand(*_req_client, getCmdArg(0), "JOIN", GREEN "You have made channel: " + getCmdArg(0) + RESET);
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 		selfCommand(*_req_client, "PRIVMSG " + getCmdArg(0), YELLOW "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET);
-		selfCommand(*_req_client, "332" S + _req_client->getNickname() + S + targetch->getName() , targetch->getTopic());
+		selfCommand(*_req_client, "332" S + _req_client->getNickname() + S + getCmdArg(0) , "Set a Topic");
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
@@ -325,7 +325,7 @@ void Commands::KILL(void)
 }
 
 void Commands::EXIT(void)
-{
+{	
 	checkConditions("No");
 	std::map<int, Client> &clients = this->_serv->getClients();
 	for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); it++)

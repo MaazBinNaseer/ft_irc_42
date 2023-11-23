@@ -45,7 +45,7 @@ void logRecv(std::string input, int fd);
 void logSend(std::deque<std::string> messages, int fd);
 void logRegister(Client &client);
 void logEnd(void);
-void serverLog(Client &acted, std::string target, std::string note);
+void serverLog(Client &acted, std::string target, std::string note); 
 
 // *----- Messages Sent to Clients -----
 void broadcastTripleCommand(Client &recipient, Client &actor, std::string cmd, std::string msg);
@@ -56,6 +56,7 @@ void messageCommand(Client &acted, std::string target, std::string cmd, std::str
 void targettedCommand(Client &acted, Client &target, std::string cmd, std::string msg);
 void serverMessage(std::string code, std::string message, Client &client);
 void welcomeMessage(Client &client, Server &server);
+std::string messageOfTheDay();
 
 // *----- Helper Function ---------
 std::string		intToString(int value);

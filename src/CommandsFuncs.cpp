@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/22 13:47:22 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/24 17:17:34 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,12 +274,12 @@ void Commands::PRIVMSG(void)
 	else if (targetcl)
 	{
 		if (getCmdArg(2) == "SEND")
-			targettedCommand(*_req_client, *targetcl, "PRIVMSG", concArgs(1));
+			targettedCommand(*_req_client, *targetcl, "PRIVMSG" S + targetcl->getNickname(), concArgs(1));
 		else
 		{
-			targettedCommand(*_req_client, *targetcl, "PRIVMSG", YELLOW + concArgs(1) + RESET);
+			targettedCommand(*_req_client, *targetcl, "PRIVMSG" S + targetcl->getNickname(), YELLOW + concArgs(1) + RESET);
 			if (!this->_multiple && this->_req_client->getCaps().echo_msg)
-				selfCommand(*_req_client, "PRIVMSG " + targetcl->getNickname(), PURPLE + concArgs(1) + RESET);
+				selfCommand(*_req_client, "PRIVMSG" S + _req_client->getNickname(), PURPLE + concArgs(1) + RESET);
 		}
 		return ;
 	}

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/21 16:21:03 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/24 16:49:46 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,15 +83,15 @@ int Server::HandleClients()
 	return (0);
 }
 
-int	Server::appendpollfd(int new_socket)
+int	Server::appendpollfd(int new_socket, bool is_server)
 {
 	struct pollfd mypoll;
 
 	std::memset(&mypoll, 0, sizeof(mypoll));
 	mypoll.fd = new_socket;
-	if (new_socket == 3)
+	if (is_server)
 		mypoll.events = POLLIN;
-	else if (new_socket >= 3)
+	else if (!is_server)
 		mypoll.events = POLLIN | POLLOUT;
 	mypoll.revents = 0;
 	this->clientfds.push_back(mypoll);
@@ -122,7 +122,7 @@ int	Server::accept_connect( void )
 	std::cout << GREEN "Client Connected! Socket " << cfd << RESET "\n";
 
 	logConnect(cfd);
-	return (appendpollfd(cfd));
+	return (appendpollfd(cfd, false));
 }
 
 int	Server::assign(char *portstr, char *pass)
@@ -144,7 +144,7 @@ int	Server::assign(char *portstr, char *pass)
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
 	
-	appendpollfd(this->sfd);
+	appendpollfd(this->sfd, true);
 	this->joinpass = pass;
 
 	if (bind(this->sfd, (struct sockaddr *) &addr, sizeof(addr)))
@@ -164,7 +164,7 @@ int	Server::bootup(char	*portstr, char *pass)
 	if (assign(portstr, pass))
 		return (1);
 	
-	if (listen(this->sfd, 3))
+	if (listen(this->sfd, 50))
 		throw FailedFunction("Listen");
 	
 	std::cout << GREEN "Server Started! Welcoming Clients!" RESET "\n";

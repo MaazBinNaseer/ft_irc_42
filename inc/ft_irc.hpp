@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 17:13:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/22 13:10:49 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/24 16:46:26 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@
 #define MINPORT 1024
 #define MAXPORT 65535
 
-#define DEBUG 0
+#define DEBUG 3
 // 0 - SUBMISSION STATE
 // 1 - DISPLAY INPUTS ONLY
 // 2 - DISPLAY OUTPUTS ONLY

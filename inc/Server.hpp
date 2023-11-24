@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/22 13:33:59 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/24 16:49:29 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ class Server
 		void		clientDisconnect(std::string reason, int cfd);
 		void		deliverToClient(Client &client);
 		int			HandleClients( void );
-		int			appendpollfd(int new_socket);
+		int			appendpollfd(int new_socket, bool is_server);
 		int			accept_connect( void );
 		int			assign(char *portstr, char *pass);
 		int			bootup(char *portstr, char *pass);

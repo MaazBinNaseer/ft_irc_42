@@ -135,7 +135,7 @@ int	Server::assign(char *portstr, char *pass)
 			<< MINPORT << " and " << MAXPORT << "!\n" RESET, 1);
 
 	this->sfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->sfd == -1)
+	if (this->sfd == -1 || fcntl(this->sfd, F_SETFL, O_NONBLOCK) < 0)
 		throw FailedFunction("Socket");
 
 	struct sockaddr_in	addr;

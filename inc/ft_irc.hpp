@@ -24,6 +24,7 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <fcntl.h>
 
 #include <sys/socket.h>
 #include <sys/signal.h>

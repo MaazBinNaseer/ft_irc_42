@@ -47,7 +47,4 @@ irssi3:
 
 # /connect host.docker.internal 4242 a
 
-val:
-	valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 4242 a
-
 re: fclean all

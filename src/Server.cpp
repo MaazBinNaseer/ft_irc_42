@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:16:49 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/22 13:34:12 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/26 13:12:56 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ Server::Server( void )
 	logStart();
 	this->sfd = -1;
 	this->operpass = OPERPASS;
-	this->shutdown = false;
 	this->counter  = 3;
 	createBotChannel();
 	// std::cout << YELLOW "Default Server constructor called" RESET "\n";
@@ -54,11 +53,6 @@ int	Server::getFdSize(void)
 int Server::getCounter(void)
 {
 	return (this->counter);
-}
-
-bool Server::getShutdown(void)
-{
-	return (this->shutdown);
 }
 
 std::string	Server::getPassword(void) const
@@ -147,11 +141,6 @@ bool	Server::isUser(Client &c)
 bool	Server::isOp(Client &c)
 {
 	return (this->operators.find(c.getSocketFd()) != this->operators.end());
-}
-
-void	Server::setShutDown(bool set)
-{
-	this->shutdown = set;
 }
 
 void	Server::setPassword(std::string pass)

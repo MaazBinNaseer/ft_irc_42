@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:15:26 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/24 16:49:29 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/26 13:12:48 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ class Server
 	private:
 		int								sfd;
 		int								counter;
-		bool							shutdown;
 		std::string						joinpass;
 		std::string						operpass;
 		std::vector<pollfd>				clientfds;
@@ -38,7 +37,6 @@ class Server
 		// *----- Attribute Getters -----
 		int								getFdSize(void);
 		int								getCounter(void);
-		bool							getShutdown(void);
 		std::string						getPassword(void) const;
 		std::string						getOperPass(void) const;
 		Client							*getClient(int cfd);

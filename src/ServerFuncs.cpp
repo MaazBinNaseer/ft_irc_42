@@ -3,14 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/24 16:49:46 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/26 13:13:04 by mgoltay          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ft_irc.hpp"
+
+bool g_shutdown = false;
+
+void	Server::setShutDown(bool set)
+{
+	g_shutdown = set;
+}
 
 bool Server::countDown()
 {
@@ -48,7 +55,7 @@ void	Server::deliverToClient(Client &client)
 			std::cout << YELLOW "SENDING (to " + client.getNickname() + "): " RESET << deliver << "\n";
 		client.sendmsg(deliver);
 	}
-	if (client.getRemove() || (this->getShutdown() && this->counter == 0))
+	if (client.getRemove() || (g_shutdown && this->counter == 0))
 		clientDisconnect(client.getReason(), client.getSocketFd());
 }
 
@@ -155,8 +162,9 @@ int	Server::assign(char *portstr, char *pass)
 
 void	signalhandler(int signal)
 {
+	std::cout << "\r  \n";
 	if (signal)
-		std::cout << "\r" YELLOW "Clients Must Leave!   \b\b" RESET << std::flush;
+		g_shutdown = true;
 }
 
 int	Server::bootup(char	*portstr, char *pass)
@@ -172,8 +180,8 @@ int	Server::bootup(char	*portstr, char *pass)
 	signal(SIGQUIT, signalhandler);
 	signal(SIGTSTP, signalhandler);
 	while (true)
-		if (accept_connect() == -1 || HandleClients() == -1 || (getShutdown() && countDown()))
-			return (1 - getShutdown());
+		if (accept_connect() == -1 || HandleClients() == -1 || (g_shutdown && countDown()))
+			return (1 - g_shutdown);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 20:40:19 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/22 13:45:55 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/26 20:58:27 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	Channel::broadcastOps(Client *c, std::string msg)
 
 	std::map<int, Client *>::iterator it;
 	for (it = ops.begin(); it != ops.end(); it++)
-		broadcastallCommand(*it->second, *c, "MODE" S + this->getName() + S + newmsg, ":");
+		broadcastallCommand(*it->second, *c, "MODE" S + this->getName() + S + newmsg, ":Mode change applied");
 }
 
 int	Channel::kick(Client *c, Client &kickee, std::string command)
@@ -119,8 +119,8 @@ void	Channel::handleO(Client *c, bool sign, std::string parameter, std::string m
 		if (sign == true && !isOp(*potop))
 		{
 			this->ops.insert(std::pair<int, Client *>(potop->getSocketFd(), potop));
-			targettedCommand(*c, *potop, "PRIVMSG" S + this->getName(), "*Gave you operator privileges*");
 			broadcastOps(c, modes);
+			targettedCommand(*c, *potop, "PRIVMSG" S + this->getName(), "*Gave you operator privileges*");
 		}
 		else if (sign == false && isOp(*potop))
 		{

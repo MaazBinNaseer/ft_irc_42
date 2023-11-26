@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 16:24:58 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/16 19:26:31 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/26 21:13:19 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,8 +283,9 @@ void	Client::appendExecBuffer(std::string newbuff, Server *_serv)
 {
 	logRecv(newbuff, this->getSocketFd());
 	this->_receiveBuffer += newbuff;
-	while (this->_receiveBuffer.find('\n') != std::string::npos)
-		Commands	extract(this, _serv, getReceiveBuffer());
+	if (this->_receiveBuffer.find('\n') != std::string::npos)
+		while (this->_receiveBuffer.find('\n') != std::string::npos)
+			Commands	extract(this, _serv, getReceiveBuffer());
 }
 
 void	Client::sendmsg(std::string msg)

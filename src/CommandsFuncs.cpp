@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CommandsFuncs.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mgoltay <mgoltay@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:18:03 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/26 12:45:06 by mgoltay          ###   ########.fr       */
+/*   Updated: 2023/11/26 20:34:21 by amalbrei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void Commands::JOIN(void)
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
 	if (targetch)
 	{
-		targetch->invite(NULL, *_req_client, "JOIN");
+		targetch->invite(NULL, *this->_req_client, "JOIN");
 		if (targetch->getName() == "#bot")
 			_serv->getBot().BotIntroduction(_req_client);
 	}
@@ -160,6 +160,7 @@ void Commands::JOIN(void)
 		this->_serv->addChannel(getCmdArg(0), *_req_client);
 		selfCommand(*_req_client, "PRIVMSG " + getCmdArg(0), YELLOW "Welcome, please add a topic with TOPIC <channelname> <topic>" RESET);
 		selfCommand(*_req_client, "332" S + _req_client->getNickname() + S + getCmdArg(0) , "[Set a topic]");
+		selfCommand(*_req_client, "MODE" S + getCmdArg(0) + S "+o" S + _req_client->getNickname(), "First operator created");
 		serverLog(*_req_client, getCmdArg(0), "has created the target channel");
 	}
 }
@@ -173,7 +174,7 @@ void Commands::PART(void)
 	}
 	checkConditions("H0CeCn");
 	Channel *targetch = this->_serv->getChannel(getCmdArg(0));
-	if (targetch->kick(NULL, *this->_req_client, "PART") && targetch->getName() != "#bot")
+	if (targetch->kick(this->_req_client, *this->_req_client, "PART") && targetch->getName() != "#bot")
 		this->_serv->removeChannel(getCmdArg(0));
 	selfCommand(*_req_client, "PART " + getCmdArg(0), PURPLE "*Using PART*" RESET);
 }

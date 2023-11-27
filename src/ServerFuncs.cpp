@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerFuncs.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amalbrei <amalbrei@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mbin-nas <mbin-nas@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 16:31:31 by mgoltay           #+#    #+#             */
-/*   Updated: 2023/11/26 21:32:56 by amalbrei         ###   ########.fr       */
+/*   Updated: 2023/11/27 14:35:26 by mbin-nas         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,10 @@ int	Server::assign(char *portstr, char *pass)
 			<< MINPORT << " and " << MAXPORT << "!\n" RESET, 1);
 
 	this->sfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->sfd == -1 || fcntl(this->sfd, F_SETFL, O_NONBLOCK) < 0)
+	if (this->sfd == -1)
 		throw FailedFunction("Socket");
+	if (fcntl(this->sfd, F_SETFL, O_NONBLOCK) < 0)
+		throw FailedFunction("Fctnl");
 
 	struct sockaddr_in	addr;
 	std::memset(&addr, 0, sizeof(addr));
@@ -156,7 +158,6 @@ int	Server::assign(char *portstr, char *pass)
 
 	if (bind(this->sfd, (struct sockaddr *) &addr, sizeof(addr)))
 		throw FailedFunction("Bind");
-
 	return (0);
 }
 
